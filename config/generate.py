@@ -10,42 +10,6 @@ lef_name = "liberty74"
 lib_path = "./lib/"
 lef_path = "./lef/"
 
-# Load JSON file
-config_file = open(config_file_name)
-config_json = json.load(config_file)
-
-# Load Corners
-corners = {}
-for corner_data in config_json["corners"]:
-    corners[corner_data["name"]] = corner_data
-
-# Load Corners
-cells = config_json["cells"]
-
-config_file.close()
-
-# Load liberty template
-lib_template = Template(filename="./config/liberty.lib.template")
-
-# Genereate Liberty Libraries
-for c in corners:
-    lib_name = liberty_prefix + c
-
-    print(f"Generating {lib_name}...")
-
-    lib_context = {
-        "lib_name": lib_name,
-        "corner": corners[c],
-        "cells": cells
-    }
-
-    rendered_lib = lib_template.render(**lib_context)
-
-    with open(lib_path + lib_name + ".lib", 'w', encoding='utf-8') as lib_file:
-        lib_file.write(rendered_lib)
-    
-    print("Done!")
-
 # Load LEF JSON
 lef_file = open(lef_file_name)
 lef_json = json.load(lef_file)
@@ -134,6 +98,43 @@ with open(lef_path + lef_name + "_tech.lef", 'w', encoding='utf-8') as tech_lef_
     tech_lef_file.write(rendered_tech_lef)
     
 print("Done!")
+
+# Load JSON file
+config_file = open(config_file_name)
+config_json = json.load(config_file)
+
+# Load Corners
+corners = {}
+for corner_data in config_json["corners"]:
+    corners[corner_data["name"]] = corner_data
+
+# Load Corners
+cells = config_json["cells"]
+
+config_file.close()
+
+# Load liberty template
+lib_template = Template(filename="./config/liberty.lib.template")
+
+# Genereate Liberty Libraries
+for c in corners:
+    lib_name = liberty_prefix + c
+
+    print(f"Generating {lib_name}...")
+
+    lib_context = {
+        "lib_name": lib_name,
+        "corner": corners[c],
+        "cells": cells,
+        "footprints": footprints
+    }
+
+    rendered_lib = lib_template.render(**lib_context)
+
+    with open(lib_path + lib_name + ".lib", 'w', encoding='utf-8') as lib_file:
+        lib_file.write(rendered_lib)
+    
+    print("Done!")
 
 # Load LEF template
 lef_template = Template(filename="./config/lef.template")

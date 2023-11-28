@@ -54,7 +54,6 @@
             "name": "BUF_74LVC1G125",
             "desc": "Single Buffer",
             "footprint": "SC70-5",
-            "area": 6,
             "power": [
                 {
                     "name": "VDD",
@@ -98,7 +97,6 @@
             "name": "INV_74LVC1G04",
             "desc": "Single Inverter",
             "footprint": "SC70-5",
-            "area": 6,
             "power": [
                 {
                     "name": "VDD",
@@ -139,10 +137,118 @@
             ]
         },
         {
+            "name": "MUX2_74LVC1G157",
+            "desc": "2 Input Multiplexer",
+            "footprint": "SC70-6",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 3,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "I0",
+                    "pin_number": 3
+                },
+                {
+                    "name": "I1",
+                    "pin_number": 1
+                },
+                {
+                    "name": "S",
+                    "pin_number": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "(!S & I0) | (S & I1)",
+                    "timing": [
+                        {
+                            "related_pin": "I0 I1",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  4.0,
+                                "typ_5p00V_25C":   2.2,
+                                "fast_5p50V_m40C": 0.5,
+                                "slow_3p00V_85C":  5.0,
+                                "typ_3p30V_25C":   2.7,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        },
+                        {
+                            "related_pin": "S",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  4.0,
+                                "typ_5p00V_25C":   2.3,
+                                "fast_5p50V_m40C": 0.5,
+                                "slow_3p00V_85C":  5.0,
+                                "typ_3p30V_25C":   2.9,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "AND2_74LVC1G08",
+            "desc": "2 Input AND",
+            "footprint": "SC70-5",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 6,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 3,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 2
+                },
+                {
+                    "name": "B",
+                    "pin_number": 1
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "A & B",
+                    "timing": [
+                        {
+                            "related_pin": "A B",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  4.0,
+                                "typ_5p00V_25C":   1.7,
+                                "fast_5p50V_m40C": 0.5,
+                                "slow_3p00V_85C":  4.5,
+                                "typ_3p30V_25C":   2.1,
+                                "fast_3p60V_m40C": 0.5
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "NAND2_74LVC1G00",
             "desc": "2 Input NAND",
             "footprint": "SC70-5",
-            "area": 6,
             "power": [
                 {
                     "name": "VDD",
@@ -187,10 +293,150 @@
             ]
         },
         {
+            "name": "OR2_74LVC1G32",
+            "desc": "2 Input OR",
+            "footprint": "SC70-5",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 6,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 3,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 2
+                },
+                {
+                    "name": "B",
+                    "pin_number": 1
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "A | B",
+                    "timing": [
+                        {
+                            "related_pin": "A B",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  4.0,
+                                "typ_5p00V_25C":   1.7,
+                                "fast_5p50V_m40C": 0.5,
+                                "slow_3p00V_85C":  4.5,
+                                "typ_3p30V_25C":   2.1,
+                                "fast_3p60V_m40C": 0.5
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "NOR2_74LVC1G02",
+            "desc": "2 Input NOR",
+            "footprint": "SC70-5",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 6,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 3,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 2
+                },
+                {
+                    "name": "B",
+                    "pin_number": 1
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "!(A | B)",
+                    "timing": [
+                        {
+                            "related_pin": "A B",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  4.0,
+                                "typ_5p00V_25C":   1.7,
+                                "fast_5p50V_m40C": 0.5,
+                                "slow_3p00V_85C":  4.5,
+                                "typ_3p30V_25C":   2.1,
+                                "fast_3p60V_m40C": 0.5
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "XOR2_74LVC1G86",
+            "desc": "2 Input XOR",
+            "footprint": "SC70-5",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 6,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 3,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 2
+                },
+                {
+                    "name": "B",
+                    "pin_number": 1
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "A ^ B",
+                    "timing": [
+                        {
+                            "related_pin": "A B",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  4.0,
+                                "typ_5p00V_25C":   1.9,
+                                "fast_5p50V_m40C": 0.5,
+                                "slow_3p00V_85C":  5.0,
+                                "typ_3p30V_25C":   2.3,
+                                "fast_3p60V_m40C": 0.5
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "DFFR_74LVC1G175",
             "desc": "Single positive D-type FF with async reset",
             "footprint": "SC70-6",
-            "area": 6,
             "ff": {
                 "clocked_on": "CLK",
                 "next_state": "D",

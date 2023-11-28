@@ -51,7 +51,7 @@ library(${lib_name}) {
 % for cell in cells:
   cell (${cell["name"]}) {
     /* ${cell["desc"]} */
-    area: ${cell["area"]};
+    area: ${footprints[cell["footprint"]]["cell_width"] * footprints[cell["footprint"]]["cell_height"]};
   % if "ff" in cell:
     ff ("IQ", "IQN") {
       clocked_on: ${cell["ff"]["clocked_on"]};
