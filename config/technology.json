@@ -24,7 +24,7 @@
     },
     "footprints": [
         {
-            "names": ["SC70-6", "SOT-363", "SC70-5", "SOT-353"],
+            "names": ["SC70-6", "SOT-363", "TSSOP-6", "SC88", "SC70-5", "SOT-353"],
             "rotate": true,
             "num_pins": 6,
             "pad_width": 1.1,

@@ -296,6 +296,59 @@
             ]
         },
         {
+            "name": "AND3_74LVC1G11",
+            "desc": "3 Input AND",
+            "footprint": "SC70-6",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 5,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 1
+                },
+                {
+                    "name": "B",
+                    "pin_number": 3
+                },
+                {
+                    "name": "C",
+                    "pin_number": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "A & B & C",
+                    "timing": [
+                        {
+                            "related_pin": "A B C",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  3.5,
+                                "typ_5p00V_25C":   1.9,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  4.9,
+                                "typ_3p30V_25C":   2.6,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "NAND2_74LVC1G00",
             "desc": "2 Input NAND",
             "footprint": "SC70-5",
@@ -338,6 +391,59 @@
                                 "slow_3p00V_85C":  4.7,
                                 "typ_3p30V_25C":   2.2,
                                 "fast_3p60V_m40C": 0.5
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "NAND3_74LVC1G10",
+            "desc": "3 Input NAND",
+            "footprint": "TSSOP-6",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 5,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 1
+                },
+                {
+                    "name": "B",
+                    "pin_number": 3
+                },
+                {
+                    "name": "C",
+                    "pin_number": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "!(A & B & C)",
+                    "timing": [
+                        {
+                            "related_pin": "A B C",
+                            "timing_sense": "negative_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  3.6,
+                                "typ_5p00V_25C":   1.9,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  5.0,
+                                "typ_3p30V_25C":   2.6,
+                                "fast_3p60V_m40C": 1.0
                             }
                         }
                     ]
@@ -394,6 +500,59 @@
             ]
         },
         {
+            "name": "OR3_74LVC1G332",
+            "desc": "3 Input OR",
+            "footprint": "SC70-6",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 5,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 1
+                },
+                {
+                    "name": "B",
+                    "pin_number": 3
+                },
+                {
+                    "name": "C",
+                    "pin_number": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "A | B | C",
+                    "timing": [
+                        {
+                            "related_pin": "A B C",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  3.5,
+                                "typ_5p00V_25C":   1.9,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  4.8,
+                                "typ_3p30V_25C":   2.6,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "NOR2_74LVC1G02",
             "desc": "2 Input NOR",
             "footprint": "SC70-5",
@@ -443,6 +602,59 @@
             ]
         },
         {
+            "name": "NOR3_74LVC1G27",
+            "desc": "3 Input NOR",
+            "footprint": "SC88",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 5,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 1
+                },
+                {
+                    "name": "B",
+                    "pin_number": 3
+                },
+                {
+                    "name": "C",
+                    "pin_number": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "!(A | B | C)",
+                    "timing": [
+                        {
+                            "related_pin": "A B C",
+                            "timing_sense": "negative_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  3.6,
+                                "typ_5p00V_25C":   1.9,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  5.4,
+                                "typ_3p30V_25C":   2.6,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "XOR2_74LVC1G86",
             "desc": "2 Input XOR",
             "footprint": "SC70-5",
@@ -485,6 +697,59 @@
                                 "slow_3p00V_85C":  5.0,
                                 "typ_3p30V_25C":   2.3,
                                 "fast_3p60V_m40C": 0.5
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "XOR3_74LVC1G386",
+            "desc": "3 Input XOR",
+            "footprint": "SC70-6",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 5,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 1
+                },
+                {
+                    "name": "B",
+                    "pin_number": 3
+                },
+                {
+                    "name": "C",
+                    "pin_number": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "A ^ B ^ C",
+                    "timing": [
+                        {
+                            "related_pin": "A B C",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  5.5,
+                                "typ_5p00V_25C":   3.5,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  7.5,
+                                "typ_3p30V_25C":   4.5,
+                                "fast_3p60V_m40C": 1.0
                             }
                         }
                     ]
