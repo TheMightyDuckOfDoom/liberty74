@@ -34,7 +34,7 @@ def_parser.write_def(output_dir + filename + '_parsed.def')
 # Generate PCB
 print('Generating ' + pcb_file_path + '...')
 pcb = Board().create_new()
-scale = float(def_parser.scale)
+
 
 # General Information
 pcb.version = 20221018
@@ -45,6 +45,10 @@ pcb.layers = []
 lef_json = json.load(open('./config/lef.json'))
 technology = lef_json['technology']
 
+scale = float(def_parser.scale)
+wire_width = technology['wire_width']
+via_drill_size = technology['via_diameter']
+via_size = via_drill_size + 2 * technology['via_annular_ring']
 num_metal_layers = technology['metal_layers']
 
 # Metal Layers
@@ -99,18 +103,31 @@ for net_idx, net in enumerate(def_parser.specialnets):
         print(shape.shape_type)
         
         if shape.end_via == None:
-            if shape.shape_type == 'FOLLOWPIN':
-                # Segment
-                segment = BrdSegment(
-                    start = KiPosition(shape.points[0][0] / scale, shape.points[0][1] / scale),
-                    end = KiPosition(shape.points[1][0] / scale, shape.points[1][1] / scale),
-                    width = float(shape.width) / scale,
-                    layer = shape.layer,
-                    locked = False,
-                    net = net_idx,
-                    tstamp = 'followpin_' + shape.layer + '_' + str(shape.points[0][0]) + '_' + str(shape.points[0][1]) + '_' + str(shape.points[1][0]) + '_' + str(shape.points[1][1])
-                )
-                pcb.traceItems.append(segment)
+            # Segment
+            segment = BrdSegment(
+                start = KiPosition(shape.points[0][0] / scale, shape.points[0][1] / scale),
+                end = KiPosition(shape.points[1][0] / scale, shape.points[1][1] / scale),
+                width = float(shape.width) / scale,
+                layer = shape.layer,
+                locked = False,
+                net = net_idx,
+                tstamp = 'seg_powergrid_' + shape.layer + '_' + str(shape.points[0][0]) + '_' + str(shape.points[0][1]) + '_' + str(shape.points[1][0]) + '_' + str(shape.points[1][1])
+            )
+            pcb.traceItems.append(segment)
+        else:
+            # Via
+            via = BrdVia(
+                type = None,
+                locked = False,
+                position = KiPosition(shape.end_via_loc[0] / scale, shape.end_via_loc[1] / scale),
+                size = via_size,
+                drill = via_drill_size,
+                layers = metal_layers,
+                free = False,
+                net = net_idx,
+                tstamp = 'via_powergrid_' + shape.layer + '_' + str(shape.end_via_loc[0]) + '_' + str(shape.end_via_loc[1])
+            )
+            pcb.traceItems.append(via)
 
 
 # Add nets
@@ -121,9 +138,6 @@ for idx, net in enumerate(def_parser.nets):
 
 
 # Add net routing
-wire_width = technology['wire_width']
-via_drill_size = technology['via_diameter']
-via_size = via_drill_size + 2 * technology['via_annular_ring']
 
 print("Generating net routing...")
 for net_idx, net in enumerate(def_parser.nets):
@@ -156,7 +170,6 @@ for net_idx, net in enumerate(def_parser.nets):
                 tstamp = 'via_' + route.layer + '_' + str(route.end_via_loc[0]) + '_' + str(route.end_via_loc[1])
             )
             pcb.traceItems.append(via)
-            continue
 
 # Write generated PCB to file
 pcb.to_file(pcb_file_path)
