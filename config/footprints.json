@@ -1,0 +1,32 @@
+[
+    {
+        "names": ["SC70-6", "SOT-363", "TSSOP-6", "SC88", "SC70-5", "SOT-353"],
+        "rotate": true,
+        "num_pins": 6,
+        "pad_width": 1.1,
+        "pad_height": 0.4,
+        "y_center_spacing": 0.65,
+        "x_center_spacing": 2.1,
+        "single_layer_footprint": true
+    },
+    {
+        "names" : ["tie_cell_footprint"],
+        "rotate": true,
+        "num_pins": 2,
+        "pad_width": 0.75,
+        "pad_height": 0.4,
+        "y_center_spacing": 0,
+        "x_center_spacing": 2.1,
+        "single_layer_footprint": true
+    },
+    {
+        "names" : ["0603"],
+        "rotate": true,
+        "num_pins": 2,
+        "pad_width": 1.0,
+        "pad_height": 0.95,
+        "y_center_spacing": 0,
+        "x_center_spacing": 1.6,
+        "single_layer_footprint": true
+    }
+]

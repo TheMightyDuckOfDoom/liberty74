@@ -10,8 +10,10 @@ from kiutils.footprint import DrillDefinition
 from kiutils.footprint import Pad as KiPad
 from kiutils.items.fpitems import FpRect
 
-config_file_name = "./config/pdk.json"
-tech_file_name = "./config/technology.json"
+config_folder = "./config/"
+config_file_name = config_folder + "pdk.json"
+tech_file_name = config_folder + "technology.json"
+footprint_file_name = config_folder + "footprints.json"
 liberty_prefix = "liberty74_"
 lef_name = "liberty74"
 pdk_path = "./pdk/"
@@ -27,8 +29,11 @@ tech_file = open(tech_file_name)
 tech_json = json.load(tech_file)
 
 # Read Footprints
+footprint_file = open(footprint_file_name)
+footprint_json = json.load(footprint_file)
+
 footprints = {}
-for footprint_data in tech_json["footprints"]:
+for footprint_data in footprint_json:
     for name in footprint_data["names"]:
         footprints[name] = footprint_data
 
