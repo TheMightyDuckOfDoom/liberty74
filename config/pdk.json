@@ -51,6 +51,26 @@
     ],
     "cells": [
         {
+            "name": "PWR_CAP",
+            "desc": "Capacitor",
+            "tapcell": true,
+            "footprint": "0603",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 2,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [],
+            "outputs": []
+        },
+        {
             "name": "TIE_HI",
             "desc": "Tie High Cell",
             "footprint": "tie_cell_footprint",

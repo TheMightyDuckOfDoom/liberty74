@@ -5,10 +5,13 @@ proc placeDetail {} {
   detailed_placement
   set block [ord::get_db_block]
   foreach inst [odb::dbBlock_getInsts $block] {
+    set locked [odb::dbInst_getPlacementStatus $inst]
+    odb::dbInst_setPlacementStatus $inst PLACED
     set orient [odb::dbInst_getOrient $inst]
     if {$orient == "MX"} {
       odb::dbInst_setLocationOrient $inst R180
     }
+    odb::dbInst_setPlacementStatus $inst $locked
   }
 }
 
@@ -55,6 +58,13 @@ add_pdn_strip -grid grid -layer Metal1 -width 1.00 -followpins -extend_to_core_r
 
 pdngen
 
+set die_area [ord::get_die_area]
+set die_width [expr [lindex $die_area 3] - [lindex $die_area 0]]
+
+set cap_distance [expr $die_width / 3]
+
+tapcell -tapcell_master PWR_CAP -distance $cap_distance
+
 set rows [odb::dbBlock_getRows [ord::get_db_block]]
 
 #set index 0
@@ -74,7 +84,7 @@ repair_tie_fanout TIE_LO/Y
 repair_design
 
 set_placement_padding -global -right 4 -left 4
-global_placement -density 0.40
+global_placement -density 0.35
 
 repair_design
 improve_placement

@@ -13,7 +13,11 @@ MACRO ${cell["name"]}
   CLASS CORE ;
   ORIGIN 0 0 ;
   SIZE ${footprints[cell["footprint"]]["cell_width"]} BY ${footprints[cell["footprint"]]["cell_height"]} ;
+  % if "tapcell" in cell and cell["tapcell"]:
+  SYMMETRY R90 X ;
+  % else:
   SYMMETRY R90 ;
+  % endif
   SITE CoreSite ;
 
   % for pin in cell["inputs"]:

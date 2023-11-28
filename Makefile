@@ -1,9 +1,10 @@
-all: pdk synth
+all: synth
 
-python_setup:
+.python_setup:
 	pip install -r requirements.txt --break-system-packages
+	touch .python_setup
 
-pdk-setup:
+pdk/.pdk: ./pdk .python_setup utils/generate.py config/pdk.json config/technology.json
 	mkdir -p pdk
 	mkdir -p pdk/lef
 	mkdir -p pdk/lib
@@ -11,25 +12,29 @@ pdk-setup:
 	mkdir -p pdk/openroad
 	mkdir -p pdk/kicad
 	mkdir -p pdk/kicad/footprints
-
-pdk: pdk-setup config/* templates/*
+	touch pdk/.pdk
 	python3 utils/generate.py
 
-synth: pdk
+gen_pdk: pdk/.pdk
+
+synth: gen_pdk
 	yosys yosys/synth.tcl
 	rm -rf slpp_all
 
 openroad-setup:
 	mkdir -p openroad/out
 
-chip: openroad-setup pdk
+chip: openroad-setup gen_pdk
 	cd openroad && openroad -threads max chip.tcl -log openroad.log
 
-chip_gui: openroad-setup pdk
+chip_gui: openroad-setup gen_pdk
 	cd openroad && openroad -threads max chip.tcl -gui -log openroad.log
 
-pcb: pdk
+pcb: gen_pdk
 	python3 utils/def2pcb.py openroad/out/servisia.final.def
+
+open_pcb:
+	pcbnew out/servisia.final.kicad_pcb
 
 clean:
 	rm -rf slpp_all && true

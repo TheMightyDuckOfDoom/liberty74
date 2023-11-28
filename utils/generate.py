@@ -364,7 +364,7 @@ for cell in cells:
                 shape = 'rect',
                 position = KiPosition(pad_dim[0] + pad_width / 2, -(pad_dim[1] + pad_height / 2)),
                 size = KiPosition(pad_width, pad_height),
-                layers = ['F.Cu'] if fp['single_layer_footprint'] else pcb_pad_layers,
+                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp['single_layer_footprint'] else pcb_pad_layers,
                 pinFunction = pin['name']
             )
         )
@@ -402,7 +402,7 @@ for cell in cells:
                 shape = 'rect',
                 position = KiPosition(pad_dim[0] + pad_width / 2, -(pad_dim[1] + pad_height / 2)),
                 size = KiPosition(pad_width, pad_height),
-                layers = ['F.Cu'] if fp['single_layer_footprint'] else pcb_pad_layers,
+                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp['single_layer_footprint'] else pcb_pad_layers,
                 pinFunction = pin['name']
             )
         )

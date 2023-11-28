@@ -3,6 +3,7 @@ pdk/
 slpp_all
 *.rpt
 *.log
+.python_setup
 openroad/out
 openroad/*.log
 utils/lef_def_parser/__pycache__
