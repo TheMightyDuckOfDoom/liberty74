@@ -10,8 +10,7 @@ library(74LVC_typ) {
   pulling_resistance_unit : "1kohm";
 
   /* Operating Conditions */
-  define(process_corner, operating_conditions, string);
-  operating_conditions (typical) {
+  operating_conditions (74LVC_typ) {
     process_corner	: "Typ";
     process       	: 1.00;
     voltage       	: 5.00;
@@ -19,7 +18,7 @@ library(74LVC_typ) {
     tree_type     	: balanced_tree;
   }
 
-  default_operating_conditions : typical;
+  default_operating_conditions : 74LVC_typ;
   nom_process     : 1.00;
   nom_temperature : 25.00;
   nom_voltage     : 5.00;
@@ -28,10 +27,10 @@ library(74LVC_typ) {
   voltage_map (VSS, 0.00);
 
   /* Threshold Definitions */
-  slew_lower_threshold_pct_fall 	: 30.00 ;
-  slew_lower_threshold_pct_rise 	: 30.00 ;
-  slew_upper_threshold_pct_fall 	: 70.00 ;
-  slew_upper_threshold_pct_rise 	: 70.00 ;
+  slew_lower_threshold_pct_fall 	: 20.00 ;
+  slew_lower_threshold_pct_rise 	: 20.00 ;
+  slew_upper_threshold_pct_fall 	: 80.00 ;
+  slew_upper_threshold_pct_rise 	: 80.00 ;
   slew_derate_from_library      	: 1.00 ;
   input_threshold_pct_fall      	: 50.00 ;
   input_threshold_pct_rise      	: 50.00 ;
@@ -44,6 +43,10 @@ library(74LVC_typ) {
   default_output_pin_cap      		: 0.000000;
   default_max_capacitance         : 50.000000;
   default_max_transition          : 25;
+  default_max_fanout              : 8;
+  default_fanout_load             : 1;
+
+  inplace_swap_mode : match_footprint;
 
   cell (BUF_74LVC1G125) {
     area: 6;
@@ -53,6 +56,24 @@ library(74LVC_typ) {
     pin (Y) {
       direction : output;
       function  : "A";
+      
+      timing () {
+        related_pin: "A";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("1.7");
+        }
+        cell_rise(scalar) {
+          values ("1.7");
+        }
+        fall_transition(scalar) {
+          values ("1.7");
+        }
+        rise_transition(scalar) {
+          values ("1.7");
+        }
+      }
     }
   }
   cell (NOT_74LVC1G04) {
@@ -223,7 +244,8 @@ library(74LVC_typ) {
   cell(DFFSR_74LVC1G74) {
     area: 8;
     ff("IQ", "IQN") { clocked_on: C;
-                  next_state: D; }
+                  next_state: D;
+                  clear: "!RDN"; }
     pin(C) { direction: input;
                  clock: true; }
     pin(D) { 
@@ -275,5 +297,6 @@ library(74LVC_typ) {
     }
     pin(QN) { direction: output;
               function: "IQN"; }
+    pin(RDN) { direction: input; }
   }
 }

@@ -8,6 +8,35 @@ SITE CoreSite
   SIZE 0.5 BY 3.6 ;
 END CoreSite
 
+MACRO BUF_74LVC1G125
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 3.5 BY 3.6 ;
+  SYMMETRY R90 ;
+  SITE CoreSite ;
+
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 0.25 1.515 0.95 2.025 ;
+      LAYER Metal2 ;
+        RECT 0.25 1.515 0.95 2.025 ;
+    END
+  END A
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+      LAYER Metal2 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+    END
+  END Y
+END BUF_74LVC1G125
+
 MACRO NOT_74LVC1G04
   CLASS CORE ;
   ORIGIN 0 0 ;

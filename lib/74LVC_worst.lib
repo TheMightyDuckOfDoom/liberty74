@@ -10,8 +10,7 @@ library(74LVC_worst) {
   pulling_resistance_unit : "1kohm";
 
   /* Operating Conditions */
-  define(process_corner, operating_conditions, string);
-  operating_conditions (worst) {
+  operating_conditions (74LVC_worst) {
     process_corner	: "Worst";
     process       	: 1.00;
     voltage       	: 4.50;
@@ -19,7 +18,7 @@ library(74LVC_worst) {
     tree_type     	: balanced_tree;
   }
 
-  default_operating_conditions : worst;
+  default_operating_conditions : 74LVC_worst;
   nom_process     : 1.00;
   nom_temperature : 85.00;
   nom_voltage     : 4.50;
@@ -28,10 +27,10 @@ library(74LVC_worst) {
   voltage_map (VSS, 0.00);
 
   /* Threshold Definitions */
-  slew_lower_threshold_pct_fall 	: 30.00 ;
-  slew_lower_threshold_pct_rise 	: 30.00 ;
-  slew_upper_threshold_pct_fall 	: 70.00 ;
-  slew_upper_threshold_pct_rise 	: 70.00 ;
+  slew_lower_threshold_pct_fall 	: 20.00 ;
+  slew_lower_threshold_pct_rise 	: 20.00 ;
+  slew_upper_threshold_pct_fall 	: 80.00 ;
+  slew_upper_threshold_pct_rise 	: 80.00 ;
   slew_derate_from_library      	: 1.00 ;
   input_threshold_pct_fall      	: 50.00 ;
   input_threshold_pct_rise      	: 50.00 ;
@@ -42,6 +41,12 @@ library(74LVC_worst) {
 
   default_input_pin_cap       		: 5.000000;
   default_output_pin_cap      		: 0.000000;
+  default_max_capacitance         : 50.000000;
+  default_max_transition          : 25;
+  default_max_fanout              : 8;
+  default_fanout_load             : 1;
+
+  inplace_swap_mode : match_footprint;
 
   cell (BUF_74LVC1G125) {
     area: 6;
@@ -51,6 +56,24 @@ library(74LVC_worst) {
     pin (Y) {
       direction : output;
       function  : "A";
+      
+      timing () {
+        related_pin: "A";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("4.0");
+        }
+        cell_rise(scalar) {
+          values ("4.0");
+        }
+        fall_transition(scalar) {
+          values ("4.0");
+        }
+        rise_transition(scalar) {
+          values ("4.0");
+        }
+      }
     }
   }
   cell (NOT_74LVC1G04) {
@@ -221,7 +244,6 @@ library(74LVC_worst) {
     area: 8;
     ff("IQ", "IQN") { clocked_on: C;
                   next_state: D;
-                  preset: "!SDN"
                   clear: "!RDN"; }
     pin(C) { direction: input;
                  clock: true; }
@@ -274,7 +296,6 @@ library(74LVC_worst) {
     }
     pin(QN) { direction: output;
               function: "IQN"; }
-    pin(SDN) { direction: input; }
     pin(RDN) { direction: input; }
   }
 }

@@ -1,10 +1,11 @@
 plugin -i systemverilog
 
-read_systemverilog -defer examples/priority_encoder.sv
+read_systemverilog -defer examples/register_allocator.sv
+read_systemverilog -defer examples/renaming.sv
 
 read_systemverilog -link
 
-hierarchy -top priority_encoder
+hierarchy -top renaming
 proc
 
 #techmap -map add_reduce.v
@@ -52,7 +53,7 @@ abc -liberty lib/74LVC_typ.lib
 clean
 
 stat -width -liberty lib/74LVC_typ.lib
-write_verilog out/priority_encoder.v
+write_verilog out/renaming.v
 read_liberty -lib lib/74LVC_typ.lib
 stat -width -liberty lib/74LVC_typ.lib
 #show -format svg -prefix show

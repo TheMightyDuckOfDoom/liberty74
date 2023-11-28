@@ -8,8 +8,9 @@ create_clock -name clk -period 10 {clk_i}
 set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
 set_output_delay -clock clk 0 [all_outputs]
 report_checks -path_delay min
-report_checks -corner tt
 report_checks -path_delay max
+
+check_setup
 
 ICeWall::load_footprint floorplan.strategy
 initialize_floorplan \
@@ -42,11 +43,18 @@ add_pdn_strip -grid grid -layer Metal1 -width 0.25 -pitch 3.6 -followpins -exten
 
 pdngen
 
+remove_buffers
+repair_design
+
 set_placement_padding -global -right 1 -left 1
-global_placement -density 0.7
+global_placement -density 0.55
+
+repair_design
+
 gui::pause
 detailed_placement
 
+repair_clock_inverters
 set ctsBuf [ list NOT_74LVC1G04 ]
 clock_tree_synthesis -root_buf $ctsBuf -buf_list $ctsBuf \
                      -sink_clustering_enable \
@@ -54,11 +62,31 @@ clock_tree_synthesis -root_buf $ctsBuf -buf_list $ctsBuf \
                      -sink_clustering_max_diameter 100 \
                      -balance_levels
 
+set_propagated_clock [all_clocks]
+repair_clock_nets
+
 detailed_placement
+
+repair_timing
+
+detailed_placement
+check_placement -verbose
 
 set_routing_layers -signal Metal1-Metal2 -clock Metal1-Metal2
 gui::pause
-global_route -verbose -allow_overflow
+global_route -verbose -allow_congestion
+
+gui::pause
+repair_design
+repair_timing
+repair_timing
+
+detailed_placement
+check_placement -verbose
+
+global_route -verbose -allow_congestion
+
+set_propagated_clock [all_clocks]
 
 gui::pause
 detailed_route -output_drc route_drc.rpt \
