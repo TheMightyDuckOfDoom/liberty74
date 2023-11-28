@@ -11,6 +11,12 @@ synth: pdk
 	yosys -s yosys/synth.tcl
 	rm -rf slpp_all
 
+openroad-setup:
+	mkdir -p openroad/out
+
+chip: openroad-setup
+	bash openroad/start.sh
+
 clean:
 	rm -rf slpp_all && true
 	rm -rf lib      && true

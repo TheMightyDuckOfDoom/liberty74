@@ -12,12 +12,12 @@ proc placeDetail {} {
   }
 }
 
-read_verilog out/${design_name}.v
+read_verilog ../out/${design_name}.v
 link_design $design_name
 
 create_clock -name clk -period 10 {clk_i}
-set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
-set_output_delay -clock clk 0 [all_outputs]
+set_input_delay -clock clk 1 [delete_from_list [all_inputs] [get_ports clk_i]]
+set_output_delay -clock clk 1 [all_outputs]
 report_checks -path_delay min
 report_checks -path_delay max
 
@@ -58,16 +58,17 @@ remove_buffers
 repair_design
 
 set_placement_padding -global -right 2
-global_placement -density 0.65
+global_placement -density 0.4
 
 repair_design
 improve_placement
 placeDetail
 
 repair_clock_inverters
+placeDetail
 set ctsBuf [ list INV_74LVC1G04 ]
 clock_tree_synthesis -root_buf $ctsBuf -buf_list $ctsBuf \
-                     -balance_levels
+                     -balance_levels -clk_nets clk_i
 
 set_propagated_clock [all_clocks]
 repair_clock_nets
@@ -83,7 +84,6 @@ set_routing_layers -signal Metal1-Metal2 -clock Metal1-Metal2
 global_route -verbose -allow_congestion
 
 repair_design
-repair_timing
 repair_timing
 
 placeDetail

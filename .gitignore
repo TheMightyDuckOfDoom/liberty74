@@ -3,3 +3,6 @@ lef/*
 lib/*
 slpp_all
 *.rpt
+*.log
+openroad/out
+openroad/*.log
