@@ -1,0 +1,134 @@
+library(${lib_name}) {
+  delay_model : table_lookup;
+
+  /* Units */
+  time_unit               : "1ns";
+  voltage_unit            : "1V";
+  current_unit            : "1mA";
+  capacitive_load_unit(1,pf);
+  leakage_power_unit      : "1mW";
+  pulling_resistance_unit : "1kohm";
+
+  /* Operating Conditions */
+  operating_conditions (${lib_name}) {
+    process_corner	: "${corner["process_name"]}";
+    process       	: 1.00;
+    voltage       	: ${corner["voltage"]};
+    temperature   	: ${corner["temperature"]};
+    tree_type     	: balanced_tree;
+  }
+
+  default_operating_conditions : ${lib_name};
+  nom_process     : 1.00;
+  nom_temperature : ${corner["temperature"]};
+  nom_voltage     : ${corner["voltage"]};
+
+  voltage_map (VDD, ${corner["voltage"]});
+  voltage_map (VSS, 0.0);
+
+  /* Threshold Definitions */
+  slew_lower_threshold_pct_fall 	: 20.00 ;
+  slew_lower_threshold_pct_rise 	: 20.00 ;
+  slew_upper_threshold_pct_fall 	: 80.00 ;
+  slew_upper_threshold_pct_rise 	: 80.00 ;
+  slew_derate_from_library      	: 1.00 ;
+  input_threshold_pct_fall      	: 50.00 ;
+  input_threshold_pct_rise      	: 50.00 ;
+  output_threshold_pct_fall     	: 50.00 ;
+  output_threshold_pct_rise     	: 50.00 ;
+  default_leakage_power_density 	: 0.00 ;
+  default_cell_leakage_power    	: 0.00 ;
+
+  default_input_pin_cap       		: 5.000000;
+  default_output_pin_cap      		: 0.000000;
+  default_max_capacitance         : ${corner["default_max_cap"]};
+  default_max_transition          : 25;
+  default_max_fanout              : 8;
+  default_fanout_load             : 1;
+
+  inplace_swap_mode : match_footprint;
+
+% for cell in cells:
+  cell (${cell["name"]}) {
+    /* ${cell["desc"]} */
+    area: ${cell["area"]};
+  % if "ff" in cell:
+    ff ("IQ", "IQN") {
+      clocked_on: ${cell["ff"]["clocked_on"]};
+      next_state: ${cell["ff"]["next_state"]};
+      clear: "${cell["ff"]["clear"]}";
+    }
+  % endif
+  % for input in cell["inputs"]:
+    pin (${input["name"]}) {
+      direction: input;
+      capacitance: ${corner["default_input_cap"]};
+      % if "clock" in input and input["clock"]:
+      clock: true;
+      % endif
+      % if "timing" in input:
+
+        % for timing in input["timing"]:
+      timing () {
+        related_pin: "${timing["related_pin"]}";
+        % if "setup_time" in timing:
+        timing_type: setup_rising;
+
+        rise_constraint(scalar) {
+          values ("${timing["setup_time"][corner["name"]]}");
+        }
+        fall_constraint(scalar) {
+          values ("${timing["setup_time"][corner["name"]]}");
+        }
+        % endif
+        % if "hold_time" in timing:
+        timing_type: hold_rising;
+
+        rise_constraint(scalar) {
+          values ("${timing["hold_time"][corner["name"]]}");
+        }
+        fall_constraint(scalar) {
+          values ("${timing["hold_time"][corner["name"]]}");
+        }
+        % endif
+      }
+        % endfor
+      % endif
+    }
+  % endfor
+  % for output in cell["outputs"]:
+    pin (${output["name"]}) {
+      direction: output;
+      function: "${output["function"]}";
+      max_capacitance: ${corner["default_max_cap"]};
+
+    % for timing in output["timing"]:
+      timing () {
+        related_pin: "${timing["related_pin"]}";
+        % if "timing_sense" in timing:
+        timing_sense: ${timing["timing_sense"]};
+        % else:
+        timing_sense: negative_unate;
+        % endif
+
+        cell_rise(scalar) {
+          values ("${timing["delays_rise_fall"][corner["name"]]}");
+        }
+        cell_fall(scalar) {
+          values ("${timing["delays_rise_fall"][corner["name"]]}");
+        }
+        rise_transition(scalar) {
+          ##values ("${timing["delays_rise_fall"][corner["name"]]}");
+          values ("0.0");
+        }
+        fall_transition(scalar) {
+          ##values ("${timing["delays_rise_fall"][corner["name"]]}");
+          values ("0.0");
+        }
+      }
+    % endfor
+    }
+  % endfor
+  }
+% endfor
+}
