@@ -24,7 +24,7 @@ library(${lib_name}) {
   nom_voltage     : ${corner["voltage"]};
 
   voltage_map (VDD, ${corner["voltage"]});
-  voltage_map (VSS, 0.0);
+  voltage_map (GND, 0.0);
 
   /* Threshold Definitions */
   slew_lower_threshold_pct_fall 	: 20.00 ;
