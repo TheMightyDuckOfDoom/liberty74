@@ -223,7 +223,8 @@ with open(lef_path + lef_name + ".lef", 'w', encoding='utf-8') as lef_file:
 verilog_template = Template(filename="./templates/verilog.template")
 
 verilog_context = {
-    "cells": cells
+    "cells": cells,
+    "pwr_pins": False
 }
 
 print("Generating Verilog...")
@@ -231,6 +232,18 @@ print("Generating Verilog...")
 rendered_verilog = verilog_template.render(**verilog_context)
 
 with open(verilog_path + "verilog.sv", 'w', encoding='utf-8') as verilog_file:
+    verilog_file.write(rendered_verilog)
+
+verilog_context = {
+    "cells": cells,
+    "pwr_pins": True
+}
+
+print("Generating Verilog with power pins...")
+
+rendered_verilog = verilog_template.render(**verilog_context)
+
+with open(verilog_path + "verilog_pwr_pins.sv", 'w', encoding='utf-8') as verilog_file:
     verilog_file.write(rendered_verilog)
     
 # Load tcl template

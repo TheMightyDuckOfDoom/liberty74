@@ -1,6 +1,11 @@
 % for cell in cells:
 // ${cell['desc']}
 module ${cell['name']} (
+  % if pwr_pins:
+  % for power_pin in cell['power']:
+    input  logic ${power_pin['name']},
+  % endfor
+  % endif
   % for input in cell['inputs']:
     input  logic ${input['name']},
   % endfor
@@ -33,6 +38,8 @@ posedge\
     % endif
         ${output['name']} <= ${cell['ff']['next_state']};
     end
+  % elif 'verilog_function' in output:
+    assign ${output['name']} = ${output['verilog_function']};
   % else:
     assign ${output['name']} = ${output['function']};
   % endif

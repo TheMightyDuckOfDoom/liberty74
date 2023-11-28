@@ -101,6 +101,56 @@
             ]
         },
         {
+            "name": "ZBUF_74LVC1G125",
+            "desc": "Single Tristate Buffer",
+            "footprint": "SC70-5",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 6,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 3,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 2
+                },
+                {
+                    "name": "EN_N",
+                    "pin_number": 1
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 4,
+                    "function": "A",
+                    "verilog_function": "!EN_N ? A : 1'bZ",
+                    "timing": [
+                        {
+                            "related_pin": "A",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  4.0,
+                                "typ_5p00V_25C":   1.7,
+                                "fast_5p50V_m40C": 0.5,
+                                "slow_3p00V_85C":  4.5,
+                                "typ_3p30V_25C":   2.1,
+                                "fast_3p60V_m40C": 0.5
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "BUF_74LVC1G125",
             "desc": "Single Buffer",
             "footprint": "SC70-5",
