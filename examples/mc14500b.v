@@ -99,7 +99,7 @@ module mc14500b(
   reg state=1'b0;
   assign state_out=state;
 
-  always@(posedge clk_in or negedge rst) begin
+  always@(posedge clk_in) begin
     //I made my reset asynchronous because it appears
     //that was the designer's intent.
     if(~rst) begin

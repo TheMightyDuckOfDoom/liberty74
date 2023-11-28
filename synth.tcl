@@ -1,11 +1,11 @@
 plugin -i systemverilog
 
-read_systemverilog -defer examples/register_allocator.sv
-read_systemverilog -defer examples/renaming.sv
+#read_systemverilog -defer examples/register_allocator.sv
+read_systemverilog -defer examples/clock.sv
 
 read_systemverilog -link
 
-hierarchy -top renaming
+hierarchy -top clock
 proc
 
 #techmap -map add_reduce.v
@@ -53,7 +53,7 @@ abc -liberty lib/74LVC_typ.lib
 clean
 
 stat -width -liberty lib/74LVC_typ.lib
-write_verilog out/renaming.v
+write_verilog out/clock.v
 read_liberty -lib lib/74LVC_typ.lib
 stat -width -liberty lib/74LVC_typ.lib
 #show -format svg -prefix show

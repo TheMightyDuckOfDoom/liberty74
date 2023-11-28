@@ -4,7 +4,7 @@ DIVIDERCHAR "/" ;
 
 SITE CoreSite
   CLASS CORE ;
-  SYMMETRY Y ;
+  SYMMETRY R90 ;
   SIZE 0.5 BY 3.6 ;
 END CoreSite
 
@@ -65,6 +65,55 @@ MACRO NOT_74LVC1G04
     END
   END Y
 END NOT_74LVC1G04
+
+MACRO MUX2_74LVC1G157
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 3.5 BY 3.6 ;
+  SYMMETRY R90 ;
+  SITE CoreSite ;
+
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 0.25 2.465 0.95 2.975 ;
+      LAYER Metal2 ;
+        RECT 0.25 2.465 0.95 2.975 ;
+    END
+  END A
+  PIN B
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 0.25 0.565 0.95 1.075 ;
+      LAYER Metal2 ;
+        RECT 0.25 0.565 0.95 1.075 ;
+    END
+  END B
+  PIN S
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 2.57 2.465 3.27 2.975 ;
+      LAYER Metal2 ;
+        RECT 2.57 2.465 3.27 2.975 ;
+    END
+  END S
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+      LAYER Metal2 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+    END
+  END Y
+END MUX2_74LVC1G157
 
 MACRO AND_74LVC1G08
   CLASS CORE ;
@@ -144,6 +193,55 @@ MACRO NAND_74LVC1G00
   END Y
 END NAND_74LVC1G00
 
+MACRO NAND3_74LVC1G10
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 3.5 BY 3.6 ;
+  SYMMETRY R90 ;
+  SITE CoreSite ;
+
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 0.25 2.465 0.95 2.975 ;
+      LAYER Metal2 ;
+        RECT 0.25 2.465 0.95 2.975 ;
+    END
+  END A
+  PIN B
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 0.25 0.565 0.95 1.075 ;
+      LAYER Metal2 ;
+        RECT 0.25 0.565 0.95 1.075 ;
+    END
+  END B
+  PIN C
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 2.57 2.465 3.27 2.975 ;
+      LAYER Metal2 ;
+        RECT 2.57 2.465 3.27 2.975 ;
+    END
+  END C
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+      LAYER Metal2 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+    END
+  END Y
+END NAND3_74LVC1G10
+
 MACRO NOR_74LVC1G02
   CLASS CORE ;
   ORIGIN 0 0 ;
@@ -221,6 +319,104 @@ MACRO OR_74LVC1G32
     END
   END Y
 END OR_74LVC1G32
+
+MACRO OR3_74LVC1G332
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 3.5 BY 3.6 ;
+  SYMMETRY R90 ;
+  SITE CoreSite ;
+
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 0.25 2.465 0.95 2.975 ;
+      LAYER Metal2 ;
+        RECT 0.25 2.465 0.95 2.975 ;
+    END
+  END A
+  PIN B
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 0.25 0.565 0.95 1.075 ;
+      LAYER Metal2 ;
+        RECT 0.25 0.565 0.95 1.075 ;
+    END
+  END B
+  PIN C
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 2.57 2.465 3.27 2.975 ;
+      LAYER Metal2 ;
+        RECT 2.57 2.465 3.27 2.975 ;
+    END
+  END C
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+      LAYER Metal2 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+    END
+  END Y
+END OR3_74LVC1G332
+
+MACRO ORAND_74LVC1G3208
+  CLASS CORE ;
+  ORIGIN 0 0 ;
+  SIZE 3.5 BY 3.6 ;
+  SYMMETRY R90 ;
+  SITE CoreSite ;
+
+  PIN A
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 0.25 2.465 0.95 2.975 ;
+      LAYER Metal2 ;
+        RECT 0.25 2.465 0.95 2.975 ;
+    END
+  END A
+  PIN B
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 0.25 0.565 0.95 1.075 ;
+      LAYER Metal2 ;
+        RECT 0.25 0.565 0.95 1.075 ;
+    END
+  END B
+  PIN C
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 2.57 2.465 3.27 2.975 ;
+      LAYER Metal2 ;
+        RECT 2.57 2.465 3.27 2.975 ;
+    END
+  END C
+  PIN Y
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+      LAYER Metal1 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+      LAYER Metal2 ;
+        RECT 2.57 0.565 3.27 1.075 ;
+    END
+  END Y
+END ORAND_74LVC1G3208
 
 MACRO XOR_74LVC1G86
   CLASS CORE ;

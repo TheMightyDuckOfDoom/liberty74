@@ -1,5 +1,16 @@
 source init_tech.tcl
-set design_name priority_encoder
+set design_name clock
+
+proc placeDetail {} {
+  detailed_placement
+  set block [ord::get_db_block]
+  foreach inst [odb::dbBlock_getInsts $block] {
+    set orient [odb::dbInst_getOrient $inst]
+    if {$orient == "MX"} {
+      odb::dbInst_setLocationOrient $inst R180
+    }
+  }
+}
 
 read_verilog out/${design_name}.v
 link_design $design_name
@@ -19,8 +30,8 @@ initialize_floorplan \
   -site      CoreSite
 
 
-make_tracks Metal1 -x_offset 0.144 -x_pitch 0.288 -y_offset 0.144 -y_pitch 0.288
-make_tracks Metal2 -x_offset 0.144 -x_pitch 0.288 -y_offset 0.144 -y_pitch 0.288
+make_tracks Metal1 -x_offset 0.15 -x_pitch 0.3 -y_offset 0.15 -y_pitch 0.3
+make_tracks Metal2 -x_offset 0.15 -x_pitch 0.3 -y_offset 0.15 -y_pitch 0.3
 
 place_pins -hor_layers Metal1 -ver_layers Metal2 -min_distance_in_tracks -min_distance 8
 
@@ -46,49 +57,44 @@ pdngen
 remove_buffers
 repair_design
 
-set_placement_padding -global -right 1 -left 1
-global_placement -density 0.55
+set_placement_padding -global -right 2
+global_placement -density 0.65
 
 repair_design
-
-gui::pause
-detailed_placement
+improve_placement
+placeDetail
 
 repair_clock_inverters
 set ctsBuf [ list NOT_74LVC1G04 ]
 clock_tree_synthesis -root_buf $ctsBuf -buf_list $ctsBuf \
-                     -sink_clustering_enable \
-                     -sink_clustering_size 30 \
-                     -sink_clustering_max_diameter 100 \
                      -balance_levels
 
 set_propagated_clock [all_clocks]
 repair_clock_nets
 
-detailed_placement
+placeDetail
 
 repair_timing
 
-detailed_placement
+placeDetail
 check_placement -verbose
 
 set_routing_layers -signal Metal1-Metal2 -clock Metal1-Metal2
-gui::pause
 global_route -verbose -allow_congestion
 
-gui::pause
 repair_design
 repair_timing
 repair_timing
 
-detailed_placement
+placeDetail
 check_placement -verbose
 
 global_route -verbose -allow_congestion
 
+gui::pause
+
 set_propagated_clock [all_clocks]
 
-gui::pause
 detailed_route -output_drc route_drc.rpt \
                -bottom_routing_layer Metal1 \
                -top_routing_layer Metal2 \

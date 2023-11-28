@@ -49,13 +49,15 @@ library(74LVC_worst) {
   inplace_swap_mode : match_footprint;
 
   cell (BUF_74LVC1G125) {
-    area: 6;
+    area: 12.6;
     pin (A) {
       direction: input;
+      capacitance: 5;
     }
     pin (Y) {
       direction : output;
       function  : "A";
+      max_capacitance: 50;
       
       timing () {
         related_pin: "A";
@@ -77,7 +79,7 @@ library(74LVC_worst) {
     }
   }
   cell (NOT_74LVC1G04) {
-    area: 6;
+    area: 12.6;
     pin (A) {
       direction: input;
       capacitance: 5;
@@ -85,6 +87,7 @@ library(74LVC_worst) {
     pin (Y) {
       direction : output;
       function  : "!A";
+      max_capacitance: 50;
       
       timing () {
         related_pin: "A";
@@ -105,8 +108,8 @@ library(74LVC_worst) {
       }
     }
   }
-  cell(MUX_74LVC1G157) {
-    area: 6;
+  cell(MUX2_74LVC1G157) {
+    area: 12.6;
     pin(A) { direction: input; }
     pin(B) { direction: input; }
     pin(S) { direction: input; }
@@ -151,7 +154,7 @@ library(74LVC_worst) {
     }
   }
   cell(AND_74LVC1G08) {
-    area: 6;
+    area: 12.6;
     pin(A) { direction: input; }
     pin(B) { direction: input; }
     pin(Y) {
@@ -178,7 +181,7 @@ library(74LVC_worst) {
     }
   }
   cell(NAND_74LVC1G00) {
-    area: 6;
+    area: 12.6;
     pin(A) { direction: input; }
     pin(B) { direction: input; }
     pin(Y) {
@@ -205,7 +208,7 @@ library(74LVC_worst) {
     }
   }
   cell(NAND3_74LVC1G10) {
-    area: 6;
+    area: 12.6;
     pin(A) { direction: input; }
     pin(B) { direction: input; }
     pin(C) { direction: input; }
@@ -233,7 +236,7 @@ library(74LVC_worst) {
     }
   }
   cell(NOR_74LVC1G02) {
-    area: 6;
+    area: 12.6;
     pin(A) { direction: input; }
     pin(B) { direction: input; }
     pin(Y) {
@@ -260,7 +263,7 @@ library(74LVC_worst) {
     }
   }
   cell(OR_74LVC1G32) {
-    area: 6;
+    area: 12.6;
     pin(A) { direction: input; }
     pin(B) { direction: input; }
     pin(Y) {
@@ -286,8 +289,8 @@ library(74LVC_worst) {
       }
     }
   }
-  cell(OR_74LVC1G332) {
-    area: 6;
+  cell(OR3_74LVC1G332) {
+    area: 12.6;
     pin(A) { direction: input; }
     pin(B) { direction: input; }
     pin(C) { direction: input; }
@@ -315,7 +318,7 @@ library(74LVC_worst) {
     }
   }
   cell(ORAND_74LVC1G3208) {
-    area: 6;
+    area: 12.6;
     pin(A) { direction: input; }
     pin(B) { direction: input; }
     pin(C) { direction: input; }
@@ -343,7 +346,7 @@ library(74LVC_worst) {
     }
   }
   cell(XOR_74LVC1G86) {
-    area: 6;
+    area: 12.6;
     pin(A) { direction: input; }
     pin(B) { direction: input; }
     pin(Y) {
@@ -370,7 +373,7 @@ library(74LVC_worst) {
     }
   }
   cell(DFFSR_74LVC1G74) {
-    area: 8;
+    area: 21.24;
     ff("IQ", "IQN") { clocked_on: C;
                   next_state: D;
                   clear: "!RDN"; }
