@@ -16,17 +16,17 @@ END PROPERTYDEFINITIONS
 % for i in range(1, technology["metal_layers"] + 1):
 LAYER Metal${i}
   TYPE ROUTING ;
-% if i % 2 == 1:
+  % if i % 2 == 1:
   DIRECTION HORIZONTAL ;
-% else:
+  % else:
   DIRECTION VERTICAL ;
-% endif
+  % endif
   PITCH ${technology["wire_pitch"]} ;
   WIDTH ${technology["wire_width"]} ;
   SPACING ${technology["wire_spacing"]} ;
 end Metal${i}
 
-% if i < technology["metal_layers"]:
+  % if i < technology["metal_layers"]:
 LAYER Via${i}
   TYPE CUT ;
   SPACING ${technology["via_hole_to_hole_spacing"]} ;
@@ -34,7 +34,7 @@ LAYER Via${i}
   ENCLOSURE ${technology["via_annular_ring"]} ${technology["via_annular_ring"]} ;
 END Via${i}
 
-% endif
+  % endif
 % endfor
 % for i in range(1, technology["metal_layers"]):
 VIA Via${i}_0 DEFAULT
