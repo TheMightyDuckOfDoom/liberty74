@@ -118,12 +118,10 @@ library(${lib_name}) {
           values ("${timing["delays_rise_fall"][corner["name"]]}");
         }
         rise_transition(scalar) {
-          ##values ("${timing["delays_rise_fall"][corner["name"]]}");
-          values ("0.0");
+          values ("0.001");
         }
         fall_transition(scalar) {
-          ##values ("${timing["delays_rise_fall"][corner["name"]]}");
-          values ("0.0");
+          values ("0.001");
         }
       }
     % endfor
