@@ -97,8 +97,9 @@
                 },
                 {
                     "name": "OE_N",
+                    "connect_to_net": "GND",
                     "pin_number": 1,
-                    "function": "power"
+                    "function": "ground"
                 }
             ],
             "inputs": [
@@ -137,6 +138,7 @@
             "power": [
                 {
                     "name": "NC",
+                    "connect_to_net": "GND",
                     "pin_number": 1,
                     "function": "ground"
                 },

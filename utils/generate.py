@@ -317,7 +317,8 @@ for cell in cells:
     # Power Pins
     for power_pin in cell['power']:
         pad_dim = fp['pin_dimensions'][power_pin['pin_number'] - 1][0]
-
+        pin_function = power_pin['connect_to_net'] if 'connect_to_net' in power_pin else power_pin['name'] 
+        
         kifp.pads.append(
             KiPad(
                 number = power_pin['pin_number'],
@@ -326,7 +327,7 @@ for cell in cells:
                 position = KiPosition(pad_dim[0] + pad_width / 2, -(pad_dim[1] + pad_height / 2)),
                 size = KiPosition(pad_width, pad_height),
                 layers = ['F.Cu', 'F.Paste', 'F.Mask'],
-                pinFunction = power_pin['name']
+                pinFunction = pin_function
             )
         )
 
@@ -346,7 +347,7 @@ for cell in cells:
                 position = KiPosition(start_pos.X + power_pad_width / 2, start_pos.Y + power_pad_height / 2),
                 size = KiPosition(power_pad_width, power_pad_height),
                 layers = ['F.Cu'],
-                pinFunction = power_pin['name']
+                pinFunction = pin_function
             )
         )
 
