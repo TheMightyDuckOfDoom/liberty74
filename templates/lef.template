@@ -21,7 +21,11 @@ MACRO ${cell["name"]}
     DIRECTION INPUT ;
     USE SIGNAL ;
     PORT
+    % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
+    % else:
 ${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
+    % endif
     END
   END ${pin["name"]}
   % endfor
@@ -30,7 +34,11 @@ ${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
     DIRECTION OUTPUT ;
     USE SIGNAL ;
     PORT
+    % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
+    % else:
 ${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
+    % endif
     END
   END ${pin["name"]}
   % endfor

@@ -51,6 +51,36 @@
     ],
     "cells": [
         {
+            "name": "TIE_HI",
+            "desc": "Tie High Cell",
+            "footprint": "tie_cell_footprint",
+            "power": [],
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 2,
+                    "function": "1",
+                    "use_power_pin_template": true
+                }
+            ]
+        },
+        {
+            "name": "TIE_LO",
+            "desc": "Tie Low Cell",
+            "footprint": "tie_cell_footprint",
+            "power": [],
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 1,
+                    "function": "0",
+                    "use_power_pin_template": true
+                }
+            ]
+        },
+        {
             "name": "BUF_74LVC1G125",
             "desc": "Single Buffer",
             "footprint": "SC70-5",
@@ -64,6 +94,11 @@
                     "name": "GND",
                     "pin_number": 3,
                     "function": "ground"
+                },
+                {
+                    "name": "OE_N",
+                    "pin_number": 1,
+                    "function": "power"
                 }
             ],
             "inputs": [
@@ -80,6 +115,8 @@
                     "timing": [
                         {
                             "related_pin": "A",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  4.0,
                                 "typ_5p00V_25C":   1.7,
@@ -123,6 +160,8 @@
                     "timing": [
                         {
                             "related_pin": "A",
+                            "timing_sense": "negative_unate",
+                            "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  3.7,
                                 "typ_5p00V_25C":   1.6,
@@ -143,7 +182,7 @@
             "power": [
                 {
                     "name": "VDD",
-                    "pin_number": 3,
+                    "pin_number": 5,
                     "function": "power"
                 },
                 {
@@ -174,6 +213,8 @@
                     "timing": [
                         {
                             "related_pin": "I0 I1",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  4.0,
                                 "typ_5p00V_25C":   2.2,
@@ -185,6 +226,8 @@
                         },
                         {
                             "related_pin": "S",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  4.0,
                                 "typ_5p00V_25C":   2.3,
@@ -232,6 +275,8 @@
                     "timing": [
                         {
                             "related_pin": "A B",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  4.0,
                                 "typ_5p00V_25C":   1.7,
@@ -279,6 +324,8 @@
                     "timing": [
                         {
                             "related_pin": "A B",
+                            "timing_sense": "negative_unate",
+                            "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  4.0,
                                 "typ_5p00V_25C":   1.8,
@@ -326,6 +373,8 @@
                     "timing": [
                         {
                             "related_pin": "A B",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  4.0,
                                 "typ_5p00V_25C":   1.7,
@@ -373,6 +422,8 @@
                     "timing": [
                         {
                             "related_pin": "A B",
+                            "timing_sense": "negative_unate",
+                            "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  4.0,
                                 "typ_5p00V_25C":   1.7,
@@ -420,6 +471,8 @@
                     "timing": [
                         {
                             "related_pin": "A B",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  4.0,
                                 "typ_5p00V_25C":   1.9,
@@ -502,7 +555,21 @@
                         {
                             "related_pin": "CLK",
                             "timing_sense": "non_unate",
+                            "timing_type": "rise_edge",
                             "delays_rise_fall" : {
+                                "slow_4p50V_85C":  4.0,
+                                "typ_5p00V_25C":   2.2,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  5.7,
+                                "typ_3p30V_25C":   3.1,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        },
+                        {
+                            "related_pin": "RST_N",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "clear",
+                            "delays_fall" : {
                                 "slow_4p50V_85C":  4.1,
                                 "typ_5p00V_25C":   2.0,
                                 "fast_5p50V_m40C": 1.0,

@@ -19,6 +19,15 @@
             "pad_height": 0.4,
             "y_center_spacing": 0.65,
             "x_center_spacing": 2.1
+        },
+        {
+            "names" : ["tie_cell_footprint"],
+            "rotate": true,
+            "num_pins": 2,
+            "pad_width": 0.75,
+            "pad_height": 0.4,
+            "y_center_spacing": 0.65,
+            "x_center_spacing": 2.1
         }
     ]
 }

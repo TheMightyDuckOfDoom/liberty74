@@ -65,6 +65,11 @@ set rows [odb::dbBlock_getRows [ord::get_db_block]]
 #}
 
 remove_buffers
+
+#buffer_ports
+repair_tie_fanout TIE_HI/Y
+repair_tie_fanout TIE_LO/Y
+
 repair_design
 
 set_placement_padding -global -right 2
@@ -76,7 +81,7 @@ placeDetail
 
 repair_clock_inverters
 placeDetail
-set ctsBuf [ list INV_74LVC1G04 ]
+set ctsBuf [ list BUF_74LVC1G125 ]
 clock_tree_synthesis -root_buf $ctsBuf -buf_list $ctsBuf \
                      -balance_levels -clk_nets clk_i
 

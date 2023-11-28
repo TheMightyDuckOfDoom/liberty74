@@ -102,15 +102,14 @@ library(${lib_name}) {
       function: "${output["function"]}";
       max_capacitance: ${corner["default_max_cap"]};
 
-    % for timing in output["timing"]:
+    % if "timing" in output:
+      % for timing in output["timing"]:
       timing () {
         related_pin: "${timing["related_pin"]}";
-        % if "timing_sense" in timing:
         timing_sense: ${timing["timing_sense"]};
-        % else:
-        timing_sense: negative_unate;
-        % endif
+        timing_type: ${timing["timing_type"]};
 
+        % if "delays_rise_fall" in timing:
         cell_rise(scalar) {
           values ("${timing["delays_rise_fall"][corner["name"]]}");
         }
@@ -123,8 +122,17 @@ library(${lib_name}) {
         fall_transition(scalar) {
           values ("0.001");
         }
+        % else:
+        cell_fall(scalar) {
+          values ("${timing["delays_fall"][corner["name"]]}");
+        }
+        fall_transition(scalar) {
+          values ("0.001");
+        }
+        % endif
       }
-    % endfor
+      % endfor
+    % endif
     }
   % endfor
   }

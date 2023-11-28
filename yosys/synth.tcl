@@ -24,7 +24,6 @@ peepopt
 opt_clean
 alumacc
 stat
-share -aggressive
 opt -full
 memory -nomap
 opt_clean
@@ -45,6 +44,7 @@ write_verilog out/synth_premap.v
 #show -format svg -prefix opt
 abc -liberty pdk/lib/liberty74_typ_5p00V_25C.lib
 dfflibmap -liberty pdk/lib/liberty74_typ_5p00V_25C.lib
+hilomap -hicell TIE_HI Y -locell TIE_LO Y -singleton
 #stat -width -liberty lib/74LVC_typ.lib
 #show -format svg -prefix dff
 #abc -g NAND
