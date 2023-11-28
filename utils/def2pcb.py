@@ -8,6 +8,7 @@ from kiutils.items.brditems import LayerToken as BrdLayerToken
 from kiutils.items.brditems import Segment as BrdSegment
 from kiutils.items.brditems import Stackup
 from kiutils.items.brditems import StackupLayer
+from kiutils.items.brditems import PlotSettings
 from kiutils.items.brditems import Via as BrdVia
 from kiutils.items.gritems import GrRect
 from kiutils.items.fpitems import FpText
@@ -139,6 +140,44 @@ stackup.layers.append(StackupLayer(name = "B.SilkS", type = "Bottom Silk Screen"
 
 pcb.setup.stackup = stackup
 pcb.general.thickness = pcb_stackup['pcb_thickness']
+
+# PCB Plot Settings
+plot = PlotSettings()
+
+plot.layerSelection = '0x00010fc_ffffffff'
+plot.plotOnAllLayersSelection = '0x0'
+plot.disableApertMacros = False
+plot.useGerberExtensions = True
+plot.useGerberAttributes = False
+plot.useGerberAdvancedAttributes = False
+plot.createGerberJobFile = False
+plot.dashedLineDashRatio = 12.0
+plot.dahsedLineGapRatio = 3.0
+plot.svgPrecision = 4.0
+plot.plotFrameRef = False
+plot.viasOnMask = False
+plot.mode = 1
+plot.useAuxOrigin = False
+plot.hpglPenNumber = 1
+plot.hpglPenSpeed = 20
+plot.hpglPenDiameter = 15.0
+plot.dxfPolygonMode = True
+plot.dxfImperialUnits = True
+plot.dxfUsePcbnewFont = True
+plot.psNegative = False
+plot.psA4Output = False
+plot.plotReference = True
+plot.plotValue = False
+plot.plotInvisibleText = False
+plot.sketchPadsOnFab = False
+plot.subtractMaskFromSilk = True
+plot.outputFormat = 1
+plot.mirror = False
+plot.drillShape = 0
+plot.scaleSelection = 1
+plot.outputdirectory = 'plot/'
+
+pcb.setup.plotSettings = plot
 
 # PCB outline
 outline = GrRect(

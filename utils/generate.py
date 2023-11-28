@@ -257,7 +257,7 @@ drill = DrillDefinition(
     width = 0,
     offset = KiPosition(0, 0)
 )
-via_size = KiPosition(technology['via_annular_ring'] + technology['via_diameter'], technology['via_annular_ring'] + technology['via_diameter'])
+via_size = KiPosition(2 * technology['via_annular_ring'] + technology['via_diameter'], 2 * technology['via_annular_ring'] + technology['via_diameter'])
 
 for cell in cells:
     fp = footprints[cell['footprint']]
