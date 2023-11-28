@@ -1,5 +1,5 @@
 source init_tech.tcl
-set design_name clock
+set design_name alu
 
 proc placeDetail {} {
   detailed_placement
@@ -56,22 +56,22 @@ pdngen
 
 set rows [odb::dbBlock_getRows [ord::get_db_block]]
 
-set index 0
-foreach row $rows {
-  if $index {
-    odb::dbRow_destroy $row
-  }
-  set index [expr !$index] 
-}
+#set index 0
+#foreach row $rows {
+#  if $index {
+#    odb::dbRow_destroy $row
+#  }
+#  set index [expr !$index] 
+#}
 
 remove_buffers
 repair_design
 
 set_placement_padding -global -right 2
-global_placement -density 1
+global_placement -density 0.4
 
 repair_design
-improve_placement
+#improve_placement
 placeDetail
 
 repair_clock_inverters
