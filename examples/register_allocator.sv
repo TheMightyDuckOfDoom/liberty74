@@ -1,7 +1,7 @@
 module register_allocator #(
-    parameter PhyRegIDWidth = 6,
-    parameter NumRegsAllocatedOnReset = 32,
-    parameter CommitWidth = 2,
+    parameter PhyRegIDWidth = 5,
+    parameter NumRegsAllocatedOnReset = 16,
+    parameter CommitWidth = 1,
     parameter BridWidth = 2
 ) (
     input logic clk_i,
@@ -20,11 +20,11 @@ module register_allocator #(
     input logic allocate_new_checkpoint_i,
     input logic [BridWidth-1:0] allocate_brid_i,
     output logic [PhyRegIDWidth-1:0] tag_o,
-    output logic full_o,
+    output logic full_o
 
-    output logic state_allocated_o[NumRegs-1:0],
-    output logic state_speculative_o[NumRegs-1:0],
-    output logic [NumRegs-1:0] state_checkpoint_o[NumCheckpoints-1:0]
+    //output logic state_allocated_o[NumRegs-1:0],
+    //output logic state_speculative_o[NumRegs-1:0],
+    //output logic [NumRegs-1:0] state_checkpoint_o[NumCheckpoints-1:0]
 );
   localparam NumRegs = 2 ** PhyRegIDWidth;
   localparam NumCheckpoints = 2 ** BridWidth;
@@ -38,7 +38,7 @@ module register_allocator #(
   logic [NumRegs-1:0] checkpoint_q[NumCheckpoints-1:0];
   logic [NumRegs-1:0] checkpoint_d[NumCheckpoints-1:0];
 
-  assign state_checkpoint_o[NumCheckpoints-1:0] = checkpoint_q[NumCheckpoints-1:0];
+  //assign state_checkpoint_o[NumCheckpoints-1:0] = checkpoint_q[NumCheckpoints-1:0];
 
   //Entry logic
   always_comb begin
@@ -108,8 +108,8 @@ module register_allocator #(
       end
 
       //Outputs
-      state_allocated_o[i]   = allocated_q[i];
-      state_speculative_o[i] = speculative_q[i];
+      //state_allocated_o[i]   = allocated_q[i];
+      //state_speculative_o[i] = speculative_q[i];
     end
   end
 

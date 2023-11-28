@@ -99,3 +99,6 @@ detailed_route -output_drc route_drc.rpt \
                -bottom_routing_layer Metal1 \
                -top_routing_layer Metal2 \
                -verbose 1
+
+write_verilog out/$design_name.final.v
+write_def out/$design_name.final.def

@@ -1,8 +1,8 @@
 Footprint definition {
   Type wirebond
 
-  die_area {0 0 80.000 80.000}
-  core_area {10 10 70.000 70.000}
+  die_area {0 0 100.000 100.000}
+  core_area {10 10 90.000 90.000}
 
   power_nets  "VDD VDDIO"
   ground_nets "VSS VSSIO"

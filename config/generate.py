@@ -4,7 +4,6 @@ import json
 from mako.template import Template
 
 config_file_name = "./config/pdk.json"
-config_file_name = "./config/footprint.json"
 liberty_prefix = "liberty74_"
 lib_path = "./lib/"
 
@@ -45,17 +44,17 @@ for c in corners:
     print("Done!")
 
 # Load Footprint JSON
-footprint_file = open(footprint_file_name)
-footprint_json = json.load(footprint_file)
+#footprint_file = open(footprint_file_name)
+#footprint_json = json.load(footprint_file)
 
 # Read Footprints
-footprints = {}
-for footprint_data in footprint_json["footprints"]:
-    for name in footprint_data["names"]:
-        footprints[name] = footprint_data
+#footprints = {}
+#for footprint_data in footprint_json["footprints"]:
+    #for name in footprint_data["names"]:
+        #footprints[name] = footprint_data
 
-footprint_file.close()
+#footprint_file.close()
 
 # Generate LEF
-for cell in cells:
+#for cell in cells:
     
