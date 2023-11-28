@@ -19,6 +19,8 @@ read_liberty -lib $LIB
 read_verilog -defer $SRC
 hierarchy -check -top $TOP
 
+flatten
+
 # Generic Synthesis
 synth -top $TOP
 

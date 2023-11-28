@@ -1,5 +1,8 @@
 all: pdk synth
 
+python_setup:
+	pip install -r requirements.txt --break-system-packages
+
 pdk-setup:
 	mkdir -p pdk
 	mkdir -p pdk/lef
@@ -20,10 +23,10 @@ openroad-setup:
 	mkdir -p openroad/out
 
 chip: openroad-setup pdk
-	bash openroad/start.sh
+	cd openroad && openroad -threads max chip.tcl -log openroad.log
 
 chip_gui: openroad-setup pdk
-	bash openroad/start_gui.sh
+	cd openroad && openroad -threads max chip.tcl -gui -log openroad.log
 
 pcb: pdk
 	python3 utils/def2pcb.py openroad/out/servisia.final.def

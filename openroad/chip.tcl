@@ -73,8 +73,8 @@ repair_tie_fanout TIE_LO/Y
 
 repair_design
 
-set_placement_padding -global -right 3 -left 3
-global_placement -density 0.27
+set_placement_padding -global -right 4 -left 4
+global_placement -density 0.40
 
 repair_design
 improve_placement
@@ -123,4 +123,6 @@ detailed_route -output_drc route_drc.rpt \
 write_verilog -include_pwr_gnd out/$design_name.final.v
 write_def out/$design_name.final.def
 
-exit
+if ![gui::enabled] {
+  exit
+}
