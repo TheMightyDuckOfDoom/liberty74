@@ -105,6 +105,51 @@ library(74LVC_worst) {
       }
     }
   }
+  cell(MUX_74LVC1G157) {
+    area: 6;
+    pin(A) { direction: input; }
+    pin(B) { direction: input; }
+    pin(S) { direction: input; }
+    pin(Y) {
+      direction: output;
+      function: "(!S & A) | (S & B)";
+
+      timing () {
+        related_pin: "A B";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("4.0");
+        }
+        cell_rise(scalar) {
+          values ("4.0");
+        }
+        fall_transition(scalar) {
+          values ("4.0");
+        }
+        rise_transition(scalar) {
+          values ("4.0");
+        }
+      }
+      timing () {
+        related_pin: "S";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("4.0");
+        }
+        cell_rise(scalar) {
+          values ("4.0");
+        }
+        fall_transition(scalar) {
+          values ("4.0");
+        }
+        rise_transition(scalar) {
+          values ("4.0");
+        }
+      }
+    }
+  }
   cell(AND_74LVC1G08) {
     area: 6;
     pin(A) { direction: input; }
@@ -159,6 +204,34 @@ library(74LVC_worst) {
       }
     }
   }
+  cell(NAND3_74LVC1G10) {
+    area: 6;
+    pin(A) { direction: input; }
+    pin(B) { direction: input; }
+    pin(C) { direction: input; }
+    pin(Y) {
+      direction: output;
+      function: "!(A & B & C)";
+
+      timing () {
+        related_pin: "A B C";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("3.6");
+        }
+        cell_rise(scalar) {
+          values ("3.6");
+        }
+        fall_transition(scalar) {
+          values ("3.6");
+        }
+        rise_transition(scalar) {
+          values ("3.6");
+        }
+      }
+    }
+  }
   cell(NOR_74LVC1G02) {
     area: 6;
     pin(A) { direction: input; }
@@ -196,6 +269,62 @@ library(74LVC_worst) {
 
       timing () {
         related_pin: "A B";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("4.0");
+        }
+        cell_rise(scalar) {
+          values ("4.0");
+        }
+        fall_transition(scalar) {
+          values ("4.0");
+        }
+        rise_transition(scalar) {
+          values ("4.0");
+        }
+      }
+    }
+  }
+  cell(OR_74LVC1G332) {
+    area: 6;
+    pin(A) { direction: input; }
+    pin(B) { direction: input; }
+    pin(C) { direction: input; }
+    pin(Y) {
+      direction: output;
+      function: "A | B | C";
+
+      timing () {
+        related_pin: "A B C";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("3.5");
+        }
+        cell_rise(scalar) {
+          values ("3.5");
+        }
+        fall_transition(scalar) {
+          values ("3.5");
+        }
+        rise_transition(scalar) {
+          values ("3.5");
+        }
+      }
+    }
+  }
+  cell(ORAND_74LVC1G3208) {
+    area: 6;
+    pin(A) { direction: input; }
+    pin(B) { direction: input; }
+    pin(C) { direction: input; }
+    pin(Y) {
+      direction: output;
+      function: "(A | B) & C";
+
+      timing () {
+        related_pin: "A B C";
         timing_sense: negative_unate;
 
         cell_fall(scalar) {
