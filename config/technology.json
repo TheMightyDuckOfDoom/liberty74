@@ -6,7 +6,7 @@
         "wire_pitch": 0.325,
         "wire_width": 0.13,
         "wire_spacing": 0.13,
-        "via_diameter": 0.4,
+        "via_diameter": 0.3,
         "via_annular_ring": 0.13,
         "via_hole_to_hole_spacing": 0.5
     },

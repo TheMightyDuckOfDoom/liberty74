@@ -1,6 +1,7 @@
 import argparse
 import json
 from kiutils.board import Board
+from kiutils.footprint import Footprint as KiFootprint
 from kiutils.items.common import Net as KiNet
 from kiutils.items.common import Position as KiPosition
 from kiutils.items.brditems import LayerToken as BrdLayerToken
@@ -9,6 +10,7 @@ from kiutils.items.brditems import Stackup
 from kiutils.items.brditems import StackupLayer
 from kiutils.items.brditems import Via as BrdVia
 from kiutils.items.gritems import GrRect
+from kiutils.items.fpitems import FpText
 import os
 from lef_def_parser import DefParser
 
@@ -152,9 +154,44 @@ pcb.traceItems.append(outline)
 
 # Add special nets
 print('Adding special nets...')
+pcb_net_dict = {}
+pcb_special_net_dict = {}
 pcb.nets = []
 for idx, net in enumerate(def_parser.specialnets):
-    pcb.nets.append(KiNet(number = idx + 1, name = net.name))
+    new_net = KiNet(number = idx + 1, name = net.name)
+    pcb_net_dict[net.name] = new_net
+    pcb_special_net_dict[net.name] = new_net
+    pcb.nets.append(new_net)
+
+# Add nets
+print('Adding nets...')
+offset = pcb.nets[-1].number + 1
+for idx, net in enumerate(def_parser.nets):
+    new_net = KiNet(number = idx + offset, name = net.name)
+    pcb_net_dict[net.name] = new_net
+    pcb.nets.append(new_net)
+
+# Add components
+footprints_dir = './pdk/kicad/footprints/'
+footprint_dict = {}
+for comp in def_parser.components:
+    print(comp.name)
+    print(comp.macro)
+    print(comp.orient)
+
+    fp = KiFootprint().from_file(footprints_dir + comp.macro + '_' + comp.orient + '.kicad_mod')
+    for item in fp.graphicItems:
+        if isinstance(item, FpText) and item.type == 'reference':
+            item.text = comp.name
+
+    fp.position = KiPosition(comp.placed[0] / scale, -comp.placed[1] / scale)
+
+    for pad in fp.pads:
+        if pad.pinFunction in pcb_special_net_dict:
+            pad.net = pcb_special_net_dict[pad.pinFunction]
+
+    footprint_dict[comp.name] = fp
+    pcb.footprints.append(fp)
 
 def trimSegment(segment: BrdSegment):
     if segment.start.X == segment.end.X:
@@ -221,8 +258,6 @@ def find_intercept(start1: KiPosition, end1: KiPosition, start2: KiPosition, end
 print('Generating power grid...')
 
 for net in def_parser.specialnets:
-    print(net.name)
-
     ring_shapes = list(filter(lambda x: x.shape_type == 'RING' and x.end_via == None, net.shapes))
 
     for shape in net.shapes:
@@ -281,22 +316,22 @@ for net in def_parser.specialnets:
             )
             pcb.traceItems.append(via)
 
-
-# Add nets
-print('Adding nets...')
-offset = pcb.nets[-1].number + 1
-for idx, net in enumerate(def_parser.nets):
-    pcb.nets.append(KiNet(number = idx + offset, name = net.name))
-
-
 # Add net routing
-
 print("Generating net routing...")
 
-
 for net in def_parser.nets:
-    print(net.name)
-    
+    # Connect components
+    for comp_pin in net.comp_pin:
+        comp_name = comp_pin[0]
+        if comp_name in footprint_dict:
+            fp_comp = footprint_dict[comp_pin[0]]
+            for pad in fp_comp.pads:
+                if pad.pinFunction == comp_pin[1]:
+                    pad.net = pcb_net_dict[net.name]
+        else:
+            # Found PIN
+            continue
+
     for route in net.routed:
         if route.end_via == None:
             # Segment
@@ -324,6 +359,7 @@ for net in def_parser.nets:
                 tstamp = 'via_' + route.layer + '_' + str(route.end_via_loc[0]) + '_' + str(route.end_via_loc[1])
             )
             pcb.traceItems.append(via)
+
 
 # Write generated PCB to file
 pcb.to_file(pcb_file_path)

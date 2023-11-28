@@ -5,6 +5,8 @@ pdk-setup:
 	mkdir -p pdk/lef
 	mkdir -p pdk/lib
 	mkdir -p pdk/verilog
+	mkdir -p pdk/kicad
+	mkdir -p pdk/kicad/footprints
 
 pdk: pdk-setup config/* templates/*
 	python3 utils/generate.py
