@@ -35,6 +35,7 @@ place_pins -hor_layers Metal1 -ver_layers Metal2 -min_distance_in_tracks -min_di
 
 add_global_connection -net VDD -inst_pattern .* -pin_pattern VDD -power
 add_global_connection -net GND -inst_pattern .* -pin_pattern GND -ground
+add_global_connection -net VDD -inst_pattern .* -pin_pattern TIE_HI
 add_global_connection -net GND -inst_pattern .* -pin_pattern TIE_LO
 add_global_connection -net GND -inst_pattern .* -pin_pattern NC
 
@@ -72,11 +73,11 @@ repair_tie_fanout TIE_LO/Y
 
 repair_design
 
-set_placement_padding -global -right 4 -left 4
-global_placement -density 0.2
+set_placement_padding -global -right 3 -left 3
+global_placement -density 0.27
 
 repair_design
-#improve_placement
+improve_placement
 placeDetail
 
 repair_clock_inverters
@@ -121,3 +122,5 @@ detailed_route -output_drc route_drc.rpt \
 
 write_verilog -include_pwr_gnd out/$design_name.final.v
 write_def out/$design_name.final.def
+
+exit

@@ -56,7 +56,9 @@ library(${lib_name}) {
     ff ("IQ", "IQN") {
       clocked_on: ${cell["ff"]["clocked_on"]};
       next_state: ${cell["ff"]["next_state"]};
+    % if "clear" in cell["ff"]:
       clear: "${cell["ff"]["clear"]}";
+    % endif
     }
   % endif
   % for power in cell["power"]:

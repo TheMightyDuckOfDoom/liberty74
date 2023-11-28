@@ -314,7 +314,7 @@ for cell in cells:
     pad_width = fp['pad_height'] if fp['rotate'] else fp['pad_width']
     pad_height = fp['pad_width'] if fp['rotate'] else fp['pad_height']
 
-    # Power Pins
+    # Power Pins -> Tie Pins not handled correctly :(
     for power_pin in cell['power']:
         pad_dim = fp['pin_dimensions'][power_pin['pin_number'] - 1][0]
         pin_function = power_pin['connect_to_net'] if 'connect_to_net' in power_pin else power_pin['name'] 

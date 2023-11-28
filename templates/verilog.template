@@ -15,17 +15,23 @@ module ${cell['name']} (
 );
 % for output in cell['outputs']:
   % if output['function'] == 'IQ':
-    always_ff @(posedge ${cell['ff']['clocked_on']} or\
-    % if '!' in cell['ff']['clear']:
- negedge\
-    % else:
- posedge\
-    % endif
+    always_ff @(posedge ${cell['ff']['clocked_on']}\
+    % if 'clear' in cell['ff']:
+ or \
+      % if '!' in cell['ff']['clear']:
+negedge\
+      % else:
+posedge\
+      % endif
  ${cell['ff']['clear'].replace('!', '')}) begin
         if (${cell['ff']['clear']})
             ${output['name']} <= '0;
         else
-            ${output['name']} <= ${cell['ff']['next_state']};
+    \
+    % else:
+) begin
+    % endif
+        ${output['name']} <= ${cell['ff']['next_state']};
     end
   % else:
     assign ${output['name']} = ${output['function']};
