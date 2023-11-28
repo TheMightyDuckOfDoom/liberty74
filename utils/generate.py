@@ -118,7 +118,7 @@ for fp in footprints:
 print("Footprints generated")
 
 # Load Tech LEF template
-tech_lef_template = Template(filename="./config/tech_lef.template")
+tech_lef_template = Template(filename="./templates/tech_lef.template")
 
 tech_lef_context = {
     "technology": technology
@@ -148,7 +148,7 @@ cells = config_json["cells"]
 config_file.close()
 
 # Load liberty template
-lib_template = Template(filename="./config/liberty.lib.template")
+lib_template = Template(filename="./templates/liberty.lib.template")
 
 # Genereate Liberty Libraries
 for c in corners:
@@ -171,7 +171,7 @@ for c in corners:
     print("Done!")
 
 # Load LEF template
-lef_template = Template(filename="./config/lef.template")
+lef_template = Template(filename="./templates/lef.template")
 
 lef_context = {
     "footprints": footprints,
@@ -190,7 +190,7 @@ with open(lef_path + lef_name + ".lef", 'w', encoding='utf-8') as lef_file:
 print("Done!")
 
 # Load Verilog template
-verilog_template = Template(filename="./config/verilog.template")
+verilog_template = Template(filename="./templates/verilog.template")
 
 verilog_context = {
     "cells": cells

@@ -6,8 +6,8 @@ pdk-setup:
 	mkdir -p pdk/lib
 	mkdir -p pdk/verilog
 
-pdk: pdk-setup config/*
-	python3 config/generate.py
+pdk: pdk-setup config/* templates/*
+	python3 utils/generate.py
 
 synth: pdk
 	yosys -s yosys/synth.tcl
