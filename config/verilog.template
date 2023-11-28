@@ -1,0 +1,36 @@
+% for cell in cells:
+// ${cell['desc']}
+module ${cell['name']} (
+  % for input in cell['inputs']:
+    input  logic ${input['name']},
+  % endfor
+  % for idx, output in enumerate(cell['outputs']):
+    output logic ${output['name']}\
+    % if idx < len(cell['outputs']) - 1:
+,
+    % else:
+
+    % endif
+  % endfor
+);
+% for output in cell['outputs']:
+  % if output['function'] == 'IQ':
+    always_ff @(posedge ${cell['ff']['clocked_on']} or\
+    % if '!' in cell['ff']['clear']:
+ negedge\
+    % else:
+ posedge\
+    % endif
+ ${cell['ff']['clear'].replace('!', '')}) begin
+        if (${cell['ff']['clear']})
+            ${output['name']} <= '0;
+        else
+            ${output['name']} <= ${cell['ff']['next_state']};
+    end
+  % else:
+    assign ${output['name']} = ${output['function']};
+  % endif
+% endfor
+endmodule : ${cell['name']}
+
+% endfor

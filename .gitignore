@@ -1,6 +1,5 @@
 out/*
-lef/*
-lib/*
+pdk/
 slpp_all
 *.rpt
 *.log

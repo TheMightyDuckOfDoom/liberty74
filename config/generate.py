@@ -7,8 +7,9 @@ config_file_name = "./config/pdk.json"
 lef_file_name = "./config/lef.json"
 liberty_prefix = "liberty74_"
 lef_name = "liberty74"
-lib_path = "./lib/"
-lef_path = "./lef/"
+lib_path = "./pdk/lib/"
+lef_path = "./pdk/lef/"
+verilog_path = "./pdk/verilog/"
 
 # Load LEF JSON
 lef_file = open(lef_file_name)
@@ -188,3 +189,18 @@ with open(lef_path + lef_name + ".lef", 'w', encoding='utf-8') as lef_file:
     
 print("Done!")
 
+# Load Verilog template
+verilog_template = Template(filename="./config/verilog.template")
+
+verilog_context = {
+    "cells": cells
+}
+
+print("Generating Verilog...")
+
+rendered_verilog = verilog_template.render(**verilog_context)
+
+with open(verilog_path + "verilog.sv", 'w', encoding='utf-8') as verilog_file:
+    verilog_file.write(rendered_verilog)
+    
+print("Done!")

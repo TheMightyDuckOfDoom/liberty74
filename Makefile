@@ -1,8 +1,10 @@
 all: pdk synth
 
 pdk-setup:
-	mkdir -p lef
-	mkdir -p lib
+	mkdir -p pdk
+	mkdir -p pdk/lef
+	mkdir -p pdk/lib
+	mkdir -p pdk/verilog
 
 pdk: pdk-setup config/*
 	python3 config/generate.py
@@ -19,5 +21,4 @@ chip: openroad-setup pdk
 
 clean:
 	rm -rf slpp_all && true
-	rm -rf lib      && true
-	rm -rf lef      && true
+	rm -rf pdk      && true

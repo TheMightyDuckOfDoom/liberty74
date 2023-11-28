@@ -1,10 +1,10 @@
 plugin -i systemverilog
 
-read_systemverilog -defer examples/clock.sv
+read_systemverilog -defer examples/alu.sv
 
 read_systemverilog -link
 
-hierarchy -top clock
+hierarchy -top alu
 proc
 
 #techmap -map add_reduce.v
@@ -43,8 +43,8 @@ stat -width
 write_verilog out/synth_premap.v
 
 #show -format svg -prefix opt
-abc -liberty lib/liberty74_typ_5p00V_25C.lib
-dfflibmap -liberty lib/liberty74_typ_5p00V_25C.lib
+abc -liberty pdk/lib/liberty74_typ_5p00V_25C.lib
+dfflibmap -liberty pdk/lib/liberty74_typ_5p00V_25C.lib
 #stat -width -liberty lib/74LVC_typ.lib
 #show -format svg -prefix dff
 #abc -g NAND
@@ -52,6 +52,6 @@ dfflibmap -liberty lib/liberty74_typ_5p00V_25C.lib
 #techmap -map nand2lvc00.v
 clean
 
-stat -width -liberty lib/liberty74_typ_5p00V_25C.lib
-write_verilog out/clock.v
+stat -width -liberty pdk/lib/liberty74_typ_5p00V_25C.lib
+write_verilog out/alu.v
 #show -format svg -prefix show
