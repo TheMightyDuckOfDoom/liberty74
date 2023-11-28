@@ -59,6 +59,16 @@ library(${lib_name}) {
       clear: "${cell["ff"]["clear"]}";
     }
   % endif
+  % for power in cell["power"]:
+    pg_pin (${power["name"]}) {
+      % if "connect_to_net" in power:
+      voltage_name: "${power["connect_to_net"]}";
+      % else:
+      voltage_name: "${power["name"]}";
+      % endif
+      pg_type: primary_${power["function"]};
+    }
+  % endfor
   % for input in cell["inputs"]:
     pin (${input["name"]}) {
       direction: input;

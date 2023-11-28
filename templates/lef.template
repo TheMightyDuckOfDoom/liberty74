@@ -45,8 +45,12 @@ ${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
   % for pin in cell["power"]:
   PIN ${pin["name"]}
     DIRECTION INOUT ;
+    % if pin["function"] == "ground":
+    USE GROUND ;
+    % else:
     USE POWER ;
-    SHAPE ABUTMENT ;
+    % endif
+    ##SHAPE ABUTMENT ;
     PORT
 ${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
     END

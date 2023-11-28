@@ -1,57 +1,49 @@
-plugin -i systemverilog
+# Parameters
+set LIB pdk/lib/liberty74_typ_5p00V_25C.lib
+set SRC ../serv/out/servisia.v
+set TOP servisia
+set OUT out/$TOP.v
 
-read_systemverilog -defer examples/alu.sv
+#set ABC_AREA 0
+#set CLOCK_PERIOD 100
+#set ABC_DRIVER_CELL BUF_74LVC1G125
+#set ABC_LOAD_IN_FF 1000
 
-read_systemverilog -link
+# Import yosys commands
+yosys -import
 
-hierarchy -top alu
-proc
+# Read Liberty
+read_liberty -lib $LIB
 
-#techmap -map add_reduce.v
-stat -width
-#show -format svg -prefix premap
+# Read and check rtl
+read_verilog -defer $SRC
+hierarchy -check -top $TOP
 
-# Map adders
-#techmap -map 
+# Generic Synthesis
+synth -top $TOP
 
-opt_expr
-opt_clean
-opt -nodffe -nosdff
-fsm
-opt -full
-wreduce
-peepopt
-opt_clean
-alumacc
-stat
-opt -full
-memory -nomap
-opt_clean
-opt -full
-memory_map
-opt -full
-techmap
-opt -full
-#hierarchy -check
-check
-stat -width
+# Map Flip Flops
+dfflibmap -liberty $LIB
 
-#techmap -map +/pmux2mux.v
+opt
 
+#set constr [open out/abc.constr w]
+#puts $constr "set_driving_cell $ABC_DRIVER_CELL)"
+#puts $constr "set_load $ABC_LOAD_IN_FF"
+#close $constr
 
-write_verilog out/synth_premap.v
+#if {$ABC_AREA} {
+#    set abc_script yosys/abc.area
+#    abc -D [expr ($CLOCK_PERIOD * 1000)] -script $abc_script -liberty $LIB -constr out/abc.constr
+#} else {
+#}
+abc -liberty $LIB -dff
 
-#show -format svg -prefix opt
-abc -liberty pdk/lib/liberty74_typ_5p00V_25C.lib
-dfflibmap -liberty pdk/lib/liberty74_typ_5p00V_25C.lib
-hilomap -hicell TIE_HI Y -locell TIE_LO Y -singleton
-#stat -width -liberty lib/74LVC_typ.lib
-#show -format svg -prefix dff
-#abc -g NAND
-#techmap -map not2nand.v
-#techmap -map nand2lvc00.v
-clean
+setundef -zero
+splitnets
+opt_clean -purge
+hilomap -singleton -hicell TIE_HI Y -locell TIE_LO Y
 
-stat -width -liberty pdk/lib/liberty74_typ_5p00V_25C.lib
-write_verilog out/alu.v
-#show -format svg -prefix show
+stat -width -liberty $LIB
+
+write_verilog -noattr -noexpr -nohex -nodec $OUT

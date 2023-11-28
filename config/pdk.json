@@ -96,7 +96,7 @@
                     "function": "ground"
                 },
                 {
-                    "name": "OE_N",
+                    "name": "TIE_LO",
                     "connect_to_net": "GND",
                     "pin_number": 1,
                     "function": "ground"
@@ -827,7 +827,7 @@
                         {
                             "related_pin": "CLK",
                             "timing_sense": "non_unate",
-                            "timing_type": "rise_edge",
+                            "timing_type": "rising_edge",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  4.0,
                                 "typ_5p00V_25C":   2.2,

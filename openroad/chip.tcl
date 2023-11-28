@@ -1,5 +1,5 @@
 source init_tech.tcl
-set design_name alu
+set design_name servisia
 
 proc placeDetail {} {
   detailed_placement
@@ -35,6 +35,8 @@ place_pins -hor_layers Metal1 -ver_layers Metal2 -min_distance_in_tracks -min_di
 
 add_global_connection -net VDD -inst_pattern .* -pin_pattern VDD -power
 add_global_connection -net GND -inst_pattern .* -pin_pattern GND -ground
+add_global_connection -net GND -inst_pattern .* -pin_pattern TIE_LO
+add_global_connection -net GND -inst_pattern .* -pin_pattern NC
 
 global_connect
 
@@ -48,7 +50,7 @@ add_pdn_ring -grid {grid}     \
     -core_offsets {4.00 4.00 4.00 4.00} \
     -add_connect
 
-add_pdn_strip -grid grid -layer Metal1 -width 0.25 -followpins -extend_to_core_ring
+add_pdn_strip -grid grid -layer Metal1 -width 1.00 -followpins -extend_to_core_ring
 
 pdngen
 
@@ -70,8 +72,8 @@ repair_tie_fanout TIE_LO/Y
 
 repair_design
 
-set_placement_padding -global -right 8
-global_placement -density 0.4
+set_placement_padding -global -right 4 -left 4
+global_placement -density 0.2
 
 repair_design
 #improve_placement
@@ -88,7 +90,7 @@ repair_clock_nets
 
 placeDetail
 
-repair_timing
+repair_timing -hold
 
 placeDetail
 check_placement -verbose
@@ -106,15 +108,16 @@ global_route -verbose -allow_congestion
 
 pin_access
 
+global_connect
+
 gui::pause
 
 set_propagated_clock [all_clocks]
 
-set_thread_count 8
 detailed_route -output_drc route_drc.rpt \
                -bottom_routing_layer Metal1 \
                -top_routing_layer Metal2 \
                -verbose 1
 
-write_verilog out/$design_name.final.v
+write_verilog -include_pwr_gnd out/$design_name.final.v
 write_def out/$design_name.final.def

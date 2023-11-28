@@ -13,7 +13,7 @@ pdk: pdk-setup config/* templates/*
 	python3 utils/generate.py
 
 synth: pdk
-	yosys -s yosys/synth.tcl
+	yosys yosys/synth.tcl
 	rm -rf slpp_all
 
 openroad-setup:
@@ -22,8 +22,11 @@ openroad-setup:
 chip: openroad-setup pdk
 	bash openroad/start.sh
 
+chip_gui: openroad-setup pdk
+	bash openroad/start_gui.sh
+
 pcb: pdk
-	python3 utils/def2pcb.py openroad/out/alu.final.def
+	python3 utils/def2pcb.py openroad/out/servisia.final.def
 
 clean:
 	rm -rf slpp_all && true

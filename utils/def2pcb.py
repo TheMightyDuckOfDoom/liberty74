@@ -16,6 +16,7 @@ import os
 from lef_def_parser import DefParser
 
 output_dir = './out/'
+GEN_FOLLOWPIN_VIAS = False
 
 # Parse arguments
 parser = argparse.ArgumentParser(
@@ -304,7 +305,7 @@ for net in def_parser.specialnets:
             end   = KiPosition(shape.points[1][0] / scale, -shape.points[1][1] / scale)
 
             # Generate Via at end of segment
-            if shape.shape_type == 'FOLLOWPIN':
+            if GEN_FOLLOWPIN_VIAS and shape.shape_type == 'FOLLOWPIN':
                 # Find intercept with rings
                 for ring in ring_shapes:
                     interception = find_intercept(start, end, KiPosition(ring.points[0][0] / scale, -ring.points[0][1] / scale), KiPosition(ring.points[1][0] / scale, -ring.points[1][1] / scale))
