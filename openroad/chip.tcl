@@ -72,7 +72,7 @@ repair_tie_fanout TIE_LO/Y
 
 repair_design
 
-set_placement_padding -global -right 2
+set_placement_padding -global -right 8
 global_placement -density 0.4
 
 repair_design
@@ -110,6 +110,7 @@ gui::pause
 
 set_propagated_clock [all_clocks]
 
+set_thread_count 8
 detailed_route -output_drc route_drc.rpt \
                -bottom_routing_layer Metal1 \
                -top_routing_layer Metal2 \

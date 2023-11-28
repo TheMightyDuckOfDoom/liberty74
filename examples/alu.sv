@@ -1,5 +1,5 @@
 module alu #(
-    parameter DatapathWidth = 2,
+    parameter DatapathWidth = 1,
     parameter AluOperationWidth = 5
 ) (
     input logic clk_i,

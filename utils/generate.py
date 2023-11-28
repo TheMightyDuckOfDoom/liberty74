@@ -42,12 +42,11 @@ for fp in footprints:
     if "rotate" in footprints[fp]:
         rotate = footprints[fp]["rotate"]
 
+    footprints[fp]["cell_height"] = technology["row_height"]
     if rotate:
         footprints[fp]["cell_width"]  = footprints[fp]["pad_height"] * 2 + footprints[fp]["y_center_spacing"] * (footprints[fp]["num_pins"] / 2 - 1)
-        footprints[fp]["cell_height"] = technology["row_height"]
     else:
         footprints[fp]["cell_width"]  = footprints[fp]["pad_width"] * 2 + footprints[fp]["x_center_spacing"]
-        footprints[fp]["cell_height"] = technology["row_height"]
 
     r = technology["row_height"]
     s = footprints[fp]["y_center_spacing"]
@@ -59,6 +58,8 @@ for fp in footprints:
     y_offset = m + (N / 2 - 1) * s
 
     x_start = footprints[fp]["pad_width"] / 2
+    if rotate:
+        x_start = (footprints[fp]['cell_height'] - footprints[fp]['pad_width'] - footprints[fp]['x_center_spacing']) / 2
 
     # Loop over pins
     pin_templates = [""]
@@ -75,7 +76,7 @@ for fp in footprints:
     for i in range(1, footprints[fp]["num_pins"] + 1):
         temp = ""
         pin_dim = []
-        for layer in range(1, technology["metal_layers"] + 1):
+        for layer in range(1, technology["metal_layers"] + 1 if False else 2):
             # Pins on each layer
             temp +=  f"      LAYER Metal{layer} ;\n"
             if rotate:
