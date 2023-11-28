@@ -140,8 +140,8 @@ pcb.general.thickness = pcb_stackup['pcb_thickness']
 
 # PCB outline
 outline = GrRect(
-    start = KiPosition(def_parser.diearea[0][0] / scale, def_parser.diearea[0][1] / scale),
-    end = KiPosition(def_parser.diearea[1][0] / scale, def_parser.diearea[1][1] / scale),
+    start = KiPosition(def_parser.diearea[0][0] / scale, -def_parser.diearea[0][1] / scale),
+    end = KiPosition(def_parser.diearea[1][0] / scale, -def_parser.diearea[1][1] / scale),
     layer = 'Edge.Cuts',
     width = 0.2,
     fill = None,
@@ -229,14 +229,14 @@ for net in def_parser.specialnets:
         net_idx = next((x.number for x in pcb.nets if x.name == net.name), 0)
         
         if shape.end_via == None:
-            start = KiPosition(shape.points[0][0] / scale, shape.points[0][1] / scale)
-            end   = KiPosition(shape.points[1][0] / scale, shape.points[1][1] / scale)
+            start = KiPosition(shape.points[0][0] / scale, -shape.points[0][1] / scale)
+            end   = KiPosition(shape.points[1][0] / scale, -shape.points[1][1] / scale)
 
             # Generate Via at end of segment
             if shape.shape_type == 'FOLLOWPIN':
                 # Find intercept with rings
                 for ring in ring_shapes:
-                    interception = find_intercept(start, end, KiPosition(ring.points[0][0] / scale, ring.points[0][1] / scale), KiPosition(ring.points[1][0] / scale, ring.points[1][1] / scale))
+                    interception = find_intercept(start, end, KiPosition(ring.points[0][0] / scale, -ring.points[0][1] / scale), KiPosition(ring.points[1][0] / scale, -ring.points[1][1] / scale))
 
                     if interception == None:
                         continue
@@ -271,7 +271,7 @@ for net in def_parser.specialnets:
             via = BrdVia(
                 type = None,
                 locked = False,
-                position = KiPosition(shape.end_via_loc[0] / scale, shape.end_via_loc[1] / scale),
+                position = KiPosition(shape.end_via_loc[0] / scale, -shape.end_via_loc[1] / scale),
                 size = via_size,
                 drill = via_drill_size,
                 layers = pcb_copper_layers,
@@ -301,8 +301,8 @@ for net in def_parser.nets:
         if route.end_via == None:
             # Segment
             segment = BrdSegment(
-                start = KiPosition(route.points[0][0] / scale, route.points[0][1] / scale),
-                end = KiPosition(route.points[1][0] / scale, route.points[1][1] / scale),
+                start = KiPosition(route.points[0][0] / scale, -route.points[0][1] / scale),
+                end = KiPosition(route.points[1][0] / scale, -route.points[1][1] / scale),
                 width = wire_width,
                 layer = pcb_layer_dict[route.layer],
                 locked = False,
@@ -315,7 +315,7 @@ for net in def_parser.nets:
             via = BrdVia(
                 type = None,
                 locked = False,
-                position = KiPosition(route.end_via_loc[0] / scale, route.end_via_loc[1] / scale),
+                position = KiPosition(route.end_via_loc[0] / scale, -route.end_via_loc[1] / scale),
                 size = via_size,
                 drill = via_drill_size,
                 layers = pcb_copper_layers,
