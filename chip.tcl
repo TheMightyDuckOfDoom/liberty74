@@ -1,5 +1,5 @@
 source init_tech.tcl
-set design_name clock
+set design_name alu
 
 proc placeDetail {} {
   detailed_placement
@@ -15,9 +15,9 @@ proc placeDetail {} {
 read_verilog out/${design_name}.v
 link_design $design_name
 
-create_clock -name clk -period 10 {clk_i}
-set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
-set_output_delay -clock clk 0 [all_outputs]
+#create_clock -name clk -period 10 {clk_i}
+#set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
+#set_output_delay -clock clk 0 [all_outputs]
 report_checks -path_delay min
 report_checks -path_delay max
 
@@ -65,7 +65,7 @@ improve_placement
 placeDetail
 
 repair_clock_inverters
-set ctsBuf [ list NOT_74LVC1G04 ]
+set ctsBuf [ list INV_74LVC1G04 ]
 clock_tree_synthesis -root_buf $ctsBuf -buf_list $ctsBuf \
                      -balance_levels
 

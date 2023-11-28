@@ -1,5 +1,5 @@
 module alu #(
-    parameter DatapathWidth = 32,
+    parameter DatapathWidth = 1,
     parameter AluOperationWidth = 5
 ) (
     //From register file
