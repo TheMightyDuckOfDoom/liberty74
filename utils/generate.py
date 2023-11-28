@@ -12,6 +12,7 @@ from kiutils.items.fpitems import FpRect
 
 config_folder = "./config/"
 config_file_name = config_folder + "pdk.json"
+#config_file_name = config_folder + "macros/W24129A.json"
 tech_file_name = config_folder + "technology.json"
 footprint_file_name = config_folder + "footprints.json"
 liberty_prefix = "liberty74_"
@@ -96,6 +97,13 @@ config_file.close()
 # Load liberty template
 lib_template = Template(filename="./templates/liberty.lib.template")
 
+bus_types = {}
+if "bus_types" in config_json:
+    for type in config_json["bus_types"]:
+        type["width"] = abs(type["from"] - type["to"]) + 1 
+        bus_types[type["name"]] = type
+
+
 # Genereate Liberty Libraries
 for c in corners:
     lib_name = liberty_prefix + c
@@ -105,6 +113,7 @@ for c in corners:
     lib_context = {
         "lib_name": lib_name,
         "corner": corners[c],
+        "bus_types": bus_types,
         "cells": cells,
         "footprints": footprints,
         "new_fps": new_fps
@@ -121,6 +130,7 @@ lef_template = Template(filename="./templates/lef.template")
 lef_context = {
     "footprints": footprints,
     "cells": cells,
+    "bus_types": bus_types,
     "site_width": technology["x_wire_pitch"],
     "row_height": technology["row_height"]
 }
@@ -137,6 +147,7 @@ verilog_template = Template(filename="./templates/verilog.template")
 
 verilog_context = {
     "cells": cells,
+    "bus_types": bus_types,
     "pwr_pins": False
 }
 
@@ -147,10 +158,7 @@ rendered_verilog = verilog_template.render(**verilog_context)
 with open(verilog_path + "verilog.sv", 'w', encoding='utf-8') as verilog_file:
     verilog_file.write(rendered_verilog)
 
-verilog_context = {
-    "cells": cells,
-    "pwr_pins": True
-}
+verilog_context['pwr_pins'] = True
 
 print("Generating Verilog with power pins...")
 
@@ -238,73 +246,114 @@ for cell in cells:
     )
 
     # Power Pins -> Tie Pins not handled correctly :(
-    for power_pin in cell['power']:
-        pin_function = power_pin['connect_to_net'] if 'connect_to_net' in power_pin else power_pin['name'] 
-        
-        pin_number = power_pin['pin_number']
-        pin_rect = fp.get_pin(pin_number)
-        power_pin_rect = fp.get_power_pin(pin_number)
+    if 'power' in cell:
+        for power_pin in cell['power']:
+            pin_function = power_pin['connect_to_net'] if 'connect_to_net' in power_pin else power_pin['name'] 
+            
+            pin_number = power_pin['pin_number']
+            pin_rect = fp.get_pin(pin_number)
+            power_pin_rect = fp.get_power_pin(pin_number)
 
-        # Normal Pad for soldering
-        kifp.pads.append(
-            KiPad(
-                number = pin_number,
-                type = 'smd',
-                shape = 'rect',
-                position = pin_rect.get_center_kiposition(),
-                size = pin_rect.get_size_kiposition(),
-                layers = ['F.Cu', 'F.Paste', 'F.Mask'],
-                pinFunction = pin_function
+            # Normal Pad for soldering
+            kifp.pads.append(
+                KiPad(
+                    number = pin_number,
+                    type = 'smd',
+                    shape = 'rect',
+                    position = pin_rect.get_center_kiposition(),
+                    size = pin_rect.get_size_kiposition(),
+                    layers = ['F.Cu', 'F.Paste', 'F.Mask'],
+                    pinFunction = pin_function
+                )
             )
-        )
 
-        # Connection to power rails
-        kifp.pads.append(
-            KiPad(
-                number = pin_number,
-                type = 'smd',
-                shape = 'rect',
-                position = power_pin_rect.get_center_kiposition(),
-                size = power_pin_rect.get_size_kiposition(),
-                layers = ['F.Cu'],
-                pinFunction = pin_function
+            # Connection to power rails
+            kifp.pads.append(
+                KiPad(
+                    number = pin_number,
+                    type = 'smd',
+                    shape = 'rect',
+                    position = power_pin_rect.get_center_kiposition(),
+                    size = power_pin_rect.get_size_kiposition(),
+                    layers = ['F.Cu'],
+                    pinFunction = pin_function
+                )
             )
-        )
 
     # Pins
-    for pin in cell['inputs']:
-        pin_number = pin['pin_number']
-        pin_rect = fp.get_pin(pin_number)
+    if 'inputs' in cell:
+        for pin in cell['inputs']:
+            if 'bus_name' in pin:
+                type = bus_types[pin['bus_type']]
+                for i in range(0, type['width']):
+                    pin_number = i + min(type['from'], type['to'])
+                    pin_rect = fp.get_pin(pin_number)
 
-        # Add SMD pad
-        kifp.pads.append(
-            KiPad(
-                number = pin_number,
-                type = 'smd',
-                shape = 'rect',
-                position = pin_rect.get_center_kiposition(),
-                size = pin_rect.get_size_kiposition(),
-                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
-                pinFunction = pin['name']
-            )
-        )
+                    # Add SMD pad
+                    kifp.pads.append(
+                        KiPad(
+                            number = pin_number,
+                            type = 'smd',
+                            shape = 'rect',
+                            position = pin_rect.get_center_kiposition(),
+                            size = pin_rect.get_size_kiposition(),
+                            layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
+                            pinFunction = pin['bus_name'] + '[' + str(pin_number) + ']' 
+                        )
+                    )
+            else:
+                pin_number = pin['pin_number']
+                pin_rect = fp.get_pin(pin_number)
 
-    for pin in cell['outputs']:
-        pin_number = pin['pin_number']
-        pin_rect = fp.get_pin(pin_number)
+                # Add SMD pad
+                kifp.pads.append(
+                    KiPad(
+                        number = pin_number,
+                        type = 'smd',
+                        shape = 'rect',
+                        position = pin_rect.get_center_kiposition(),
+                        size = pin_rect.get_size_kiposition(),
+                        layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
+                        pinFunction = pin['name']
+                    )
+                )
 
-        # Add SMD pad
-        kifp.pads.append(
-            KiPad(
-                number = pin_number,
-                type = 'smd',
-                shape = 'rect',
-                position = pin_rect.get_center_kiposition(),
-                size = pin_rect.get_size_kiposition(),
-                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
-                pinFunction = pin['name']
-            )
-        )
+    if 'outputs' in cell:
+        for pin in cell['outputs']:
+            if 'bus_name' in pin:
+                type = bus_types[pin['bus_type']]
+                for i in range(0, type['width']):
+                    pin_number = i + min(type['from'], type['to'])
+                    pin_rect = fp.get_pin(pin_number)
+
+                    # Add SMD pad
+                    kifp.pads.append(
+                        KiPad(
+                            number = pin_number,
+                            type = 'smd',
+                            shape = 'rect',
+                            position = pin_rect.get_center_kiposition(),
+                            size = pin_rect.get_size_kiposition(),
+                            layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
+                            pinFunction = pin['bus_name'] + '[' + str(pin_number) + ']' 
+                        )
+                    )
+            else:
+                pin_number = pin['pin_number']
+                pin_rect = fp.get_pin(pin_number)
+
+                # Add SMD pad
+                kifp.pads.append(
+                    KiPad(
+                        number = pin_number,
+                        type = 'smd',
+                        shape = 'rect',
+                        position = pin_rect.get_center_kiposition(),
+                        size = pin_rect.get_size_kiposition(),
+                        layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
+                        pinFunction = pin['name']
+                    )
+                )
 
 #        if not fp['single_layer_footprint']:
 #            # Add Via pad

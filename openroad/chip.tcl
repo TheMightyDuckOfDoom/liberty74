@@ -18,6 +18,8 @@ proc placeDetail {} {
 read_verilog ../out/${design_name}.v
 link_design $design_name
 
+gui::pause
+
 create_clock -name clk -period 10 {clk_i}
 set_input_delay -clock clk 1 [delete_from_list [all_inputs] [get_ports clk_i]]
 set_output_delay -clock clk 1 [all_outputs]
@@ -63,7 +65,7 @@ set die_width [expr [lindex $die_area 3] - [lindex $die_area 0]]
 
 set cap_distance [expr $die_width / 3]
 
-tapcell -tapcell_master PWR_CAP -distance $cap_distance
+#tapcell -tapcell_master PWR_CAP -distance $cap_distance
 
 set rows [odb::dbBlock_getRows [ord::get_db_block]]
 
@@ -83,8 +85,8 @@ repair_tie_fanout TIE_LO/Y
 
 repair_design
 
-set_placement_padding -global -right 4 -left 4
-global_placement -density 0.35
+set_placement_padding -global -right 3 -left 3
+global_placement -density 0.36
 
 repair_design
 improve_placement

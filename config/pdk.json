@@ -66,16 +66,12 @@
                     "pin_number": 1,
                     "function": "ground"
                 }
-            ],
-            "inputs": [],
-            "outputs": []
+            ]
         },
         {
             "name": "TIE_HI",
             "desc": "Tie High Cell",
             "footprint": "tie_cell_footprint",
-            "power": [],
-            "inputs": [],
             "outputs": [
                 {
                     "name": "Y",
@@ -89,8 +85,6 @@
             "name": "TIE_LO",
             "desc": "Tie Low Cell",
             "footprint": "tie_cell_footprint",
-            "power": [],
-            "inputs": [],
             "outputs": [
                 {
                     "name": "Y",

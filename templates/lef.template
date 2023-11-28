@@ -20,46 +20,84 @@ MACRO ${cell["name"]}
   % endif
   SITE CoreSite ;
 
-  % for pin in cell["inputs"]:
+  % if 'inputs' in cell:
+    % for pin in cell["inputs"]:
+      % if "bus_name" in pin:
+        % for i in range(0, bus_types[pin["bus_type"]]["width"]):
+  PIN ${pin["bus_name"]}[${i + min(bus_types[pin["bus_type"]]["from"], bus_types[pin["bus_type"]]["to"])}]
+    DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+          % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["bus_pins"][i]]}
+          % else:
+${footprints[cell["footprint"]]["pin_lef_template"][pin["bus_pins"][i]]}
+          % endif
+    END
+  END ${pin["bus_name"]}[${i + min(bus_types[pin["bus_type"]]["from"], bus_types[pin["bus_type"]]["to"])}]
+        % endfor
+      % else:
   PIN ${pin["name"]}
     DIRECTION INPUT ;
     USE SIGNAL ;
     PORT
-    % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+        % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
 ${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
-    % else:
+        % else:
 ${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
-    % endif
+        % endif
     END
   END ${pin["name"]}
-  % endfor
-  % for pin in cell["outputs"]:
+      % endif
+    % endfor
+  % endif
+  % if 'outputs' in cell:
+    % for pin in cell["outputs"]:
+      % if "bus_name" in pin:
+        % for i in range(0, bus_types[pin["bus_type"]]["width"]):
+  PIN ${pin["bus_name"]}[${i + min(bus_types[pin["bus_type"]]["from"], bus_types[pin["bus_type"]]["to"])}]
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+          % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["bus_pins"][i]]}
+          % else:
+${footprints[cell["footprint"]]["pin_lef_template"][pin["bus_pins"][i]]}
+          % endif
+    END
+  END ${pin["bus_name"]}[${i + min(bus_types[pin["bus_type"]]["from"], bus_types[pin["bus_type"]]["to"])}]
+        % endfor
+      % else:
   PIN ${pin["name"]}
     DIRECTION OUTPUT ;
     USE SIGNAL ;
     PORT
-    % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+        % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
 ${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
-    % else:
+        % else:
 ${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
-    % endif
+        % endif
     END
   END ${pin["name"]}
-  % endfor
-  % for pin in cell["power"]:
+      % endif
+    % endfor
+  % endif
+  % if 'power' in cell:
+    % for pin in cell["power"]:
   PIN ${pin["name"]}
     DIRECTION INOUT ;
-    % if pin["function"] == "ground":
+      % if pin["function"] == "ground":
     USE GROUND ;
-    % else:
+      % else:
     USE POWER ;
-    % endif
+      % endif
     ##SHAPE ABUTMENT ;
     PORT
 ${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
     END
   END ${pin["name"]}
-  % endfor
+    % endfor
+  % endif
 END ${cell["name"]}
 
 % endfor

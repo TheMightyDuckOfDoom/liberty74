@@ -40,6 +40,7 @@ library(${lib_name}) {
   default_cell_leakage_power    	: 0.00 ;
 
   default_input_pin_cap       		: 5.000000;
+  default_inout_pin_cap       		: 5.000000;
   default_output_pin_cap      		: 0.000000;
   default_max_capacitance         : ${corner["default_max_cap"]};
   default_max_transition          : 25;
@@ -48,9 +49,27 @@ library(${lib_name}) {
 
   inplace_swap_mode : match_footprint;
 
+% for type in bus_types:
+  type (${type}) {
+    base_type : array;
+    data_type : bit;
+    bit_width : ${bus_types[type]["width"]};
+    bit_from  : ${bus_types[type]["from"]};
+    bit_to    : ${bus_types[type]["to"]};
+  % if bus_types[type]["from"] > bus_types[type]["to"]:
+    downto    : true;
+  % else:
+    downto    : false;
+  % endif
+  }
+
+% endfor
 % for cell in cells:
   cell (${cell["name"]}) {
     /* ${cell["desc"]} */
+  % if "tapcell" in cell and cell["tapcell"]:
+    is_tap_cell: true;
+  % endif
     area: ${footprints[cell["footprint"]]["cell_width"] * footprints[cell["footprint"]]["cell_height"]};
   % if "ff" in cell:
     ff ("IQ", "IQN") {
@@ -61,7 +80,8 @@ library(${lib_name}) {
     % endif
     }
   % endif
-  % for power in cell["power"]:
+  % if 'power' in cell:
+    % for power in cell["power"]:
     pg_pin (${power["name"]}) {
       % if "connect_to_net" in power:
       voltage_name: "${power["connect_to_net"]}";
@@ -70,20 +90,28 @@ library(${lib_name}) {
       % endif
       pg_type: primary_${power["function"]};
     }
-  % endfor
-  % for input in cell["inputs"]:
+    % endfor
+  % endif
+  % if 'inputs' in cell:
+    % for input in cell["inputs"]:
+      % if "bus_name" in input:
+    bus (${input["bus_name"]}) {
+      direction: input;
+      capacitance: ${corner["default_input_cap"]};
+    }
+      % else:
     pin (${input["name"]}) {
       direction: input;
       capacitance: ${corner["default_input_cap"]};
-      % if "clock" in input and input["clock"]:
+        % if "clock" in input and input["clock"]:
       clock: true;
-      % endif
-      % if "timing" in input:
+        % endif
+        % if "timing" in input:
 
-        % for timing in input["timing"]:
+          % for timing in input["timing"]:
       timing () {
         related_pin: "${timing["related_pin"]}";
-        % if "setup_time" in timing:
+            % if "setup_time" in timing:
         timing_type: setup_rising;
 
         rise_constraint(scalar) {
@@ -92,8 +120,8 @@ library(${lib_name}) {
         fall_constraint(scalar) {
           values ("${timing["setup_time"][corner["name"]]}");
         }
-        % endif
-        % if "hold_time" in timing:
+            % endif
+            % if "hold_time" in timing:
         timing_type: hold_rising;
 
         rise_constraint(scalar) {
@@ -102,26 +130,37 @@ library(${lib_name}) {
         fall_constraint(scalar) {
           values ("${timing["hold_time"][corner["name"]]}");
         }
-        % endif
+            % endif
       }
-        % endfor
-      % endif
+          % endfor
+        % endif
     }
-  % endfor
-  % for output in cell["outputs"]:
-    pin (${output["name"]}) {
-      direction: output;
-      function: "${output["function"]}";
+      % endif
+    % endfor
+  % endif
+  % if 'inouts' in cell:
+    % for inout in cell["inouts"]:
+      % if "bus_name" in inout:
+    bus (${inout["bus_name"]}) {
+      direction: inout;
+      capacitance: ${corner["default_input_cap"]};
+      three_state: "${inout["three_state"]}";
+    }
+      % else:
+    pin (${inout["name"]}) {
+      direction: inout;
+      function: "${inout["function"]}";
+      three_state: "${inout["three_state"]}";
       max_capacitance: ${corner["default_max_cap"]};
 
-    % if "timing" in output:
-      % for timing in output["timing"]:
+        % if "timing" in inout:
+          % for timing in inout["timing"]:
       timing () {
         related_pin: "${timing["related_pin"]}";
         timing_sense: ${timing["timing_sense"]};
         timing_type: ${timing["timing_type"]};
 
-        % if "delays_rise_fall" in timing:
+            % if "delays_rise_fall" in timing:
         cell_rise(scalar) {
           values ("${timing["delays_rise_fall"][corner["name"]]}");
         }
@@ -134,19 +173,69 @@ library(${lib_name}) {
         fall_transition(scalar) {
           values ("0.001");
         }
-        % else:
+            % else:
         cell_fall(scalar) {
           values ("${timing["delays_fall"][corner["name"]]}");
         }
         fall_transition(scalar) {
           values ("0.001");
         }
-        % endif
+            % endif
       }
-      % endfor
-    % endif
+          % endfor
+        % endif
     }
-  % endfor
+      % endif
+    % endfor
+  % endif
+  % if 'outputs' in cell:
+    % for output in cell["outputs"]:
+      % if "bus_name" in output:
+    bus (${output["bus_name"]}) {
+      direction: output;
+      capacitance: ${corner["default_input_cap"]};
+    }
+      % else:
+    pin (${output["name"]}) {
+      direction: output;
+      function: "${output["function"]}";
+      max_capacitance: ${corner["default_max_cap"]};
+
+        % if "timing" in output:
+          % for timing in output["timing"]:
+      timing () {
+        related_pin: "${timing["related_pin"]}";
+        timing_sense: ${timing["timing_sense"]};
+        timing_type: ${timing["timing_type"]};
+
+            % if "delays_rise_fall" in timing:
+        cell_rise(scalar) {
+          values ("${timing["delays_rise_fall"][corner["name"]]}");
+        }
+        cell_fall(scalar) {
+          values ("${timing["delays_rise_fall"][corner["name"]]}");
+        }
+        rise_transition(scalar) {
+          values ("0.001");
+        }
+        fall_transition(scalar) {
+          values ("0.001");
+        }
+            % else:
+        cell_fall(scalar) {
+          values ("${timing["delays_fall"][corner["name"]]}");
+        }
+        fall_transition(scalar) {
+          values ("0.001");
+        }
+            % endif
+      }
+          % endfor
+        % endif
+    }
+      % endif
+    % endfor
+  % endif
   }
 % endfor
 }

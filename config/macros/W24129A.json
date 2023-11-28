@@ -1,0 +1,84 @@
+{
+    "corners": [
+        {
+            "name": "W24129A_5p00V",
+            "process_name": "Typical",
+            "voltage": 5.0,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 5.0
+        }
+    ],
+    "bus_types": [
+        {
+            "name": "A_13_0",
+            "from": 13,
+            "to": 0
+        },
+        {
+            "name": "IO_8_1",
+            "from": 8,
+            "to": 1
+        }
+    ],
+    "cells": [
+        {
+            "name": "W24129A_35",
+            "desc": "16k x 8bit 35ns SRAM",
+            "footprint": "SO-28",
+            "memory": {
+                "address_width": 14,
+                "word_width": 64
+            },
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 28,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 14,
+                    "function": "ground"
+                },
+                {
+                    "name": "NC",
+                    "connect_to_net": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "CS_N",
+                    "pin_number": 20
+                },
+                {
+                    "name": "WE_N",
+                    "pin_number": 27
+                },
+                {
+                    "name": "OE_N",
+                    "pin_number": 22
+                },
+                {
+                    "bus_name": "A",
+                    "bus_type": "A_13_0",
+                    "bus_pins": [10, 9, 8, 7, 6, 5, 4, 3, 25, 24, 21, 23, 2, 26]
+                }
+            ],
+            "inouts": [
+                {
+                    "bus_name": "IO",
+                    "bus_type": "IO_8_1",
+                    "bus_pins": [11, 12, 13, 15, 16, 17, 18, 19],
+                    "three_state": "OE_N",
+                    "function": "",
+                    "timing": [
+                    ]
+                }
+                
+            ]
+        }
+    ]
+}

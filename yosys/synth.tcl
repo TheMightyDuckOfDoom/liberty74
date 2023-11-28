@@ -1,6 +1,6 @@
 # Parameters
 set LIB pdk/lib/liberty74_typ_5p00V_25C.lib
-set SRC ../serv/out/servisia.v
+set SRC ../servisia/out/servisia.v
 set TOP servisia
 set OUT out/$TOP.v
 

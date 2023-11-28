@@ -1,49 +1,84 @@
 % for cell in cells:
 // ${cell['desc']}
 module ${cell['name']} (
-  % if pwr_pins:
-  % for power_pin in cell['power']:
+  % if pwr_pins and 'power' in cell:
+    % for power_pin in cell['power']:
     input  logic ${power_pin['name']},
-  % endfor
+    % endfor
   % endif
-  % for input in cell['inputs']:
-    input  logic ${input['name']},
-  % endfor
-  % for idx, output in enumerate(cell['outputs']):
-    output logic ${output['name']}\
-    % if idx < len(cell['outputs']) - 1:
-,
-    % else:
-
-    % endif
-  % endfor
-);
-% for output in cell['outputs']:
-  % if output['function'] == 'IQ':
-    always_ff @(posedge ${cell['ff']['clocked_on']}\
-    % if 'clear' in cell['ff']:
- or \
-      % if '!' in cell['ff']['clear']:
-negedge\
+  % if 'inputs' in cell:
+    % for idx, input in enumerate(cell['inputs']):
+      % if 'bus_name' in input:
+    input  logic [${bus_types[input['bus_type']]['from']}:${bus_types[input['bus_type']]['to']}] ${input['bus_name']}\
       % else:
-posedge\
+    input  logic ${input['name']}\
       % endif
+      % if idx < len(cell['inputs']) - 1 or ('inouts' in cell and len(cell['inouts']) > 0) or ('outputs' in cell and len(cell['outputs']) > 0):
+,
+      % else:
+
+      % endif
+    % endfor
+  % endif
+  % if 'inouts' in cell:
+    % for idx, inout in enumerate(cell['inouts']):
+      % if 'bus_name' in inout:
+    inout  logic [${bus_types[inout['bus_type']]['from']}:${bus_types[inout['bus_type']]['to']}] ${inout['bus_name']}\
+      % else:
+    inout  logic ${output['name']}\
+      % endif
+      % if idx < len(cell['inouts']) - 1 or (outputs in cell and len(cell['outputs']) > 0):
+,
+      % else:
+
+      % endif
+    % endfor
+  % endif
+  % if 'outputs' in cell:
+    % for idx, output in enumerate(cell['outputs']):
+      % if 'bus_name' in output:
+    output logic [${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}] ${output['bus_name']}\
+      % else:
+    output logic ${output['name']}\
+      % endif
+      % if idx < len(cell['outputs']) - 1:
+,
+      % else:
+
+      % endif
+    % endfor
+  % endif
+);
+% if 'outputs' in cell:
+  % for output in cell['outputs']:
+    % if "bus_name" not in output:
+      % if output['function'] == 'IQ':
+    always_ff @(posedge ${cell['ff']['clocked_on']}\
+        % if 'clear' in cell['ff']:
+ or \
+          % if '!' in cell['ff']['clear']:
+negedge\
+          % else:
+posedge\
+          % endif
  ${cell['ff']['clear'].replace('!', '')}) begin
         if (${cell['ff']['clear']})
             ${output['name']} <= '0;
         else
     \
-    % else:
+        % else:
 ) begin
-    % endif
+        % endif
         ${output['name']} <= ${cell['ff']['next_state']};
     end
-  % elif 'verilog_function' in output:
+      % elif 'verilog_function' in output:
     assign ${output['name']} = ${output['verilog_function']};
-  % else:
+      % else:
     assign ${output['name']} = ${output['function']};
-  % endif
-% endfor
+      % endif
+    % endif
+  % endfor
+% endif
 endmodule : ${cell['name']}
 
 % endfor
