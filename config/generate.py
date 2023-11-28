@@ -28,8 +28,17 @@ lef_file.close()
 # Generate Footprints
 for fp in footprints:
     print(f"Generate footprint {fp}")
-    footprints[fp]["cell_width"] = footprints[fp]["pad_width"] * 2 + footprints[fp]["x_center_spacing"]
-    footprints[fp]["cell_height"] = technology["row_height"]
+
+    rotate = False
+    if "rotate" in footprints[fp]:
+        rotate = footprints[fp]["rotate"]
+
+    if rotate:
+        footprints[fp]["cell_width"]  = footprints[fp]["pad_height"] * 2 + footprints[fp]["y_center_spacing"] * (footprints[fp]["num_pins"] / 2 - 1)
+        footprints[fp]["cell_height"] = technology["row_height"]
+    else:
+        footprints[fp]["cell_width"]  = footprints[fp]["pad_width"] * 2 + footprints[fp]["x_center_spacing"]
+        footprints[fp]["cell_height"] = technology["row_height"]
 
     r = technology["row_height"]
     s = footprints[fp]["y_center_spacing"]
@@ -46,24 +55,42 @@ for fp in footprints:
     pin_templates = [""]
     power_pin_templates = [""]
     x = x_start
-    y = y_offset
+    if rotate:
+        y = footprints[fp]["pad_height"] / 2
+    else:
+        y = y_offset
     for i in range(1, footprints[fp]["num_pins"] + 1):
         temp = ""
         for layer in range(1, technology["metal_layers"] + 1):
             temp +=  f"      LAYER Metal{layer} ;\n"
-            temp += f"        RECT {x} {y} {x + footprints[fp]['pad_width']} {y + footprints[fp]['pad_height']} ;"
+            if rotate:
+                temp += f"        RECT {y} {x} {y + footprints[fp]['pad_height']} {x + footprints[fp]['pad_width']} ;"
+            else:
+                temp += f"        RECT {x} {y} {x + footprints[fp]['pad_width']} {y + footprints[fp]['pad_height']} ;"
             if layer == 1:
                 power_temp  = f"      LAYER Metal{layer} ;\n"
                 power_temp += f"        RECT "
-                if i == footprints[fp]["num_pins"] / 2:
-                    power_temp += f"{x} 0"
+                if i <= footprints[fp]["num_pins"] / 2:
+                    if rotate:
+                        power_temp += f"{y} 0"
+                    else:
+                        power_temp += f"{x} 0"
                 else:
-                    power_temp += f"{x} {y}"
+                    if rotate:
+                        power_temp += f"{y} {x}"
+                    else:
+                        power_temp += f"{x} {y}"
                     
-                if i == footprints[fp]["num_pins"]:
-                    power_temp += f" {x + footprints[fp]['pad_width']} {technology['row_height']} ;" 
+                if i > footprints[fp]["num_pins"] / 2:
+                    if rotate:
+                        power_temp += f" {y + footprints[fp]['pad_height']} {technology['row_height']} ;" 
+                    else:
+                        power_temp += f" {x + footprints[fp]['pad_width']} {technology['row_height']} ;" 
                 else:
-                    power_temp += f" {x + footprints[fp]['pad_width']} {y + footprints[fp]['pad_height']} ;"
+                    if rotate:
+                        power_temp += f" {y + footprints[fp]['pad_height']} {x + footprints[fp]['pad_width']} ;"
+                    else:
+                        power_temp += f" {x + footprints[fp]['pad_width']} {y + footprints[fp]['pad_height']} ;"
 
                 power_pin_templates.append(power_temp) 
             if layer < technology["metal_layers"]:
@@ -74,9 +101,15 @@ for fp in footprints:
         if i == footprints[fp]["num_pins"] / 2:
             x += footprints[fp]["x_center_spacing"]
         elif i > footprints[fp]["num_pins"] / 2:
-            y += footprints[fp]["y_center_spacing"]
+            if rotate:
+                y -= footprints[fp]["y_center_spacing"]
+            else:
+                y += footprints[fp]["y_center_spacing"]
         else:
-            y -= footprints[fp]["y_center_spacing"]
+            if rotate:
+                y += footprints[fp]["y_center_spacing"]
+            else:
+                y -= footprints[fp]["y_center_spacing"]
 
     footprints[fp]["pin_lef_template"] = pin_templates
     footprints[fp]["power_pin_lef_template"] = power_pin_templates

@@ -14,7 +14,7 @@ synth: pdk
 openroad-setup:
 	mkdir -p openroad/out
 
-chip: openroad-setup
+chip: openroad-setup pdk
 	bash openroad/start.sh
 
 clean:

@@ -1,9 +1,9 @@
 {
     "technology": {
         "row_height": 3.6,
-        "site_width": 0.1,
+        "site_width": 0.325,
         "metal_layers": 2,
-        "wire_pitch": 0.3,
+        "wire_pitch": 0.325,
         "wire_width": 0.13,
         "wire_spacing": 0.13,
         "via_diameter": 0.4,
@@ -13,6 +13,7 @@
     "footprints": [
         {
             "names": ["SC70-6", "SOT-363", "SC70-5", "SOT-353"],
+            "rotate": true,
             "num_pins": 6,
             "pad_width": 0.75,
             "pad_height": 0.4,

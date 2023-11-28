@@ -30,17 +30,17 @@ initialize_floorplan \
   -site      CoreSite
 
 
-make_tracks Metal1 -x_offset 0.15 -x_pitch 0.3 -y_offset 0.15 -y_pitch 0.3
-make_tracks Metal2 -x_offset 0.15 -x_pitch 0.3 -y_offset 0.15 -y_pitch 0.3
+make_tracks Metal1 -x_offset 0.1 -x_pitch 0.325 -y_offset 0 -y_pitch 0.3
+make_tracks Metal2 -x_offset 0.1 -x_pitch 0.325 -y_offset 0 -y_pitch 0.3
 
 place_pins -hor_layers Metal1 -ver_layers Metal2 -min_distance_in_tracks -min_distance 8
 
 add_global_connection -net VDD -inst_pattern .* -pin_pattern VDD -power
-add_global_connection -net VSS -inst_pattern .* -pin_pattern VSS -ground
+add_global_connection -net GND -inst_pattern .* -pin_pattern GND -ground
 
 global_connect
 
-set_voltage_domain -name CORE -power VDD -ground VSS
+set_voltage_domain -name CORE -power VDD -ground GND
 define_pdn_grid -name grid -voltage_domains CORE
 
 add_pdn_ring -grid {grid}     \
@@ -54,11 +54,21 @@ add_pdn_strip -grid grid -layer Metal1 -width 0.25 -pitch 3.6 -followpins -exten
 
 pdngen
 
+set rows [odb::dbBlock_getRows [ord::get_db_block]]
+
+set index 0
+foreach row $rows {
+  if $index {
+    odb::dbRow_destroy $row
+  }
+  set index [expr !$index] 
+}
+
 remove_buffers
 repair_design
 
 set_placement_padding -global -right 2
-global_placement -density 0.4
+global_placement -density 1
 
 repair_design
 improve_placement
