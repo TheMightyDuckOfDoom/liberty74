@@ -29,6 +29,7 @@ pcb_file_path = output_dir + filename + '.kicad_pcb'
 print('Parsing ' + def_file_path + '...')
 def_parser = DefParser(def_file_path)
 def_parser.parse()
+def_parser.write_def(output_dir + filename + '_parsed.def')
 
 # Generate PCB
 print('Generating ' + pcb_file_path + '...')
@@ -83,40 +84,64 @@ outline = GrRect(
 )
 pcb.traceItems.append(outline)
 
+# Add special nets
+print('Adding special nets...')
+pcb.nets = []
+for idx, net in enumerate(def_parser.specialnets):
+    pcb.nets.append(KiNet(number = idx, name = net.name))
+
+# Add special nets routing
+print('Generating power grid...')
+for net_idx, net in enumerate(def_parser.specialnets):
+    print(net.name)
+
+    for shape in net.shapes:
+        print(shape.shape_type)
+        
+        if shape.end_via == None:
+            if shape.shape_type == 'FOLLOWPIN':
+                # Segment
+                segment = BrdSegment(
+                    start = KiPosition(shape.points[0][0] / scale, shape.points[0][1] / scale),
+                    end = KiPosition(shape.points[1][0] / scale, shape.points[1][1] / scale),
+                    width = float(shape.width) / scale,
+                    layer = shape.layer,
+                    locked = False,
+                    net = net_idx,
+                    tstamp = 'followpin_' + shape.layer + '_' + str(shape.points[0][0]) + '_' + str(shape.points[0][1]) + '_' + str(shape.points[1][0]) + '_' + str(shape.points[1][1])
+                )
+                pcb.traceItems.append(segment)
+
+
 # Add nets
 print('Adding nets...')
-pcb.nets = list(map(lambda idx_net: KiNet(number = idx_net[0], name = idx_net[1].name), enumerate(def_parser.nets.nets)))
+offset = len(pcb.nets)
+for idx, net in enumerate(def_parser.nets):
+    pcb.nets.append(KiNet(number = idx + offset, name = net.name))
 
-# Add routes
+
+# Add net routing
 wire_width = technology['wire_width']
 via_drill_size = technology['via_diameter']
 via_size = via_drill_size + 2 * technology['via_annular_ring']
 
-print("Generating net routing segments")
-for net_idx, net in enumerate(def_parser.nets.nets):
+print("Generating net routing...")
+for net_idx, net in enumerate(def_parser.nets):
     print(net.name)
     
     for route in net.routed:
         if route.end_via == None:
             # Segment
-            prev_point = [0,0]
-            for idx, point in enumerate(route.points):
-                if idx == 0:
-                    prev_point = point
-                    continue
-
-                segment = BrdSegment(
-                    start = KiPosition(prev_point[0] / scale, prev_point[1] / scale),
-                    end = KiPosition(point[0] / scale, point[1] / scale),
-                    width = wire_width,
-                    layer = route.layer,
-                    locked = False,
-                    net = net_idx,
-                    tstamp = 'seg_' + route.layer + '_' + str(prev_point[0]) + '_' + str(prev_point[1]) + '_' + str(point[0]) + '_' + str(point[1])
-                )
-                pcb.traceItems.append(segment)
-
-                prev_point = point
+            segment = BrdSegment(
+                start = KiPosition(route.points[0][0] / scale, route.points[0][1] / scale),
+                end = KiPosition(route.points[1][0] / scale, route.points[1][1] / scale),
+                width = wire_width,
+                layer = route.layer,
+                locked = False,
+                net = net_idx,
+                tstamp = 'seg_' + route.layer + '_' + str(route.points[0][0]) + '_' + str(route.points[0][1]) + '_' + str(route.points[1][0]) + '_' + str(route.points[1][1])
+            )
+            pcb.traceItems.append(segment)
         else:
             # Via
             via = BrdVia(

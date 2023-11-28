@@ -25,6 +25,10 @@ Data structures for DEF Parser
 Author: Tri Minh Cao
 Email: tricao@utdallas.edu
 Date: August 2016
+
+Changes by Tobias Senti
+- SPECIALNETS support
+- Signal Class support for Nets and SpecialNets
 """
 from .util import *
 
@@ -132,7 +136,7 @@ class Pin:
             s += "  + " + self.layer.to_def_format() + "\n"
         if self.placed:
             s += "  + " + "PLACED " + "( " + str(self.placed[0]) + " "
-            s += str(self.placed[1]) + " ) " + self.orient + "\n"
+            s += str(self.placed[1]) + " ) " + self.orient
         s += " ;"
         return s
 
@@ -243,9 +247,184 @@ class Component:
         s = ""
         s += "- " + self.name + " " + self.macro + " + " + "PLACED"
         s += " ( " + str(self.placed[0]) + " " + str(self.placed[1]) + " ) "
-        s += self.orient + "\n ;"
+        s += self.orient + " ;"
         return s
 
+class SpecialNets:
+    """
+    Represents the section SPECIALNETS in the DEF file.
+    """
+
+    def __init__(self, num_specialnets):
+        self.type = "SPECIALNETS_DEF"
+        self.num_specialnets = num_specialnets
+        self.specialnets = []
+        self.specialnet_dict = {}
+
+    def parse_next(self, info):
+        # remember to check for "(" before using split_parentheses
+        # if we see "(", then it means new component or new pin
+        # another method is to check the type of the object, if it is a list
+        # then we know it comes from parentheses
+        info = split_parentheses(info)
+        if info[0] == "-":
+            specialnet_name = info[1]
+            new_specialnet = SpecialNet(specialnet_name)
+            self.specialnets.append(new_specialnet)
+            self.specialnet_dict[specialnet_name] = new_specialnet
+            current_specialnet = new_specialnet
+            del info[:2]
+            # The net may be followed by signal class
+            if not info:
+                return
+        else:
+            current_specialnet = self.get_last_specialnet()
+
+        # parse next info
+        if isinstance(info[0], list):
+            for comp in info:
+                current_specialnet.comp_pin.append(comp)
+        elif info[0] == "USE":
+            current_specialnet.signal_class = info[1]
+        elif info[0] == "ROUTED" or info[0] == "NEW":
+            new_shape = Shape()
+            new_shape.layer = info[1]
+            new_shape.width = info[2]
+            current_specialnet.shapes.append(new_shape)
+        elif info[0] == "SHAPE":
+            current_shape = current_specialnet.shapes[-1]
+            current_shape.shape_type = info[1]
+
+            for idx in range(2, len(info)):
+                if isinstance(info[idx], list):
+                    # this is a point
+                    parsed_pt = info[idx]
+                    new_pt = []
+                    for j in range(len(parsed_pt)):
+                        # if we see "*", the new coordinate comes from last
+                        #  point's coordinate
+                        if parsed_pt[j] == "*":
+                            last_pt = new_routed.get_last_pt()
+                            new_coor = last_pt[j]
+                            new_pt.append(new_coor)
+                        else:
+                            new_pt.append(int(parsed_pt[j]))
+                    # add new_pt to the new_routed
+                    current_shape.points.append(new_pt)
+                else:
+                    # this should be via end point
+                    if info[idx] != ";":
+                        current_shape.end_via = info[idx]
+                    # the location of end_via is the last point in the route
+                    current_shape.end_via_loc = current_shape.points[-1]
+
+    def __iter__(self):
+        return self.specialnets.__iter__()
+
+    def __len__(self):
+        return len(self.specialnets)
+
+    def get_last_specialnet(self):
+        return self.specialnets[-1]
+
+    def to_def_format(self):
+        s = ""
+        s += "SPECIALNETS" + " " + str(self.num_specialnets) + " ;\n"
+        for each_specialnet in self.specialnets:
+            s += each_specialnet.to_def_format() + "\n"
+        s += "END SPECIALNETS"
+        return s
+
+class SpecialNet:
+    """
+    Represents individual SpecialNet inside SPECIALNETS section.
+    """
+
+    def __init__(self, name):
+        self.type = "SPECIALNET_DEF"
+        self.name = name
+        self.comp_pin = []
+        self.shapes = []
+        self.signal_class = None
+
+    def __str__(self):
+        s = ""
+        s += self.type + ": " + self.name + " Signal Class: "
+        s += self.signal_class
+        s += "\n    " + "Comp/Pin: "
+        for comp in self.comp_pin:
+            s += " " + str(comp)
+        s += "\n"
+        s += "    " + "Shapes: " + "\n"
+        for shape in self.shapes:
+            s += "    " + "    " + str(shapes) + "\n"
+        return s
+
+    def to_def_format(self):
+        s = ""
+        s += "- " + self.name + "\n"
+        s += " "
+        for each_comp in self.comp_pin:
+            # study each comp/pin
+            # if it's a pin, check the Pin object layer (already parsed) -
+            # but how can we check the Pin object layer?
+            s += " ( " + " ".join(each_comp) + " )"
+        s += " + USE " + self.signal_class
+        if self.shapes:
+            s += "\n  + ROUTED " + self.shapes[0].to_def_format()
+            for i in range(1, len(self.shapes)):
+                s += "\n    " + "NEW " + self.shapes[i].to_def_format()
+        s += " ;"
+        return s
+
+class Shape:
+    """
+    Represents a SHAPE definition inside a SPECIALNET.
+    """
+
+    def __init__(self):
+        self.type = "SHAPE_DEF"
+        self.layer = None
+        self.width = None
+        self.shape_type = None
+        self.points = []
+        self.end_via = None
+        self.end_via_loc = None
+
+    def __str__(self):
+        s = ""
+        s += self.layer
+        s += " "
+        s += self.width
+        s += " "
+        s += self.shape_type
+        for pt in self.points:
+            s += " " + str(pt)
+        if self.end_via != None:
+            s += " " + self.end_via
+        return s
+
+    def get_last_pt(self):
+        return self.points[-1]
+
+    def get_layer(self):
+        return self.layer
+
+    def to_def_format(self):
+        s = ""
+        s += self.layer
+        s += " "
+        s += self.width
+        s += " + SHAPE "
+        s += self.shape_type
+        for pt in self.points:
+            s += " ("
+            for coor in pt:
+                s += " " + str(coor)
+            s += " )"
+        if self.end_via != None:
+            s += " " + self.end_via
+        return s
 
 class Nets:
     """
@@ -271,7 +450,7 @@ class Nets:
             self.net_dict[net_name] = new_net
             current_net = new_net
             del info[:2]
-            # The net may be followed by components
+            # The net may be followed by components and signal class
             if not info:
                 return
         else:
@@ -281,6 +460,8 @@ class Nets:
         if isinstance(info[0], list):
             for comp in info:
                 current_net.comp_pin.append(comp)
+        elif info[0] == "USE":
+            current_net.signal_class = info[1]
         elif info[0] == "ROUTED" or info[0] == "NEW":
             new_routed = Routed()
             new_routed.layer = info[1]
@@ -338,11 +519,13 @@ class Net:
         self.name = name
         self.comp_pin = []
         self.routed = []
+        self.signal_class = None
 
     def __str__(self):
         s = ""
-        s += self.type + ": " + self.name + "\n"
-        s += "    " + "Comp/Pin: "
+        s += self.type + ": " + self.name + " Signal Class: "
+        s += self.signal_class
+        s += "\n    " + "Comp/Pin: "
         for comp in self.comp_pin:
             s += " " + str(comp)
         s += "\n"
@@ -360,10 +543,11 @@ class Net:
             # if it's a pin, check the Pin object layer (already parsed) -
             # but how can we check the Pin object layer?
             s += " ( " + " ".join(each_comp) + " )"
+        s += " + USE " + self.signal_class
         if self.routed:
             s += "\n  + ROUTED " + self.routed[0].to_def_format() + "\n"
             for i in range(1, len(self.routed)):
-                s += "    " + "NEW " + self.routed[i].to_def_format() + "\n"
+                s += "    " + "NEW " + self.routed[i].to_def_format()
         s += " ;"
         return s
 
