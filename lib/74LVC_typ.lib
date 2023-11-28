@@ -1,0 +1,279 @@
+library(74LVC_typ) {
+  delay_model : table_lookup;
+
+  /* Units */
+  time_unit               : "1ns";
+  voltage_unit            : "1V";
+  current_unit            : "1mA";
+  capacitive_load_unit(1,pf);
+  leakage_power_unit      : "1mW";
+  pulling_resistance_unit : "1kohm";
+
+  /* Operating Conditions */
+  define(process_corner, operating_conditions, string);
+  operating_conditions (typical) {
+    process_corner	: "Typ";
+    process       	: 1.00;
+    voltage       	: 5.00;
+    temperature   	: 25.00;
+    tree_type     	: balanced_tree;
+  }
+
+  default_operating_conditions : typical;
+  nom_process     : 1.00;
+  nom_temperature : 25.00;
+  nom_voltage     : 5.00;
+
+  voltage_map (VDD, 5.00);
+  voltage_map (VSS, 0.00);
+
+  /* Threshold Definitions */
+  slew_lower_threshold_pct_fall 	: 30.00 ;
+  slew_lower_threshold_pct_rise 	: 30.00 ;
+  slew_upper_threshold_pct_fall 	: 70.00 ;
+  slew_upper_threshold_pct_rise 	: 70.00 ;
+  slew_derate_from_library      	: 1.00 ;
+  input_threshold_pct_fall      	: 50.00 ;
+  input_threshold_pct_rise      	: 50.00 ;
+  output_threshold_pct_fall     	: 50.00 ;
+  output_threshold_pct_rise     	: 50.00 ;
+  default_leakage_power_density 	: 0.00 ;
+  default_cell_leakage_power    	: 0.00 ;
+
+  default_input_pin_cap       		: 5.000000;
+  default_output_pin_cap      		: 0.000000;
+  default_max_capacitance         : 50.000000;
+  default_max_transition          : 25;
+
+  cell (BUF_74LVC1G125) {
+    area: 6;
+    pin (A) {
+      direction: input;
+    }
+    pin (Y) {
+      direction : output;
+      function  : "A";
+    }
+  }
+  cell (NOT_74LVC1G04) {
+    area: 6;
+    pin (A) {
+      direction: input;
+      capacitance: 5;
+    }
+    pin (Y) {
+      direction : output;
+      function  : "!A";
+      max_capacitance: 50;
+      
+      timing () {
+        related_pin: "A";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("1.6");
+        }
+        cell_rise(scalar) {
+          values ("1.6");
+        }
+        fall_transition(scalar) {
+          values ("1.6");
+        }
+        rise_transition(scalar) {
+          values ("1.6");
+        }
+      }
+    }
+  }
+  cell(AND_74LVC1G08) {
+    area: 6;
+    pin(A) { direction: input; }
+    pin(B) { direction: input; }
+    pin(Y) {
+      direction: output;
+      function: "A & B";
+
+      timing () {
+        related_pin: "A B";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("1.7");
+        }
+        cell_rise(scalar) {
+          values ("1.7");
+        }
+        fall_transition(scalar) {
+          values ("1.7");
+        }
+        rise_transition(scalar) {
+          values ("1.7");
+        }
+      }
+    }
+  }
+  cell(NAND_74LVC1G00) {
+    area: 6;
+    pin(A) { direction: input; }
+    pin(B) { direction: input; }
+    pin(Y) {
+      direction: output;
+      function: "!(A & B)";
+
+      timing () {
+        related_pin: "A B";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("1.8");
+        }
+        cell_rise(scalar) {
+          values ("1.8");
+        }
+        fall_transition(scalar) {
+          values ("1.8");
+        }
+        rise_transition(scalar) {
+          values ("1.8");
+        }
+      }
+    }
+  }
+  cell(NOR_74LVC1G02) {
+    area: 6;
+    pin(A) { direction: input; }
+    pin(B) { direction: input; }
+    pin(Y) {
+      direction: output;
+      function: "!(A | B)";
+
+      timing () {
+        related_pin: "A B";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("1.7");
+        }
+        cell_rise(scalar) {
+          values ("1.7");
+        }
+        fall_transition(scalar) {
+          values ("1.7");
+        }
+        rise_transition(scalar) {
+          values ("1.7");
+        }
+      }
+    }
+  }
+  cell(OR_74LVC1G32) {
+    area: 6;
+    pin(A) { direction: input; }
+    pin(B) { direction: input; }
+    pin(Y) {
+      direction: output;
+      function: "A | B";
+
+      timing () {
+        related_pin: "A B";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("1.7");
+        }
+        cell_rise(scalar) {
+          values ("1.7");
+        }
+        fall_transition(scalar) {
+          values ("1.7");
+        }
+        rise_transition(scalar) {
+          values ("1.7");
+        }
+      }
+    }
+  }
+  cell(XOR_74LVC1G86) {
+    area: 6;
+    pin(A) { direction: input; }
+    pin(B) { direction: input; }
+    pin(Y) {
+      direction: output;
+      function: "A ^ B";
+
+      timing () {
+        related_pin: "A B";
+        timing_sense: negative_unate;
+
+        cell_fall(scalar) {
+          values ("1.9");
+        }
+        cell_rise(scalar) {
+          values ("1.9");
+        }
+        fall_transition(scalar) {
+          values ("1.9");
+        }
+        rise_transition(scalar) {
+          values ("1.9");
+        }
+      }
+    }
+  }
+  cell(DFFSR_74LVC1G74) {
+    area: 8;
+    ff("IQ", "IQN") { clocked_on: C;
+                  next_state: D; }
+    pin(C) { direction: input;
+                 clock: true; }
+    pin(D) { 
+      direction: input;
+      timing() {
+        timing_type: setup_rising;
+        related_pin: "C";
+        rise_constraint(scalar) {
+          values("1.1");
+        }
+        fall_constraint(scalar) {
+          values("1.1");
+        }
+      }
+      timing() {
+        timing_type: hold_rising;
+        related_pin: "C";
+        rise_constraint(scalar) {
+          values("1.0");
+        }
+        fall_constraint(scalar) {
+          values("1.0");
+        }
+      }
+    }
+    pin(Q) {
+      direction: output;
+      function: "IQ";
+
+      timing () {
+        related_pin: "C";
+        timing_type: rising_edge;
+        timing_sense: non_unate;
+
+        cell_fall(scalar) {
+          values ("2.5");
+        }
+        cell_rise(scalar) {
+          values ("2.5");
+        }
+        fall_transition(scalar) {
+          values ("2.5");
+        }
+        rise_transition(scalar) {
+          values ("2.5");
+        }
+
+      }
+    }
+    pin(QN) { direction: output;
+              function: "IQN"; }
+  }
+}

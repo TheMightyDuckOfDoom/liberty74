@@ -1,0 +1,1 @@
+module  \$_DFFE_PP_ (input D, C, E, output Q); LUTFF_E  _TECHMAP_REPLACE_ (.D(D), .O(Q), .CLK(C), .E(E)); endmodule
