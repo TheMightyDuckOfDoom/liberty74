@@ -4,27 +4,27 @@ import json
 from mako.template import Template
 
 config_file_name = "./config/pdk.json"
-lef_file_name = "./config/lef.json"
+tech_file_name = "./config/technology.json"
 liberty_prefix = "liberty74_"
 lef_name = "liberty74"
 lib_path = "./pdk/lib/"
 lef_path = "./pdk/lef/"
 verilog_path = "./pdk/verilog/"
 
-# Load LEF JSON
-lef_file = open(lef_file_name)
-lef_json = json.load(lef_file)
+# Load Technology JSON
+tech_file = open(tech_file_name)
+tech_json = json.load(tech_file)
 
 # Read Footprints
 footprints = {}
-for footprint_data in lef_json["footprints"]:
+for footprint_data in tech_json["footprints"]:
     for name in footprint_data["names"]:
         footprints[name] = footprint_data
 
 # Technology Info
-technology = lef_json["technology"]
+technology = tech_json["technology"]
 
-lef_file.close()
+tech_file.close()
 
 # Generate Footprints
 for fp in footprints:

@@ -5,6 +5,8 @@ from kiutils.items.common import Net as KiNet
 from kiutils.items.common import Position as KiPosition
 from kiutils.items.brditems import LayerToken as BrdLayerToken
 from kiutils.items.brditems import Segment as BrdSegment
+from kiutils.items.brditems import Stackup
+from kiutils.items.brditems import StackupLayer
 from kiutils.items.brditems import Via as BrdVia
 from kiutils.items.gritems import GrRect
 import os
@@ -42,8 +44,8 @@ pcb.generator = 'def2pcb'
 
 # Layers
 pcb.layers = []
-lef_json = json.load(open('./config/lef.json'))
-technology = lef_json['technology']
+tech_json = json.load(open('./config/technology.json'))
+technology = tech_json['technology']
 
 scale = float(def_parser.scale)
 wire_width = technology['wire_width']
@@ -52,29 +54,89 @@ via_size = via_drill_size + 2 * technology['via_annular_ring']
 num_metal_layers = technology['metal_layers']
 
 # Metal Layers
-metal_layers = []
+pcb_layer_dict = {}
+pcb_copper_layers = []
 for i in range(0, num_metal_layers):
-    layer_name = 'Metal' + str(i + 1)
-    metal_layers.append(layer_name)
+    layer_name = ''
+    ordinal = i
+    if i == 0:
+        layer_name = 'F'
+    elif i == num_metal_layers - 1:
+        layer_name = 'B'
+        ordinal = 31
+    else:
+        layer_name = 'In' + str(i)
+    
+    layer_name += '.Cu'
+
+    pcb_copper_layers.append(layer_name)
+    metal_name = 'Metal' + str(i + 1)
+    pcb_layer_dict[metal_name] = layer_name
+    
     pcb.layers.append(
         BrdLayerToken(
-            ordinal = i,
+            ordinal = ordinal,
             name = layer_name,
-            type = 'signal'
+            type = 'signal',
+            userName = metal_name
         )
     )
 
-layer_num = num_metal_layers
+# Manufacturing Layers
+pcb.layers.append(BrdLayerToken(ordinal = 32, name = 'B.Adhes', type = 'user', userName = 'B.Adhesive'))
+pcb.layers.append(BrdLayerToken(ordinal = 33, name = 'F.Adhes', type = 'user', userName = 'F.Adhesive'))
+pcb.layers.append(BrdLayerToken(ordinal = 34, name = 'F.Paste', type = 'user'))
+pcb.layers.append(BrdLayerToken(ordinal = 35, name = 'B.Paste', type = 'user'))
+pcb.layers.append(BrdLayerToken(ordinal = 36, name = 'B.SilkS', type = 'user', userName = 'B.Silkscreen'))
+pcb.layers.append(BrdLayerToken(ordinal = 37, name = 'F.SilkS', type = 'user', userName = 'F.Silkscreen'))
+pcb.layers.append(BrdLayerToken(ordinal = 38, name = 'F.Mask', type = 'user'))
+pcb.layers.append(BrdLayerToken(ordinal = 39, name = 'B.Mask', type = 'user'))
+pcb.layers.append(BrdLayerToken(ordinal = 44, name = 'Edge.Cuts', type = 'user'))
+pcb.layers.append(BrdLayerToken(ordinal = 45, name = 'Margin', type = 'user'))
+pcb.layers.append(BrdLayerToken(ordinal = 46, name = 'B.CrtYd', type = 'user', userName = 'B.Courtyard'))
+pcb.layers.append(BrdLayerToken(ordinal = 47, name = 'F.CrtYd', type = 'user', userName = 'F.Courtyard'))
+pcb.layers.append(BrdLayerToken(ordinal = 48, name = 'F.Fab', type = 'user'))
+pcb.layers.append(BrdLayerToken(ordinal = 49, name = 'B.Fab', type = 'user'))
 
-# Edge.Cuts Layer
-pcb.layers.append(
-    BrdLayerToken(
-        ordinal = layer_num,
-        name = 'Edge.Cuts',
-        type = 'user'
-    )
-)
-layer_num += 1
+# Stackup
+stackup = Stackup()
+
+stackup.layers.append(StackupLayer(name = "F.SilkS", type = "Top Silk Screen"))
+stackup.layers.append(StackupLayer(name = "F.Paste", type = "Top Solder Paste"))
+stackup.layers.append(StackupLayer(name = "F.Mask", type = "Top Solder Mask", thickness = 0.01))
+pcb_stackup = tech_json['pcb_stackup']
+for i in range(0, pcb_stackup['copper_layers']):
+    layer_name = ''
+    if i == 0:
+        layer_name = 'F'
+    elif i == num_metal_layers - 1:
+        layer_name = 'B'
+    else:
+        layer_name = 'In' + str(i)
+    layer_name += '.Cu'
+    
+    # Add copper layer
+    stackup.layers.append(StackupLayer(name = layer_name, type = "copper", thickness = pcb_stackup['copper_thickness'][i]))
+    
+    # Add dielectric layer
+    if i < pcb_stackup['copper_layers']-1:
+        stackup.layers.append(
+            StackupLayer(
+                name        = "dielectric " + str(i + 1),
+                material    = pcb_stackup['dielectric_materials'][i],
+                type        = pcb_stackup['dielectric_types'][i],
+                thickness   = pcb_stackup['dielectric_thickness'][i],
+                epsilonR    = pcb_stackup['dielectric_constants'][i],
+                lossTangent = pcb_stackup['dielectric_loss_tangents'][i]
+            )
+        )
+
+stackup.layers.append(StackupLayer(name = "B.Mask", type = "Bottom Solder Mask", thickness = 0.01))
+stackup.layers.append(StackupLayer(name = "B.Paste", type = "Bottom Solder Paste"))
+stackup.layers.append(StackupLayer(name = "B.SilkS", type = "Bottom Silk Screen"))
+
+pcb.setup.stackup = stackup
+pcb.general.thickness = pcb_stackup['pcb_thickness']
 
 # PCB outline
 outline = GrRect(
@@ -185,7 +247,7 @@ for net in def_parser.specialnets:
                         position = interception,
                         size = via_size,
                         drill = via_drill_size,
-                        layers = metal_layers,
+                        layers = pcb_copper_layers,
                         free = False,
                         net = net_idx,
                         tstamp = 'via_powergrid_interception_' + shape.layer
@@ -197,7 +259,7 @@ for net in def_parser.specialnets:
                 start = start,
                 end = end,
                 width = float(shape.width) / scale,
-                layer = shape.layer,
+                layer = pcb_layer_dict[shape.layer],
                 locked = False,
                 net = net_idx,
                 tstamp = 'seg_powergrid_' + shape.layer + '_' + str(shape.points[0][0]) + '_' + str(shape.points[0][1]) + '_' + str(shape.points[1][0]) + '_' + str(shape.points[1][1])
@@ -212,7 +274,7 @@ for net in def_parser.specialnets:
                 position = KiPosition(shape.end_via_loc[0] / scale, shape.end_via_loc[1] / scale),
                 size = via_size,
                 drill = via_drill_size,
-                layers = metal_layers,
+                layers = pcb_copper_layers,
                 free = False,
                 net = net_idx,
                 tstamp = 'via_powergrid_' + shape.shape_type.lower() + '_' + shape.layer + '_' + str(shape.end_via_loc[0]) + '_' + str(shape.end_via_loc[1])
@@ -242,7 +304,7 @@ for net in def_parser.nets:
                 start = KiPosition(route.points[0][0] / scale, route.points[0][1] / scale),
                 end = KiPosition(route.points[1][0] / scale, route.points[1][1] / scale),
                 width = wire_width,
-                layer = route.layer,
+                layer = pcb_layer_dict[route.layer],
                 locked = False,
                 net = next((x.number for x in pcb.nets if x.name == net.name), 0),
                 tstamp = 'seg_' + route.layer + '_' + str(route.points[0][0]) + '_' + str(route.points[0][1]) + '_' + str(route.points[1][0]) + '_' + str(route.points[1][1])
@@ -256,7 +318,7 @@ for net in def_parser.nets:
                 position = KiPosition(route.end_via_loc[0] / scale, route.end_via_loc[1] / scale),
                 size = via_size,
                 drill = via_drill_size,
-                layers = metal_layers,
+                layers = pcb_copper_layers,
                 free = False,
                 net = next((x.number for x in pcb.nets if x.name == net.name), 0),
                 tstamp = 'via_' + route.layer + '_' + str(route.end_via_loc[0]) + '_' + str(route.end_via_loc[1])

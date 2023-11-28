@@ -10,6 +10,17 @@
         "via_annular_ring": 0.13,
         "via_hole_to_hole_spacing": 0.5
     },
+    "pcb_stackup": {
+        "name": "jlcpcb_2layer_1mm6",
+        "pcb_thickness": 1.6,
+        "copper_layers": 2,
+        "copper_thickness": [0.035, 0.035],
+        "dielectric_thickness": [1.53],
+        "dielectric_materials": ["FR4"],
+        "dielectric_constants": [4.5],
+        "dielectric_types": ["core"],
+        "dielectric_loss_tangents": [0.02]
+    },
     "footprints": [
         {
             "names": ["SC70-6", "SOT-363", "SC70-5", "SOT-353"],
