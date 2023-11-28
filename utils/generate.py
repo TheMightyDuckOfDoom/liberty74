@@ -28,7 +28,7 @@ lef_file.close()
 
 # Generate Footprints
 for fp in footprints:
-    print(f"Generate footprint {fp}")
+    print(f"Generating footprint {fp}")
 
     rotate = False
     if "rotate" in footprints[fp]:
@@ -131,8 +131,6 @@ rendered_tech_lef = tech_lef_template.render(**tech_lef_context)
 with open(lef_path + lef_name + "_tech.lef", 'w', encoding='utf-8') as tech_lef_file:
     tech_lef_file.write(rendered_tech_lef)
     
-print("Done!")
-
 # Load JSON file
 config_file = open(config_file_name)
 config_json = json.load(config_file)
@@ -168,8 +166,6 @@ for c in corners:
     with open(lib_path + lib_name + ".lib", 'w', encoding='utf-8') as lib_file:
         lib_file.write(rendered_lib)
     
-    print("Done!")
-
 # Load LEF template
 lef_template = Template(filename="./templates/lef.template")
 
@@ -187,8 +183,6 @@ rendered_lef = lef_template.render(**lef_context)
 with open(lef_path + lef_name + ".lef", 'w', encoding='utf-8') as lef_file:
     lef_file.write(rendered_lef)
     
-print("Done!")
-
 # Load Verilog template
 verilog_template = Template(filename="./templates/verilog.template")
 

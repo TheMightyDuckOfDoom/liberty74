@@ -5,3 +5,4 @@ slpp_all
 *.log
 openroad/out
 openroad/*.log
+utils/lef_def_parser/__pycache__

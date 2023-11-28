@@ -19,6 +19,10 @@ openroad-setup:
 chip: openroad-setup pdk
 	bash openroad/start.sh
 
+pcb: pdk
+	python3 utils/def2pcb.py out/alu.final.def
+
 clean:
 	rm -rf slpp_all && true
 	rm -rf pdk      && true
+	rm -rf utils/lef_def_parser/__pycache__ && true
