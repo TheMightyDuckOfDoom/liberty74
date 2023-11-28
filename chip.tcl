@@ -1,5 +1,5 @@
 source init_tech.tcl
-set design_name alu
+set design_name clock
 
 proc placeDetail {} {
   detailed_placement
@@ -15,9 +15,9 @@ proc placeDetail {} {
 read_verilog out/${design_name}.v
 link_design $design_name
 
-#create_clock -name clk -period 10 {clk_i}
-#set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
-#set_output_delay -clock clk 0 [all_outputs]
+create_clock -name clk -period 10 {clk_i}
+set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
+set_output_delay -clock clk 0 [all_outputs]
 report_checks -path_delay min
 report_checks -path_delay max
 

@@ -12,19 +12,12 @@
     },
     "footprints": [
         {
-            "names": ["SC70-6", "SOT-363"],
+            "names": ["SC70-6", "SOT-363", "SC70-5", "SOT-353"],
             "num_pins": 6,
-            "pad_template": [0.0, 0.0, 0.75, 0.4],
+            "pad_width": 0.75,
+            "pad_height": 0.4,
             "y_center_spacing": 0.65,
             "x_center_spacing": 2.1
-        },
-        {
-            "names": ["SC70-5", "SOT-353"],
-            "num_pins": 5,
-            "pad_template": [0.0, 0.0, 0.75, 0.4],
-            "y_center_spacing": 0.65,
-            "x_center_spacing": 2.1, 
-            "mssing_pad": 5
         }
     ]
 }

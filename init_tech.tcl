@@ -5,4 +5,4 @@ read_liberty -corner ss lib/liberty74_slow_4p50V_85C.lib
 read_liberty -corner ff lib/liberty74_fast_5p50V_m40C.lib
 
 read_lef lef/liberty74_tech.lef
-read_lef lef/74LVC.lef
+read_lef lef/liberty74.lef

@@ -55,6 +55,18 @@
             "desc": "Single Buffer",
             "footprint": "SC70-5",
             "area": 6,
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 6,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 3,
+                    "function": "ground"
+                }
+            ],
             "inputs": [
                 {
                     "name": "A",
@@ -87,6 +99,18 @@
             "desc": "Single Inverter",
             "footprint": "SC70-5",
             "area": 6,
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 6,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 3,
+                    "function": "ground"
+                }
+            ],
             "inputs": [
                 {
                     "name": "A",
@@ -119,14 +143,26 @@
             "desc": "2 Input NAND",
             "footprint": "SC70-5",
             "area": 6,
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 6,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 3,
+                    "function": "ground"
+                }
+            ],
             "inputs": [
                 {
                     "name": "A",
-                    "pin_number": 1
+                    "pin_number": 2
                 },
                 {
                     "name": "B",
-                    "pin_number": 2
+                    "pin_number": 1
                 }
             ],
             "outputs": [
@@ -160,6 +196,18 @@
                 "next_state": "D",
                 "clear": "!RST_N"
             },
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 5,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                }
+            ],
             "inputs": [
                 {
                     "name": "CLK",

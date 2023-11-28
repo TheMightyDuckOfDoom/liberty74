@@ -21,7 +21,26 @@ MACRO ${cell["name"]}
     DIRECTION INPUT ;
     USE SIGNAL ;
     PORT
-##${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
+${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
+    END
+  END ${pin["name"]}
+  % endfor
+  % for pin in cell["outputs"]:
+  PIN ${pin["name"]}
+    DIRECTION OUTPUT ;
+    USE SIGNAL ;
+    PORT
+${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
+    END
+  END ${pin["name"]}
+  % endfor
+  % for pin in cell["power"]:
+  PIN ${pin["name"]}
+    DIRECTION INOUT ;
+    USE POWER ;
+    SHAPE ABUTMENT ;
+    PORT
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
     END
   END ${pin["name"]}
   % endfor
