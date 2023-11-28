@@ -1,0 +1,49 @@
+VERSION 5.7 ;
+DIVIDERCHAR "/" ;
+BUSBITCHARS "[]" ;
+
+UNITS
+  DATABASE MICRONS 1000 ;
+END UNITS
+
+MANUFACTURINGGRID 0.005 ;
+
+PROPERTYDEFINITIONS
+  LAYER routingPitch REAL ;
+  LAYER routingGrid REAL ;
+END PROPERTYDEFINITIONS
+
+% for i in range(1, technology["metal_layers"] + 1):
+LAYER Metal${i}
+  TYPE ROUTING ;
+% if i % 2 == 1:
+  DIRECTION HORIZONTAL ;
+% else:
+  DIRECTION VERTICAL ;
+% endif
+  PITCH ${technology["wire_pitch"]} ;
+  WIDTH ${technology["wire_width"]} ;
+  SPACING ${technology["wire_spacing"]} ;
+end Metal${i}
+
+% if i < technology["metal_layers"]:
+LAYER Via${i}
+  TYPE CUT ;
+  SPACING ${technology["via_hole_to_hole_spacing"]} ;
+  WIDTH ${technology["via_diameter"]} ;
+  ENCLOSURE ${technology["via_annular_ring"]} ${technology["via_annular_ring"]} ;
+END Via${i}
+
+% endif
+% endfor
+% for i in range(1, technology["metal_layers"]):
+VIA Via${i}_0 DEFAULT
+  LAYER Metal${i} ;
+    RECT -${technology["via_diameter"] / 2 + technology["via_annular_ring"]} -${technology["via_diameter"] / 2 + technology["via_annular_ring"]} ${technology["via_diameter"] / 2 + technology["via_annular_ring"]} ${technology["via_diameter"] / 2 + technology["via_annular_ring"]} ;
+  LAYER Via${i} ;
+    RECT -${technology["via_diameter"] / 2} -${technology["via_diameter"] / 2} ${technology["via_diameter"] / 2} ${technology["via_diameter"] / 2} ;
+  LAYER Metal${i + 1} ;
+    RECT -${technology["via_diameter"] / 2 + technology["via_annular_ring"]} -${technology["via_diameter"] / 2 + technology["via_annular_ring"]} ${technology["via_diameter"] / 2 + technology["via_annular_ring"]} ${technology["via_diameter"] / 2 + technology["via_annular_ring"]} ;
+END Via${i}_0
+
+% endfor

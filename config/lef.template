@@ -5,22 +5,23 @@ DIVIDERCHAR "/" ;
 SITE CoreSite
   CLASS CORE ;
   SYMMETRY R90 ;
-  SIZE ${site_width} BY ${row_heigth} ;
+  SIZE ${site_width} BY ${row_height} ;
 END CoreSite
 
 % for cell in cells:
 MACRO ${cell["name"]}
   CLASS CORE ;
   ORIGIN 0 0 ;
+  SIZE ${footprints[cell["footprint"]]["cell_width"]} BY ${footprints[cell["footprint"]]["cell_height"]} ;
   SYMMETRY R90 ;
-  SIYE CoreSite ;
+  SITE CoreSite ;
 
   % for pin in cell["inputs"]:
   PIN ${pin["name"]}
     DIRECTION INPUT ;
     USE SIGNAL ;
     PORT
-${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
+##${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
     END
   END ${pin["name"]}
   % endfor

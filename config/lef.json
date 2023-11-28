@@ -1,4 +1,15 @@
 {
+    "technology": {
+        "row_height": 3.6,
+        "site_width": 0.1,
+        "metal_layers": 2,
+        "wire_pitch": 0.3,
+        "wire_width": 0.13,
+        "wire_spacing": 0.13,
+        "via_diameter": 0.4,
+        "via_annular_ring": 0.13,
+        "via_hole_to_hole_spacing": 0.5
+    },
     "footprints": [
         {
             "names": ["SC70-6", "SOT-363"],
