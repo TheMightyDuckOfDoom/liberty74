@@ -13,6 +13,7 @@ tech_file_name = "./config/technology.json"
 liberty_prefix = "liberty74_"
 lef_name = "liberty74"
 pdk_path = "./pdk/"
+openroad_path = pdk_path + "openroad/"
 kicad_path = pdk_path + "kicad/"
 footprint_path = kicad_path + "footprints/"
 lib_path = pdk_path + "lib/"
@@ -31,6 +32,8 @@ for footprint_data in tech_json["footprints"]:
 
 # Technology Info
 technology = tech_json["technology"]
+if 'row_height_multiplier' in technology:
+    technology['row_height'] = technology['row_height_multiplier'] * technology['y_wire_pitch']
 
 tech_file.close()
 
@@ -76,7 +79,7 @@ for fp in footprints:
     for i in range(1, footprints[fp]["num_pins"] + 1):
         temp = ""
         pin_dim = []
-        for layer in range(1, technology["metal_layers"] + 1 if False else 2):
+        for layer in range(1, technology["metal_layers"] + 1 if not footprints[fp]['single_layer_footprint'] else 2):
             # Pins on each layer
             temp +=  f"      LAYER Metal{layer} ;\n"
             if rotate:
@@ -229,6 +232,20 @@ rendered_verilog = verilog_template.render(**verilog_context)
 
 with open(verilog_path + "verilog.sv", 'w', encoding='utf-8') as verilog_file:
     verilog_file.write(rendered_verilog)
+    
+# Load tcl template
+make_tracks_template = Template(filename="./templates/make_tracks.tcl.template")
+
+tech_context = {
+    "technology": technology
+}
+
+print("Generating make_tracks.tcl...")
+
+rendered_make_tracks = make_tracks_template.render(**tech_context)
+
+with open(openroad_path + "make_tracks.tcl", 'w', encoding='utf-8') as tcl_file:
+    tcl_file.write(rendered_make_tracks)
 
 print("Generating Kicad Footprints")
 
@@ -314,12 +331,22 @@ for cell in cells:
         )
 
         power_pad_dim = fp['power_pin_dimensions'][power_pin['pin_number'] - 1]
-        kifp.graphicItems.append(
-            FpRect(
-                start = KiPosition(power_pad_dim[0], -power_pad_dim[1]),
-                end = KiPosition(power_pad_dim[2], -power_pad_dim[3]),
-                layer = 'F.Cu',
-                fill = 'solid'
+
+        start_pos = KiPosition(min(power_pad_dim[0], power_pad_dim[2]), min(-power_pad_dim[1], -power_pad_dim[3]))
+        end_pos   = KiPosition(max(power_pad_dim[0], power_pad_dim[2]), max(-power_pad_dim[1], -power_pad_dim[3]))
+
+        power_pad_width  = end_pos.X - start_pos.X
+        power_pad_height = end_pos.Y - start_pos.Y
+
+        kifp.pads.append(
+            KiPad(
+                number = power_pin['pin_number'],
+                type = 'smd',
+                shape = 'rect',
+                position = KiPosition(start_pos.X + power_pad_width / 2, start_pos.Y + power_pad_height / 2),
+                size = KiPosition(power_pad_width, power_pad_height),
+                layers = ['F.Cu'],
+                pinFunction = power_pin['name']
             )
         )
 
@@ -336,31 +363,32 @@ for cell in cells:
                 shape = 'rect',
                 position = KiPosition(pad_dim[0] + pad_width / 2, -(pad_dim[1] + pad_height / 2)),
                 size = KiPosition(pad_width, pad_height),
-                layers = pcb_pad_layers,
+                layers = ['F.Cu'] if fp['single_layer_footprint'] else pcb_pad_layers,
                 pinFunction = pin['name']
             )
         )
 
-        # Add Via pad
-        via_position = KiPosition(pad_dim[0], -pad_dim[1])
-        via_position.X += pad_width / 2
-        if pin['pin_number'] % 2 == 0:
-            via_position.Y -= via_size.Y / 2
-        else:
-            via_position.Y -= pad_height - via_size.Y / 2
+        if not fp['single_layer_footprint']:
+            # Add Via pad
+            via_position = KiPosition(pad_dim[0], -pad_dim[1])
+            via_position.X += pad_width / 2
+            if pin['pin_number'] % 2 == 0:
+                via_position.Y -= via_size.Y / 2
+            else:
+                via_position.Y -= pad_height - via_size.Y / 2
 
-        kifp.pads.append(
-            KiPad(
-                number = pin['pin_number'],
-                type = 'thru_hole',
-                shape = 'circle',
-                position = via_position,
-                size = via_size,
-                drill = drill,
-                layers = pcb_copper_layers,
-                pinFunction = pin['name']
+            kifp.pads.append(
+                KiPad(
+                    number = pin['pin_number'],
+                    type = 'thru_hole',
+                    shape = 'circle',
+                    position = via_position,
+                    size = via_size,
+                    drill = drill,
+                    layers = pcb_copper_layers,
+                    pinFunction = pin['name']
+                )
             )
-        )
 
     for pin in cell['outputs']:
         pad_dim = fp['pin_dimensions'][pin['pin_number'] - 1][0]
@@ -373,31 +401,32 @@ for cell in cells:
                 shape = 'rect',
                 position = KiPosition(pad_dim[0] + pad_width / 2, -(pad_dim[1] + pad_height / 2)),
                 size = KiPosition(pad_width, pad_height),
-                layers = pcb_pad_layers,
+                layers = ['F.Cu'] if fp['single_layer_footprint'] else pcb_pad_layers,
                 pinFunction = pin['name']
             )
         )
 
-        # Add Via pad
-        via_position = KiPosition(pad_dim[0], -pad_dim[1])
-        via_position.X += pad_width / 2
-        if pin['pin_number'] % 2 == 0:
-            via_position.Y -= via_size.Y / 2
-        else:
-            via_position.Y -= pad_height - via_size.Y / 2
+        if not fp['single_layer_footprint']:
+            # Add Via pad
+            via_position = KiPosition(pad_dim[0], -pad_dim[1])
+            via_position.X += pad_width / 2
+            if pin['pin_number'] % 2 == 0:
+                via_position.Y -= via_size.Y / 2
+            else:
+                via_position.Y -= pad_height - via_size.Y / 2
 
-        kifp.pads.append(
-            KiPad(
-                number = pin['pin_number'],
-                type = 'thru_hole',
-                shape = 'circle',
-                position = via_position,
-                size = via_size,
-                drill = drill,
-                layers = pcb_copper_layers,
-                pinFunction = pin['name']
+            kifp.pads.append(
+                KiPad(
+                    number = pin['pin_number'],
+                    type = 'thru_hole',
+                    shape = 'circle',
+                    position = via_position,
+                    size = via_size,
+                    drill = drill,
+                    layers = pcb_copper_layers,
+                    pinFunction = pin['name']
+                )
             )
-        )
 
     kifp.to_file(footprint_path + cell['name'] + '_N.kicad_mod')
 

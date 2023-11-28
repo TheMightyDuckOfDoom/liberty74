@@ -34,7 +34,7 @@ pcb_file_path = output_dir + filename + '.kicad_pcb'
 print('Parsing ' + def_file_path + '...')
 def_parser = DefParser(def_file_path)
 def_parser.parse()
-def_parser.write_def(output_dir + filename + '_parsed.def')
+#def_parser.write_def(output_dir + filename + '_parsed.def')
 
 # Generate PCB
 print('Generating ' + pcb_file_path + '...')
@@ -211,13 +211,10 @@ for idx, net in enumerate(def_parser.nets):
     pcb.nets.append(new_net)
 
 # Add components
+print('Adding components...')
 footprints_dir = './pdk/kicad/footprints/'
 footprint_dict = {}
 for comp in def_parser.components:
-    print(comp.name)
-    print(comp.macro)
-    print(comp.orient)
-
     fp = KiFootprint().from_file(footprints_dir + comp.macro + '_' + comp.orient + '.kicad_mod')
     for item in fp.graphicItems:
         if isinstance(item, FpText) and item.type == 'reference':
@@ -294,7 +291,7 @@ def find_intercept(start1: KiPosition, end1: KiPosition, start2: KiPosition, end
     return KiPosition(X = start1.X, Y = start2.Y)
 
 # Add special nets routing
-print('Generating power grid...')
+print('Adding power grid...')
 
 for net in def_parser.specialnets:
     ring_shapes = list(filter(lambda x: x.shape_type == 'RING' and x.end_via == None, net.shapes))
@@ -356,7 +353,7 @@ for net in def_parser.specialnets:
             pcb.traceItems.append(via)
 
 # Add net routing
-print("Generating net routing...")
+print("Adding net routing...")
 
 for net in def_parser.nets:
     # Connect components

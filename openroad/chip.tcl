@@ -29,9 +29,7 @@ initialize_floorplan \
   -core_area [ICeWall::get_core_area] \
   -site      CoreSite
 
-
-make_tracks Metal1 -x_offset 0.1 -x_pitch 0.325 -y_offset 0 -y_pitch 0.3
-make_tracks Metal2 -x_offset 0.1 -x_pitch 0.325 -y_offset 0 -y_pitch 0.3
+source ../pdk/openroad/make_tracks.tcl
 
 place_pins -hor_layers Metal1 -ver_layers Metal2 -min_distance_in_tracks -min_distance 8
 
@@ -50,7 +48,7 @@ add_pdn_ring -grid {grid}     \
     -core_offsets {4.00 4.00 4.00 4.00} \
     -add_connect
 
-add_pdn_strip -grid grid -layer Metal1 -width 0.25 -pitch 3.6 -followpins -extend_to_core_ring
+add_pdn_strip -grid grid -layer Metal1 -width 0.25 -followpins -extend_to_core_ring
 
 pdngen
 
@@ -105,6 +103,8 @@ placeDetail
 check_placement -verbose
 
 global_route -verbose -allow_congestion
+
+pin_access
 
 gui::pause
 

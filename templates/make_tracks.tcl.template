@@ -1,0 +1,4 @@
+# Script creating routing tracks
+% for i in range(1, technology["metal_layers"] + 1):
+make_tracks Metal${i} -x_offset 0 -x_pitch ${technology['x_wire_pitch']} -y_offset 0 -y_pitch ${technology['y_wire_pitch']}
+% endfor

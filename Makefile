@@ -5,6 +5,7 @@ pdk-setup:
 	mkdir -p pdk/lef
 	mkdir -p pdk/lib
 	mkdir -p pdk/verilog
+	mkdir -p pdk/openroad
 	mkdir -p pdk/kicad
 	mkdir -p pdk/kicad/footprints
 

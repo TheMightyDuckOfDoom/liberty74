@@ -18,10 +18,11 @@ LAYER Metal${i}
   TYPE ROUTING ;
   % if i % 2 == 1:
   DIRECTION HORIZONTAL ;
+  PITCH ${technology["y_wire_pitch"]} ;
   % else:
   DIRECTION VERTICAL ;
+  PITCH ${technology["x_wire_pitch"]} ;
   % endif
-  PITCH ${technology["wire_pitch"]} ;
   WIDTH ${technology["wire_width"]} ;
   SPACING ${technology["wire_spacing"]} ;
 end Metal${i}

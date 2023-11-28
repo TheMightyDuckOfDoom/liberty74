@@ -136,6 +136,11 @@
             "footprint": "SC70-5",
             "power": [
                 {
+                    "name": "NC",
+                    "pin_number": 1,
+                    "function": "ground"
+                },
+                {
                     "name": "VDD",
                     "pin_number": 6,
                     "function": "power"
