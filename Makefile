@@ -4,7 +4,7 @@ all: synth
 	pip install -r requirements.txt --break-system-packages
 	touch .python_setup
 
-pdk/.pdk: .python_setup utils/generate.py config/pdk.json config/technology.json
+pdk/.pdk: .python_setup utils/*.py config/pdk.json config/technology.json
 	mkdir -p pdk
 	mkdir -p pdk/lef
 	mkdir -p pdk/lib

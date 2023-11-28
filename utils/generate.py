@@ -1,5 +1,7 @@
 # Generates Library
 
+from footprint import Footprint
+
 import json
 from mako.template import Template
 from kiutils.items.common import Position as KiPosition
@@ -37,119 +39,24 @@ if 'row_height_multiplier' in technology:
 
 tech_file.close()
 
+new_fps = {}
+
 # Generate Footprints
 for fp in footprints:
     print(f"Generating footprint {fp}")
 
-    rotate = False
-    if "rotate" in footprints[fp]:
-        rotate = footprints[fp]["rotate"]
+    new_fps.update(Footprint.from_json(footprints[fp], technology))
 
-    footprints[fp]["cell_height"] = technology["row_height"]
-    if rotate:
-        footprints[fp]["cell_width"]  = footprints[fp]["pad_height"] * 2 + footprints[fp]["y_center_spacing"] * (footprints[fp]["num_pins"] / 2 - 1)
-    else:
-        footprints[fp]["cell_width"]  = footprints[fp]["pad_width"] * 2 + footprints[fp]["x_center_spacing"]
-
-    r = technology["row_height"]
-    s = footprints[fp]["y_center_spacing"]
-    N = footprints[fp]["num_pins"]
-    h = footprints[fp]["pad_height"]
+    footprints[fp]["pin_lef_template"] = [""]
+    footprints[fp]["power_pin_lef_template"] = [""]
     
-    H = (N / 2 - 1) * s + h
-    m = (r - H) / 2
-    y_offset = m + (N / 2 - 1) * s
-
-    x_start = footprints[fp]["pad_width"] / 2
-    if rotate:
-        x_start = (footprints[fp]['cell_height'] - footprints[fp]['pad_width'] - footprints[fp]['x_center_spacing']) / 2
+    footprints[fp]["cell_height"] = new_fps[fp].get_cell_height()
+    footprints[fp]["cell_width"] = new_fps[fp].get_cell_width()
 
     # Loop over pins
-    pin_templates = [""]
-    power_pin_templates = [""]
-    x = x_start
-    if rotate:
-        y = footprints[fp]["pad_height"] / 2
-    else:
-        y = y_offset
-
-    pin_dimensions = []
-    power_pin_dimensions = []
-
     for i in range(1, footprints[fp]["num_pins"] + 1):
-        temp = ""
-        pin_dim = []
-        for layer in range(1, technology["metal_layers"] + 1 if not footprints[fp]['single_layer_footprint'] else 2):
-            # Pins on each layer
-            temp +=  f"      LAYER Metal{layer} ;\n"
-            if rotate:
-                temp += f"        RECT {y} {x} {y + footprints[fp]['pad_height']} {x + footprints[fp]['pad_width']} ;"
-                pin_dim.append([y, x])
-            else:
-                temp += f"        RECT {x} {y} {x + footprints[fp]['pad_width']} {y + footprints[fp]['pad_height']} ;"
-                pin_dim.append([x, y])
-            # Power pins only on Metal1
-            if layer == 1:
-                power_temp  = f"      LAYER Metal{layer} ;\n"
-                power_temp += f"        RECT "
-                dim_temp = []
-                if i <= footprints[fp]["num_pins"] / 2:
-                    if rotate:
-                        power_temp += f"{y} 0"
-                        dim_temp = [y, 0]
-                    else:
-                        power_temp += f"{x} 0"
-                        dim_temp = [x, 0]
-                else:
-                    if rotate:
-                        power_temp += f"{y} {x}"
-                        dim_temp = [y, x]
-                    else:
-                        power_temp += f"{x} {y}"
-                        dim_temp = [x, y]
-                    
-                if i > footprints[fp]["num_pins"] / 2:
-                    if rotate:
-                        power_temp += f" {y + footprints[fp]['pad_height']} {technology['row_height']} ;"
-                        dim_temp.append(y + footprints[fp]['pad_height'])
-                    else:
-                        power_temp += f" {x + footprints[fp]['pad_width']} {technology['row_height']} ;" 
-                        dim_temp.append(x + footprints[fp]['pad_width'])
-                    dim_temp.append(technology['row_height'])
-                else:
-                    if rotate:
-                        power_temp += f" {y + footprints[fp]['pad_height']} {x + footprints[fp]['pad_width']} ;"
-                        dim_temp.append(y + footprints[fp]['pad_height'])
-                        dim_temp.append(x + footprints[fp]['pad_width'])
-                    else:
-                        power_temp += f" {x + footprints[fp]['pad_width']} {y + footprints[fp]['pad_height']} ;"
-                        dim_temp.append(x + footprints[fp]['pad_width'])
-                        dim_temp.append(y + footprints[fp]['pad_height'])
-
-                power_pin_dimensions.append(dim_temp)
-                power_pin_templates.append(power_temp) 
-            if layer < technology["metal_layers"]:
-                temp += "\n"
-        pin_dimensions.append(pin_dim)
-        pin_templates.append(temp)
-
-        if i == footprints[fp]["num_pins"] / 2:
-            x += footprints[fp]["x_center_spacing"]
-        elif i > footprints[fp]["num_pins"] / 2:
-            if rotate:
-                y -= footprints[fp]["y_center_spacing"]
-            else:
-                y += footprints[fp]["y_center_spacing"]
-        else:
-            if rotate:
-                y += footprints[fp]["y_center_spacing"]
-            else:
-                y -= footprints[fp]["y_center_spacing"]
-
-    footprints[fp]["pin_dimensions"] = pin_dimensions
-    footprints[fp]["power_pin_dimensions"] = power_pin_dimensions
-    footprints[fp]["pin_lef_template"] = pin_templates
-    footprints[fp]["power_pin_lef_template"] = power_pin_templates
+        footprints[fp]["pin_lef_template"].append(new_fps[fp].get_pin_lef(i))
+        footprints[fp]["power_pin_lef_template"].append(new_fps[fp].get_power_pin_lef(i))
 
 print("Footprints generated")
 
@@ -194,7 +101,8 @@ for c in corners:
         "lib_name": lib_name,
         "corner": corners[c],
         "cells": cells,
-        "footprints": footprints
+        "footprints": footprints,
+        "new_fps": new_fps
     }
 
     rendered_lib = lib_template.render(**lib_context)
@@ -208,7 +116,7 @@ lef_template = Template(filename="./templates/lef.template")
 lef_context = {
     "footprints": footprints,
     "cells": cells,
-    "site_width": technology["site_width"],
+    "site_width": technology["x_wire_pitch"],
     "row_height": technology["row_height"]
 }
 
@@ -291,7 +199,7 @@ drill = DrillDefinition(
 via_size = KiPosition(2 * technology['via_annular_ring'] + technology['via_diameter'], 2 * technology['via_annular_ring'] + technology['via_diameter'])
 
 for cell in cells:
-    fp = footprints[cell['footprint']]
+    fp = new_fps[cell['footprint']]
 
     kifp = KiFootprint().create_new(library_id = "liberty74:" + cell['name'] + '_N', value = cell['name'], type = 'smd')
     kifp.generator = 'liberty74'
@@ -302,7 +210,7 @@ for cell in cells:
     kifp.graphicItems.append(
         FpRect(
             start = KiPosition(X = 0, Y = 0),
-            end = KiPosition(fp['cell_width'], -fp['cell_height']),
+            end = KiPosition(fp.get_cell_width(), -fp.get_cell_height()),
             layer = 'F.CrtYd',
             width = 0.05
         )
@@ -310,7 +218,7 @@ for cell in cells:
     kifp.graphicItems.append(
         FpRect(
             start = KiPosition(X = 0, Y = 0),
-            end = KiPosition(fp['cell_width'], -fp['cell_height']),
+            end = KiPosition(fp.get_cell_width(), -fp.get_cell_height()),
             layer = 'F.SilkS',
             width = 0.05
         )
@@ -318,143 +226,116 @@ for cell in cells:
     kifp.graphicItems.append(
         FpRect(
             start = KiPosition(X = 0, Y = 0),
-            end = KiPosition(fp['cell_width'], -fp['cell_height']),
+            end = KiPosition(fp.get_cell_width(), -fp.get_cell_height()),
             layer = 'B.SilkS',
             width = 0.05
         )
     )
 
-    pad_width = fp['pad_height'] if fp['rotate'] else fp['pad_width']
-    pad_height = fp['pad_width'] if fp['rotate'] else fp['pad_height']
-
     # Power Pins -> Tie Pins not handled correctly :(
     for power_pin in cell['power']:
-        pad_dim = fp['pin_dimensions'][power_pin['pin_number'] - 1][0]
         pin_function = power_pin['connect_to_net'] if 'connect_to_net' in power_pin else power_pin['name'] 
         
+        pin_number = power_pin['pin_number']
+        pin_rect = fp.get_pin(pin_number)
+        power_pin_rect = fp.get_power_pin(pin_number)
+
+        # Normal Pad for soldering
         kifp.pads.append(
             KiPad(
-                number = power_pin['pin_number'],
+                number = pin_number,
                 type = 'smd',
                 shape = 'rect',
-                position = KiPosition(pad_dim[0] + pad_width / 2, -(pad_dim[1] + pad_height / 2)),
-                size = KiPosition(pad_width, pad_height),
+                position = pin_rect.get_center_kiposition(),
+                size = pin_rect.get_size_kiposition(),
                 layers = ['F.Cu', 'F.Paste', 'F.Mask'],
                 pinFunction = pin_function
             )
         )
 
-        power_pad_dim = fp['power_pin_dimensions'][power_pin['pin_number'] - 1]
-
-        start_pos = KiPosition(min(power_pad_dim[0], power_pad_dim[2]), min(-power_pad_dim[1], -power_pad_dim[3]))
-        end_pos   = KiPosition(max(power_pad_dim[0], power_pad_dim[2]), max(-power_pad_dim[1], -power_pad_dim[3]))
-
-        power_pad_width  = end_pos.X - start_pos.X
-        power_pad_height = end_pos.Y - start_pos.Y
-
+        # Connection to power rails
         kifp.pads.append(
             KiPad(
-                number = power_pin['pin_number'],
+                number = pin_number,
                 type = 'smd',
                 shape = 'rect',
-                position = KiPosition(start_pos.X + power_pad_width / 2, start_pos.Y + power_pad_height / 2),
-                size = KiPosition(power_pad_width, power_pad_height),
+                position = power_pin_rect.get_center_kiposition(),
+                size = power_pin_rect.get_size_kiposition(),
                 layers = ['F.Cu'],
                 pinFunction = pin_function
             )
         )
 
     # Pins
-
     for pin in cell['inputs']:
-        pad_dim = fp['pin_dimensions'][pin['pin_number'] - 1][0]
+        pin_number = pin['pin_number']
+        pin_rect = fp.get_pin(pin_number)
 
         # Add SMD pad
         kifp.pads.append(
             KiPad(
-                number = pin['pin_number'],
+                number = pin_number,
                 type = 'smd',
                 shape = 'rect',
-                position = KiPosition(pad_dim[0] + pad_width / 2, -(pad_dim[1] + pad_height / 2)),
-                size = KiPosition(pad_width, pad_height),
-                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp['single_layer_footprint'] else pcb_pad_layers,
+                position = pin_rect.get_center_kiposition(),
+                size = pin_rect.get_size_kiposition(),
+                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
                 pinFunction = pin['name']
             )
         )
-
-        if not fp['single_layer_footprint']:
-            # Add Via pad
-            via_position = KiPosition(pad_dim[0], -pad_dim[1])
-            via_position.X += pad_width / 2
-            if pin['pin_number'] % 2 == 0:
-                via_position.Y -= via_size.Y / 2
-            else:
-                via_position.Y -= pad_height - via_size.Y / 2
-
-            kifp.pads.append(
-                KiPad(
-                    number = pin['pin_number'],
-                    type = 'thru_hole',
-                    shape = 'circle',
-                    position = via_position,
-                    size = via_size,
-                    drill = drill,
-                    layers = pcb_copper_layers,
-                    pinFunction = pin['name']
-                )
-            )
 
     for pin in cell['outputs']:
-        pad_dim = fp['pin_dimensions'][pin['pin_number'] - 1][0]
+        pin_number = pin['pin_number']
+        pin_rect = fp.get_pin(pin_number)
 
         # Add SMD pad
         kifp.pads.append(
             KiPad(
-                number = pin['pin_number'],
+                number = pin_number,
                 type = 'smd',
                 shape = 'rect',
-                position = KiPosition(pad_dim[0] + pad_width / 2, -(pad_dim[1] + pad_height / 2)),
-                size = KiPosition(pad_width, pad_height),
-                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp['single_layer_footprint'] else pcb_pad_layers,
+                position = pin_rect.get_center_kiposition(),
+                size = pin_rect.get_size_kiposition(),
+                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
                 pinFunction = pin['name']
             )
         )
 
-        if not fp['single_layer_footprint']:
-            # Add Via pad
-            via_position = KiPosition(pad_dim[0], -pad_dim[1])
-            via_position.X += pad_width / 2
-            if pin['pin_number'] % 2 == 0:
-                via_position.Y -= via_size.Y / 2
-            else:
-                via_position.Y -= pad_height - via_size.Y / 2
+#        if not fp['single_layer_footprint']:
+#            # Add Via pad
+#            via_position = KiPosition(pad_dim[0], -pad_dim[1])
+#            via_position.X += pad_width / 2
+#            if pin['pin_number'] % 2 == 0:
+#                via_position.Y -= via_size.Y / 2
+#            else:
+#                via_position.Y -= pad_height - via_size.Y / 2
 
-            kifp.pads.append(
-                KiPad(
-                    number = pin['pin_number'],
-                    type = 'thru_hole',
-                    shape = 'circle',
-                    position = via_position,
-                    size = via_size,
-                    drill = drill,
-                    layers = pcb_copper_layers,
-                    pinFunction = pin['name']
-                )
-            )
+#            kifp.pads.append(
+#                KiPad(
+#                    number = pin['pin_number'],
+#                    type = 'thru_hole',
+#                    shape = 'circle',
+#                    position = via_position,
+#                    size = via_size,
+#                    drill = drill,
+#                    layers = pcb_copper_layers,
+#                    pinFunction = pin['name']
+#                )
+#            )
 
     kifp.to_file(footprint_path + cell['name'] + '_N.kicad_mod')
 
     # Generate rotated footprint
     for pad in kifp.pads:
-        pad.position.X = fp['cell_width'] - pad.position.X
-        pad.position.Y = -pad.position.Y - fp['cell_height']
+        pad.position.X = fp.get_cell_width() - pad.position.X
+        pad.position.Y = -pad.position.Y - fp.get_cell_height()
 
     for item in kifp.graphicItems:
         if isinstance(item, FpRect):
-            item.start.X = fp['cell_width'] - item.start.X
-            item.end.X   = fp['cell_width'] - item.end.X
-            item.start.Y = -item.start.Y - fp['cell_height']
-            item.end.Y   = -item.end.Y   - fp['cell_height']
+            item.start.X = fp.get_cell_width() - item.start.X
+            item.end.X   = fp.get_cell_width() - item.end.X
+            item.start.Y = -item.start.Y - fp.get_cell_height()
+            item.end.Y   = -item.end.Y   - fp.get_cell_height()
 
     kifp.entryName = cell['name'] + '_S'
 

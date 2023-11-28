@@ -1,7 +1,6 @@
 {
     "technology": {
         "row_height_multiplier": 18,
-        "site_width": 0.325,
         "metal_layers": 2,
         "y_wire_pitch": 0.26,
         "x_wire_pitch": 0.325,

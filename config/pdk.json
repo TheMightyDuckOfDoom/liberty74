@@ -844,6 +844,7 @@
                 },
                 {
                     "name": "TIE_HI",
+                    "connect_to_net": "VDD",
                     "pin_number": 6,
                     "function": "power"
                 },
