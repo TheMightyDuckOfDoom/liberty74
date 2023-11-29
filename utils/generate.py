@@ -15,7 +15,6 @@ config_file_name = config_folder + "pdk.json"
 #config_file_name = config_folder + "macros/W24129A.json"
 tech_file_name = config_folder + "technology.json"
 footprint_file_name = config_folder + "footprints.json"
-liberty_prefix = "liberty74_"
 lef_name = "liberty74"
 pdk_path = "./pdk/"
 openroad_path = pdk_path + "openroad/"
@@ -79,6 +78,21 @@ rendered_tech_lef = tech_lef_template.render(**tech_lef_context)
 
 with open(lef_path + lef_name + "_tech.lef", 'w', encoding='utf-8') as tech_lef_file:
     tech_lef_file.write(rendered_tech_lef)
+
+# Load Site LEF template
+site_lef_template = Template(filename="./templates/site_lef.template")
+
+site_lef_context = {
+    "site_width": technology["x_wire_pitch"],
+    "row_height": technology["row_height"]
+}
+
+print("Generating Site LEF...")
+
+rendered_site_lef = site_lef_template.render(**site_lef_context)
+
+with open(lef_path + lef_name + "_site.lef", 'w', encoding='utf-8') as site_lef_file:
+    site_lef_file.write(rendered_site_lef)
     
 # Load JSON file
 config_file = open(config_file_name)
@@ -106,7 +120,7 @@ if "bus_types" in config_json:
 
 # Genereate Liberty Libraries
 for c in corners:
-    lib_name = liberty_prefix + c
+    lib_name = config_json["library_name"] + "_" + c
 
     print(f"Generating {lib_name}...")
 
@@ -139,7 +153,7 @@ print("Generating LEF...")
 
 rendered_lef = lef_template.render(**lef_context)
 
-with open(lef_path + lef_name + ".lef", 'w', encoding='utf-8') as lef_file:
+with open(lef_path + config_json["library_name"] + ".lef", 'w', encoding='utf-8') as lef_file:
     lef_file.write(rendered_lef)
     
 # Load Verilog template

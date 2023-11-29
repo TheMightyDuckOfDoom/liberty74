@@ -1,0 +1,9 @@
+VERSION 5.7 ;
+BUSBITCHARS "<>" ;
+DIVIDERCHAR "/" ;
+
+SITE CoreSite
+  CLASS CORE ;
+  SYMMETRY R90 ;
+  SIZE ${site_width} BY ${row_height} ;
+END CoreSite
