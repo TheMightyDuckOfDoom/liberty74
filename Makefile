@@ -18,6 +18,7 @@ pdk/.pdk: .python_setup utils/*.py config/*.json config/macros/*.json templates/
 gen_pdk: pdk/.pdk
 
 synth: gen_pdk
+	mkdir -p out
 	yosys yosys/synth.tcl
 	rm -rf slpp_all
 
