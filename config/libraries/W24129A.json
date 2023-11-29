@@ -13,7 +13,8 @@
             "voltage": 5.0,
             "temperature": 25.0,
             "default_max_cap": 50.0,
-            "default_input_cap": 8.0
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
         },
         {
             "name": "slow_4p75V_70C",
@@ -22,7 +23,8 @@
             "voltage": 5.0,
             "temperature": 70.0,
             "default_max_cap": 50.0,
-            "default_input_cap": 8.0
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
         },
         {
             "name": "fast_5p25V_0C",
@@ -31,7 +33,8 @@
             "voltage": 5.0,
             "temperature": 0.0,
             "default_max_cap": 50.0,
-            "default_input_cap": 8.0
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
         }
     ],
     "bus_types": [
@@ -53,7 +56,7 @@
             "footprint": "SO-28",
             "memory": {
                 "address_width": 14,
-                "word_width": 64
+                "word_width": 8
             },
             "power": [
                 {

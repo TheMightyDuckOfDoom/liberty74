@@ -151,7 +151,12 @@ library(${lib_name}) {
     bus (${inout["bus_name"]}) {
       bus_type: ${inout['bus_type']};
       direction: inout;
+      % if 'default_inout_cap' in corner:
+      capacitance: ${corner["default_inout_cap"]};
+      % else:
       capacitance: ${corner["default_input_cap"]};
+      % endif
+      max_capacitance: ${corner["default_max_cap"]};
       three_state: "${inout["three_state"]}";
     }
       % else:
@@ -159,6 +164,11 @@ library(${lib_name}) {
       direction: inout;
       function: "${inout["function"]}";
       three_state: "${inout["three_state"]}";
+      % if 'default_inout_cap' in corner:
+      capacitance: ${corner["default_inout_cap"]};
+      % else:
+      capacitance: ${corner["default_input_cap"]};
+      % endif
       max_capacitance: ${corner["default_max_cap"]};
 
         % if "timing" in inout:
