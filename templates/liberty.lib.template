@@ -102,6 +102,7 @@ library(${lib_name}) {
     % for input in cell["inputs"]:
       % if "bus_name" in input:
     bus (${input["bus_name"]}) {
+      bus_type: ${input['bus_type']};
       direction: input;
       capacitance: ${corner["default_input_cap"]};
     }
@@ -148,6 +149,7 @@ library(${lib_name}) {
     % for inout in cell["inouts"]:
       % if "bus_name" in inout:
     bus (${inout["bus_name"]}) {
+      bus_type: ${inout['bus_type']};
       direction: inout;
       capacitance: ${corner["default_input_cap"]};
       three_state: "${inout["three_state"]}";
@@ -198,6 +200,7 @@ library(${lib_name}) {
     % for output in cell["outputs"]:
       % if "bus_name" in output:
     bus (${output["bus_name"]}) {
+      bus_type: ${output['bus_type']};
       direction: output;
       capacitance: ${corner["default_input_cap"]};
     }

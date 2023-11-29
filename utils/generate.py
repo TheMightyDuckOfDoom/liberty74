@@ -7,6 +7,7 @@
 from footprint import Footprint
 
 import datetime
+import os
 import json
 import subprocess
 from mako.template import Template
@@ -21,6 +22,7 @@ stamp += ' ' + datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
 
 config_folder = './config/'
 config_file_name = config_folder + '/libraries/74lvc.json'
+library_path = config_folder + '/libraries/'
 #config_file_name = config_folder + 'macros/W24129A.json'
 tech_file_name = config_folder + 'technology.json'
 footprint_file_name = config_folder + 'footprints.json'
@@ -104,97 +106,7 @@ rendered_site_lef = site_lef_template.render(**site_lef_context)
 
 with open(lef_path + lef_name + '_site.lef', 'w', encoding='utf-8') as site_lef_file:
     site_lef_file.write(rendered_site_lef)
-    
-# Load JSON file
-config_file = open(config_file_name)
-config_json = json.load(config_file)
 
-# Load Corners
-corners = {}
-for corner_data in config_json['corners']:
-    corners[corner_data['name']] = corner_data
-
-# Load Corners
-cells = config_json['cells']
-
-config_file.close()
-
-# Load liberty template
-lib_template = Template(filename='./templates/liberty.lib.template')
-
-bus_types = {}
-if 'bus_types' in config_json:
-    for type in config_json['bus_types']:
-        type['width'] = abs(type['from'] - type['to']) + 1 
-        bus_types[type['name']] = type
-
-
-# Genereate Liberty Libraries
-for c in corners:
-    lib_name = config_json['library_name'] + '_' + c
-
-    print(f'Generating {lib_name}...')
-
-    lib_context = {
-        'stamp': stamp,
-        'lib_name': lib_name,
-        'corner': corners[c],
-        'bus_types': bus_types,
-        'cells': cells,
-        'footprints': footprints,
-        'new_fps': new_fps
-    }
-
-    rendered_lib = lib_template.render(**lib_context)
-
-    with open(lib_path + lib_name + '.lib', 'w', encoding='utf-8') as lib_file:
-        lib_file.write(rendered_lib)
-    
-# Load LEF template
-lef_template = Template(filename='./templates/lef.template')
-
-lef_context = {
-    'stamp': stamp,
-    'footprints': footprints,
-    'cells': cells,
-    'bus_types': bus_types,
-    'site_width': technology['x_wire_pitch'],
-    'row_height': technology['row_height']
-}
-
-print('Generating LEF...')
-
-rendered_lef = lef_template.render(**lef_context)
-
-with open(lef_path + config_json['library_name'] + '.lef', 'w', encoding='utf-8') as lef_file:
-    lef_file.write(rendered_lef)
-    
-# Load Verilog template
-verilog_template = Template(filename='./templates/verilog.template')
-
-verilog_context = {
-    'stamp': stamp,
-    'cells': cells,
-    'bus_types': bus_types,
-    'pwr_pins': False
-}
-
-print('Generating Verilog...')
-
-rendered_verilog = verilog_template.render(**verilog_context)
-
-with open(verilog_path + 'verilog.sv', 'w', encoding='utf-8') as verilog_file:
-    verilog_file.write(rendered_verilog)
-
-verilog_context['pwr_pins'] = True
-
-print('Generating Verilog with power pins...')
-
-rendered_verilog = verilog_template.render(**verilog_context)
-
-with open(verilog_path + 'verilog_pwr_pins.sv', 'w', encoding='utf-8') as verilog_file:
-    verilog_file.write(rendered_verilog)
-    
 # Load tcl template
 make_tracks_template = Template(filename='./templates/make_tracks.tcl.template')
 
@@ -210,112 +122,238 @@ rendered_make_tracks = make_tracks_template.render(**tech_context)
 with open(openroad_path + 'make_tracks.tcl', 'w', encoding='utf-8') as tcl_file:
     tcl_file.write(rendered_make_tracks)
 
-print('Generating Kicad Footprints')
+# Load Library JSONs
+library_json = {}
 
-pcb_copper_layers = []
-for i in range(0, tech_json['pcb_stackup']['copper_layers']):
-    layer_name = ''
-    ordinal = i
-    if i == 0:
-        layer_name = 'F'
-    elif i == tech_json['pcb_stackup']['copper_layers'] - 1:
-        layer_name = 'B'
-        ordinal = 31
-    else:
-        layer_name = 'In' + str(i)
+for file_path in os.listdir(library_path):
+    path = os.path.join(library_path, file_path)
+    if os.path.isfile(path):
+        with open(path) as lib:
+            lj = json.load(lib)
+            library_json[lj['library_name']] = lj
     
-    layer_name += '.Cu'
+corner_groups = {}
+corner_groups_process_names = {}
 
-    pcb_copper_layers.append(layer_name)
+for config_name in library_json:
+    config_json = library_json[config_name]
 
-pcb_pad_layers = pcb_copper_layers
-pcb_pad_layers.append('F.Paste')
-pcb_pad_layers.append('F.Mask')
+    # Load Corners
+    corners = {}
+    for corner_data in config_json['corners']:
+        cn = corner_data['name']
+        corners[cn] = corner_data
+        cg = corner_data['corner_group']
+        if cg not in corner_groups:
+            corner_groups[cg] = {}
+            corner_groups_process_names[cg] = []
+        print(cg + " " + cn)
+        corner_groups[cg][config_json['library_name'] + "_" + cn] = corner_data
+        pn = corner_data['process_name']
+        if pn not in corner_groups_process_names[cg]:
+            corner_groups_process_names[cg].append(pn)
 
-drill = DrillDefinition(
-    oval = False,
-    diameter = technology['via_diameter'],
-    width = 0,
-    offset = KiPosition(0, 0)
-)
-via_size = KiPosition(2 * technology['via_annular_ring'] + technology['via_diameter'], 2 * technology['via_annular_ring'] + technology['via_diameter'])
+    # Load Corners
+    cells = config_json['cells']
 
-for cell in cells:
-    fp = new_fps[cell['footprint']]
+    # Load liberty template
+    lib_template = Template(filename='./templates/liberty.lib.template')
 
-    kifp = KiFootprint().create_new(library_id = 'liberty74:' + cell['name'] + '_N', value = cell['name'], type = 'smd')
-    kifp.generator = 'liberty74'
-    kifp.description = cell['desc']
-    kifp.tags = cell['name']
+    bus_types = {}
+    if 'bus_types' in config_json:
+        for type in config_json['bus_types']:
+            type['width'] = abs(type['from'] - type['to']) + 1 
+            bus_types[type['name']] = type
 
-    # Outline
-    kifp.graphicItems.append(
-        FpRect(
-            start = KiPosition(X = 0, Y = 0),
-            end = KiPosition(fp.get_cell_width(), -fp.get_cell_height()),
-            layer = 'F.CrtYd',
-            width = 0.05
-        )
+
+    # Genereate Liberty Libraries
+    for c in corners:
+        lib_name = config_name + '_' + c
+
+        print(f'Generating {lib_name}...')
+
+        lib_context = {
+            'stamp': stamp,
+            'lib_name': lib_name,
+            'corner': corners[c],
+            'bus_types': bus_types,
+            'cells': cells,
+            'footprints': footprints,
+            'new_fps': new_fps
+        }
+
+        rendered_lib = lib_template.render(**lib_context)
+
+        with open(lib_path + lib_name + '.lib', 'w', encoding='utf-8') as lib_file:
+            lib_file.write(rendered_lib)
+        
+    # Load LEF template
+    lef_template = Template(filename='./templates/lef.template')
+
+    lef_context = {
+        'stamp': stamp,
+        'footprints': footprints,
+        'cells': cells,
+        'bus_types': bus_types,
+        'site_width': technology['x_wire_pitch'],
+        'row_height': technology['row_height']
+    }
+
+    print('Generating LEF...')
+
+    rendered_lef = lef_template.render(**lef_context)
+
+    with open(lef_path + config_json['library_name'] + '.lef', 'w', encoding='utf-8') as lef_file:
+        lef_file.write(rendered_lef)
+        
+    # Load Verilog template
+    verilog_template = Template(filename='./templates/verilog.template')
+
+    verilog_context = {
+        'stamp': stamp,
+        'cells': cells,
+        'bus_types': bus_types,
+        'pwr_pins': False
+    }
+
+    print('Generating Verilog...')
+
+    rendered_verilog = verilog_template.render(**verilog_context)
+
+    with open(verilog_path + config_json['library_name'] + '.v', 'w', encoding='utf-8') as verilog_file:
+        verilog_file.write(rendered_verilog)
+
+    verilog_context['pwr_pins'] = True
+
+    print('Generating Verilog with power pins...')
+
+    rendered_verilog = verilog_template.render(**verilog_context)
+
+    with open(verilog_path + config_json['library_name'] + '_pwr_pins.v', 'w', encoding='utf-8') as verilog_file:
+        verilog_file.write(rendered_verilog)
+
+    print('Generating Kicad Footprints')
+
+    pcb_copper_layers = []
+    for i in range(0, tech_json['pcb_stackup']['copper_layers']):
+        layer_name = ''
+        ordinal = i
+        if i == 0:
+            layer_name = 'F'
+        elif i == tech_json['pcb_stackup']['copper_layers'] - 1:
+            layer_name = 'B'
+            ordinal = 31
+        else:
+            layer_name = 'In' + str(i)
+        
+        layer_name += '.Cu'
+
+        pcb_copper_layers.append(layer_name)
+
+    pcb_pad_layers = pcb_copper_layers
+    pcb_pad_layers.append('F.Paste')
+    pcb_pad_layers.append('F.Mask')
+
+    drill = DrillDefinition(
+        oval = False,
+        diameter = technology['via_diameter'],
+        width = 0,
+        offset = KiPosition(0, 0)
     )
-    kifp.graphicItems.append(
-        FpRect(
-            start = KiPosition(X = 0, Y = 0),
-            end = KiPosition(fp.get_cell_width(), -fp.get_cell_height()),
-            layer = 'F.SilkS',
-            width = 0.05
-        )
-    )
-    kifp.graphicItems.append(
-        FpRect(
-            start = KiPosition(X = 0, Y = 0),
-            end = KiPosition(fp.get_cell_width(), -fp.get_cell_height()),
-            layer = 'B.SilkS',
-            width = 0.05
-        )
-    )
+    via_size = KiPosition(2 * technology['via_annular_ring'] + technology['via_diameter'], 2 * technology['via_annular_ring'] + technology['via_diameter'])
 
-    # Power Pins -> Tie Pins not handled correctly :(
-    if 'power' in cell:
-        for power_pin in cell['power']:
-            pin_function = power_pin['connect_to_net'] if 'connect_to_net' in power_pin else power_pin['name'] 
-            
-            pin_number = power_pin['pin_number']
-            pin_rect = fp.get_pin(pin_number)
-            power_pin_rect = fp.get_power_pin(pin_number)
+    for cell in cells:
+        fp = new_fps[cell['footprint']]
 
-            # Normal Pad for soldering
-            kifp.pads.append(
-                KiPad(
-                    number = pin_number,
-                    type = 'smd',
-                    shape = 'rect',
-                    position = pin_rect.get_center_kiposition(),
-                    size = pin_rect.get_size_kiposition(),
-                    layers = ['F.Cu', 'F.Paste', 'F.Mask'],
-                    pinFunction = pin_function
-                )
+        kifp = KiFootprint().create_new(library_id = 'liberty74:' + cell['name'] + '_N', value = cell['name'], type = 'smd')
+        kifp.generator = 'liberty74'
+        kifp.description = cell['desc']
+        kifp.tags = cell['name']
+
+        # Outline
+        kifp.graphicItems.append(
+            FpRect(
+                start = KiPosition(X = 0, Y = 0),
+                end = KiPosition(fp.get_cell_width(), -fp.get_cell_height()),
+                layer = 'F.CrtYd',
+                width = 0.05
             )
-
-            # Connection to power rails
-            kifp.pads.append(
-                KiPad(
-                    number = pin_number,
-                    type = 'smd',
-                    shape = 'rect',
-                    position = power_pin_rect.get_center_kiposition(),
-                    size = power_pin_rect.get_size_kiposition(),
-                    layers = ['F.Cu'],
-                    pinFunction = pin_function
-                )
+        )
+        kifp.graphicItems.append(
+            FpRect(
+                start = KiPosition(X = 0, Y = 0),
+                end = KiPosition(fp.get_cell_width(), -fp.get_cell_height()),
+                layer = 'F.SilkS',
+                width = 0.05
             )
+        )
+        kifp.graphicItems.append(
+            FpRect(
+                start = KiPosition(X = 0, Y = 0),
+                end = KiPosition(fp.get_cell_width(), -fp.get_cell_height()),
+                layer = 'B.SilkS',
+                width = 0.05
+            )
+        )
 
-    # Pins
-    if 'inputs' in cell:
-        for pin in cell['inputs']:
-            if 'bus_name' in pin:
-                type = bus_types[pin['bus_type']]
-                for i in range(0, type['width']):
-                    pin_number = i + min(type['from'], type['to'])
+        # Power Pins -> Tie Pins not handled correctly :(
+        if 'power' in cell:
+            for power_pin in cell['power']:
+                pin_function = power_pin['connect_to_net'] if 'connect_to_net' in power_pin else power_pin['name'] 
+                
+                pin_number = power_pin['pin_number']
+                pin_rect = fp.get_pin(pin_number)
+                power_pin_rect = fp.get_power_pin(pin_number)
+
+                # Normal Pad for soldering
+                kifp.pads.append(
+                    KiPad(
+                        number = pin_number,
+                        type = 'smd',
+                        shape = 'rect',
+                        position = pin_rect.get_center_kiposition(),
+                        size = pin_rect.get_size_kiposition(),
+                        layers = ['F.Cu', 'F.Paste', 'F.Mask'],
+                        pinFunction = pin_function
+                    )
+                )
+
+                # Connection to power rails
+                kifp.pads.append(
+                    KiPad(
+                        number = pin_number,
+                        type = 'smd',
+                        shape = 'rect',
+                        position = power_pin_rect.get_center_kiposition(),
+                        size = power_pin_rect.get_size_kiposition(),
+                        layers = ['F.Cu'],
+                        pinFunction = pin_function
+                    )
+                )
+
+        # Pins
+        if 'inputs' in cell:
+            for pin in cell['inputs']:
+                if 'bus_name' in pin:
+                    type = bus_types[pin['bus_type']]
+                    for i in range(0, type['width']):
+                        pin_number = i + min(type['from'], type['to'])
+                        pin_rect = fp.get_pin(pin_number)
+
+                        # Add SMD pad
+                        kifp.pads.append(
+                            KiPad(
+                                number = pin_number,
+                                type = 'smd',
+                                shape = 'rect',
+                                position = pin_rect.get_center_kiposition(),
+                                size = pin_rect.get_size_kiposition(),
+                                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
+                                pinFunction = pin['bus_name'] + '[' + str(pin_number) + ']' 
+                            )
+                        )
+                else:
+                    pin_number = pin['pin_number']
                     pin_rect = fp.get_pin(pin_number)
 
                     # Add SMD pad
@@ -327,32 +365,32 @@ for cell in cells:
                             position = pin_rect.get_center_kiposition(),
                             size = pin_rect.get_size_kiposition(),
                             layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
-                            pinFunction = pin['bus_name'] + '[' + str(pin_number) + ']' 
+                            pinFunction = pin['name']
                         )
                     )
-            else:
-                pin_number = pin['pin_number']
-                pin_rect = fp.get_pin(pin_number)
 
-                # Add SMD pad
-                kifp.pads.append(
-                    KiPad(
-                        number = pin_number,
-                        type = 'smd',
-                        shape = 'rect',
-                        position = pin_rect.get_center_kiposition(),
-                        size = pin_rect.get_size_kiposition(),
-                        layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
-                        pinFunction = pin['name']
-                    )
-                )
+        if 'outputs' in cell:
+            for pin in cell['outputs']:
+                if 'bus_name' in pin:
+                    type = bus_types[pin['bus_type']]
+                    for i in range(0, type['width']):
+                        pin_number = i + min(type['from'], type['to'])
+                        pin_rect = fp.get_pin(pin_number)
 
-    if 'outputs' in cell:
-        for pin in cell['outputs']:
-            if 'bus_name' in pin:
-                type = bus_types[pin['bus_type']]
-                for i in range(0, type['width']):
-                    pin_number = i + min(type['from'], type['to'])
+                        # Add SMD pad
+                        kifp.pads.append(
+                            KiPad(
+                                number = pin_number,
+                                type = 'smd',
+                                shape = 'rect',
+                                position = pin_rect.get_center_kiposition(),
+                                size = pin_rect.get_size_kiposition(),
+                                layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
+                                pinFunction = pin['bus_name'] + '[' + str(pin_number) + ']' 
+                            )
+                        )
+                else:
+                    pin_number = pin['pin_number']
                     pin_rect = fp.get_pin(pin_number)
 
                     # Add SMD pad
@@ -364,64 +402,66 @@ for cell in cells:
                             position = pin_rect.get_center_kiposition(),
                             size = pin_rect.get_size_kiposition(),
                             layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
-                            pinFunction = pin['bus_name'] + '[' + str(pin_number) + ']' 
+                            pinFunction = pin['name']
                         )
                     )
-            else:
-                pin_number = pin['pin_number']
-                pin_rect = fp.get_pin(pin_number)
 
-                # Add SMD pad
-                kifp.pads.append(
-                    KiPad(
-                        number = pin_number,
-                        type = 'smd',
-                        shape = 'rect',
-                        position = pin_rect.get_center_kiposition(),
-                        size = pin_rect.get_size_kiposition(),
-                        layers = ['F.Cu', 'F.Paste', 'F.Mask'] if fp.is_single_layer_footprint() else pcb_pad_layers,
-                        pinFunction = pin['name']
-                    )
-                )
+    #        if not fp['single_layer_footprint']:
+    #            # Add Via pad
+    #            via_position = KiPosition(pad_dim[0], -pad_dim[1])
+    #            via_position.X += pad_width / 2
+    #            if pin['pin_number'] % 2 == 0:
+    #                via_position.Y -= via_size.Y / 2
+    #            else:
+    #                via_position.Y -= pad_height - via_size.Y / 2
 
-#        if not fp['single_layer_footprint']:
-#            # Add Via pad
-#            via_position = KiPosition(pad_dim[0], -pad_dim[1])
-#            via_position.X += pad_width / 2
-#            if pin['pin_number'] % 2 == 0:
-#                via_position.Y -= via_size.Y / 2
-#            else:
-#                via_position.Y -= pad_height - via_size.Y / 2
+    #            kifp.pads.append(
+    #                KiPad(
+    #                    number = pin['pin_number'],
+    #                    type = 'thru_hole',
+    #                    shape = 'circle',
+    #                    position = via_position,
+    #                    size = via_size,
+    #                    drill = drill,
+    #                    layers = pcb_copper_layers,
+    #                    pinFunction = pin['name']
+    #                )
+    #            )
 
-#            kifp.pads.append(
-#                KiPad(
-#                    number = pin['pin_number'],
-#                    type = 'thru_hole',
-#                    shape = 'circle',
-#                    position = via_position,
-#                    size = via_size,
-#                    drill = drill,
-#                    layers = pcb_copper_layers,
-#                    pinFunction = pin['name']
-#                )
-#            )
+        kifp.to_file(footprint_path + cell['name'] + '_N.kicad_mod')
 
-    kifp.to_file(footprint_path + cell['name'] + '_N.kicad_mod')
+        # Generate rotated footprint
+        for pad in kifp.pads:
+            pad.position.X = fp.get_cell_width() - pad.position.X
+            pad.position.Y = -pad.position.Y - fp.get_cell_height()
 
-    # Generate rotated footprint
-    for pad in kifp.pads:
-        pad.position.X = fp.get_cell_width() - pad.position.X
-        pad.position.Y = -pad.position.Y - fp.get_cell_height()
+        for item in kifp.graphicItems:
+            if isinstance(item, FpRect):
+                item.start.X = fp.get_cell_width() - item.start.X
+                item.end.X   = fp.get_cell_width() - item.end.X
+                item.start.Y = -item.start.Y - fp.get_cell_height()
+                item.end.Y   = -item.end.Y   - fp.get_cell_height()
 
-    for item in kifp.graphicItems:
-        if isinstance(item, FpRect):
-            item.start.X = fp.get_cell_width() - item.start.X
-            item.end.X   = fp.get_cell_width() - item.end.X
-            item.start.Y = -item.start.Y - fp.get_cell_height()
-            item.end.Y   = -item.end.Y   - fp.get_cell_height()
+        kifp.entryName = cell['name'] + '_S'
 
-    kifp.entryName = cell['name'] + '_S'
+        kifp.to_file(footprint_path + cell['name'] + '_S.kicad_mod')
 
-    kifp.to_file(footprint_path + cell['name'] + '_S.kicad_mod')
+# Generate init_tech.tcl
+init_tech_template = Template(filename='./templates/init_tech.tcl.template')
+
+init_tech_context = {
+    'stamp': stamp,
+    'corner_groups': corner_groups,
+    'corner_groups_process_names': corner_groups_process_names,
+    'libraries': library_json,
+    'lef_name': lef_name
+}
+
+print('Generating init_tech.tcl...')
+
+rendered_init_tech = init_tech_template.render(**init_tech_context)
+
+with open(openroad_path + 'init_tech.tcl', 'w', encoding='utf-8') as tcl_file:
+    tcl_file.write(rendered_init_tech)
     
 print('Done!')

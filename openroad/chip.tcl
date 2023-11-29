@@ -6,21 +6,8 @@
 set design_name servisia
 set CORNER_GROUP "CMOS_5V"
 
-source init_tech.tcl
-
-proc placeDetail {} {
-  detailed_placement
-  set block [ord::get_db_block]
-  foreach inst [odb::dbBlock_getInsts $block] {
-    set locked [odb::dbInst_getPlacementStatus $inst]
-    odb::dbInst_setPlacementStatus $inst PLACED
-    set orient [odb::dbInst_getOrient $inst]
-    if {$orient == "MX"} {
-      odb::dbInst_setLocationOrient $inst R180
-    }
-    odb::dbInst_setPlacementStatus $inst $locked
-  }
-}
+source ../pdk/openroad/init_tech.tcl
+source util.tcl
 
 read_verilog ../out/${design_name}.v
 link_design $design_name
@@ -141,6 +128,9 @@ detailed_route -output_drc route_drc.rpt \
 
 write_verilog -include_pwr_gnd out/$design_name.final.v
 write_def out/$design_name.final.def
+
+report_checks -path_delay min
+report_checks -path_delay max
 
 if ![gui::enabled] {
   exit

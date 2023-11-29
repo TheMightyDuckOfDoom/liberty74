@@ -7,13 +7,31 @@
     "library_name": "W24129A",
     "corners": [
         {
-            "name": "W24129A_5p00V",
+            "name": "typ_5p00V_25C",
             "process_name": "Typical",
             "corner_group": "CMOS_5V",
             "voltage": 5.0,
             "temperature": 25.0,
             "default_max_cap": 50.0,
-            "default_input_cap": 5.0
+            "default_input_cap": 8.0
+        },
+        {
+            "name": "slow_4p75V_70C",
+            "process_name": "Slow",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 70.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 8.0
+        },
+        {
+            "name": "fast_5p25V_0C",
+            "process_name": "Fast",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 0.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 8.0
         }
     ],
     "bus_types": [

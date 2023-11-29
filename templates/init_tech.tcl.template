@@ -6,17 +6,26 @@
 
 # Load Corners
 % for idx, group in enumerate(corner_groups):
-% if idx > 0:
+    % if idx > 0:
 else\
-% endif
+    % endif
 if { $CORNER_GROUP == "${group}" } {
-    % for corner in corner_groups[group]
-    read_liberty -corner ${corner['process_name']} ../pdk/${corner_group[corner]['library_name']}_${corner['name']}.lib
+    define_corners \
+    % for pn_idx, process_name in enumerate(corner_groups_process_names[group]):
+${process_name} \
+        % if pn_idx == len(corner_groups_process_names[group]) - 1:
+ \
+        % endif
+    % endfor
+
+    % for corner in corner_groups[group]:
+    read_liberty -corner ${corner_groups[group][corner]['process_name']} ../pdk/lib/${corner}.lib
     % endfor
 } \
 % endfor
 else {
-    puts "Corner Group ${CORNER_GROUP} not found"
+    puts "Corner Group $\
+{CORNER_GROUP} not found"
     exit
 }
 
@@ -25,6 +34,19 @@ read_lef ../pdk/lef/${lef_name}_tech.lef
 read_lef ../pdk/lef/${lef_name}_site.lef
 
 # Load Cell LEFs
-% for library in libraries:
-read_lef ../pdk/lef/${library}.lef
-% endif
+% for idx, group in enumerate(corner_groups):
+    % if idx > 0:
+ else\
+    % endif
+if { $CORNER_GROUP == "${group}" } {
+    % for library in libraries:
+        % for corner in libraries[library]['corners']:
+            % if group == corner['corner_group']:
+    read_lef ../pdk/lef/${library}.lef
+<% break %>
+            % endif
+        % endfor
+    % endfor
+}\
+% endfor
+
