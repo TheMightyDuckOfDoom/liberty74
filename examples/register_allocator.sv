@@ -1,3 +1,7 @@
+// Copyright 2023 Tobias Senti
+// Solderpad Hardware License, Version 0.51, see LICENSE for details.
+// SPDX-License-Identifier: SHL-0.51
+
 module register_allocator #(
     parameter PhyRegIDWidth = 5,
     parameter NumRegsAllocatedOnReset = 16,

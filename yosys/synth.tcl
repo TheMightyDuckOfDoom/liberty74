@@ -1,5 +1,9 @@
+# Copyright 2023 Tobias Senti
+# Solderpad Hardware License, Version 0.51, see LICENSE for details.
+# SPDX-License-Identifier: SHL-0.51
+
 # Parameters
-set LIB pdk/lib/liberty74_typ_5p00V_25C.lib
+set LIB pdk/lib/74lvc_typ_5p00V_25C.lib
 set SRC ../servisia/out/servisia.v
 set TOP servisia
 set OUT out/$TOP.v

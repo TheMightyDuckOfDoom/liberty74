@@ -1,9 +1,15 @@
 {
+    "LICENSE": [
+        "Copyright 2023 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
     "library_name": "W24129A",
     "corners": [
         {
             "name": "W24129A_5p00V",
             "process_name": "Typical",
+            "corner_group": "CMOS_5V",
             "voltage": 5.0,
             "temperature": 25.0,
             "default_max_cap": 50.0,

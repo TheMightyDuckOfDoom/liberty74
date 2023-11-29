@@ -1,3 +1,7 @@
+# Copyright 2023 Tobias Senti
+# Solderpad Hardware License, Version 0.51, see LICENSE for details.
+# SPDX-License-Identifier: SHL-0.51
+
 import argparse
 import json
 from kiutils.board import Board
@@ -105,9 +109,9 @@ pcb.layers.append(BrdLayerToken(ordinal = 49, name = 'B.Fab', type = 'user'))
 # Stackup
 stackup = Stackup()
 
-stackup.layers.append(StackupLayer(name = "F.SilkS", type = "Top Silk Screen"))
-stackup.layers.append(StackupLayer(name = "F.Paste", type = "Top Solder Paste"))
-stackup.layers.append(StackupLayer(name = "F.Mask", type = "Top Solder Mask", thickness = 0.01))
+stackup.layers.append(StackupLayer(name = 'F.SilkS', type = 'Top Silk Screen'))
+stackup.layers.append(StackupLayer(name = 'F.Paste', type = 'Top Solder Paste'))
+stackup.layers.append(StackupLayer(name = 'F.Mask', type = 'Top Solder Mask', thickness = 0.01))
 pcb_stackup = tech_json['pcb_stackup']
 for i in range(0, pcb_stackup['copper_layers']):
     layer_name = ''
@@ -120,13 +124,13 @@ for i in range(0, pcb_stackup['copper_layers']):
     layer_name += '.Cu'
     
     # Add copper layer
-    stackup.layers.append(StackupLayer(name = layer_name, type = "copper", thickness = pcb_stackup['copper_thickness'][i]))
+    stackup.layers.append(StackupLayer(name = layer_name, type = 'copper', thickness = pcb_stackup['copper_thickness'][i]))
     
     # Add dielectric layer
     if i < pcb_stackup['copper_layers']-1:
         stackup.layers.append(
             StackupLayer(
-                name        = "dielectric " + str(i + 1),
+                name        = 'dielectric ' + str(i + 1),
                 material    = pcb_stackup['dielectric_materials'][i],
                 type        = pcb_stackup['dielectric_types'][i],
                 thickness   = pcb_stackup['dielectric_thickness'][i],
@@ -135,9 +139,9 @@ for i in range(0, pcb_stackup['copper_layers']):
             )
         )
 
-stackup.layers.append(StackupLayer(name = "B.Mask", type = "Bottom Solder Mask", thickness = 0.01))
-stackup.layers.append(StackupLayer(name = "B.Paste", type = "Bottom Solder Paste"))
-stackup.layers.append(StackupLayer(name = "B.SilkS", type = "Bottom Silk Screen"))
+stackup.layers.append(StackupLayer(name = 'B.Mask', type = 'Bottom Solder Mask', thickness = 0.01))
+stackup.layers.append(StackupLayer(name = 'B.Paste', type = 'Bottom Solder Paste'))
+stackup.layers.append(StackupLayer(name = 'B.SilkS', type = 'Bottom Silk Screen'))
 
 pcb.setup.stackup = stackup
 pcb.general.thickness = pcb_stackup['pcb_thickness']
@@ -354,7 +358,7 @@ for net in def_parser.specialnets:
             pcb.traceItems.append(via)
 
 # Add net routing
-print("Adding net routing...")
+print('Adding net routing...')
 
 for net in def_parser.nets:
     # Connect components

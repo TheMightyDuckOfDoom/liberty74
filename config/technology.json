@@ -1,4 +1,9 @@
 {
+    "LICENSE": [
+        "Copyright 2023 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
     "technology": {
         "row_height_multiplier": 18,
         "metal_layers": 2,

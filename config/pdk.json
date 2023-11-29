@@ -1,9 +1,15 @@
 {
+    "LICENSE": [
+        "Copyright 2023 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
     "library_name": "74lvc",
     "corners": [
         {
             "name": "typ_3p30V_25C",
             "process_name": "Typical",
+            "corner_group": "CMOS_3V",
             "voltage": 3.3,
             "temperature": 25.0,
             "default_max_cap": 50.0,
@@ -12,6 +18,7 @@
         {
             "name": "slow_3p00V_85C",
             "process_name": "Slow",
+            "corner_group": "CMOS_3V",
             "voltage": 3.0,
             "temperature": 85.0,
             "default_max_cap": 50.0,
@@ -20,6 +27,7 @@
         {
             "name": "fast_3p60V_m40C",
             "process_name": "Fast",
+            "corner_group": "CMOS_3V",
             "voltage": 3.6,
             "temperature": -40.0,
             "default_max_cap": 50.0,
@@ -28,6 +36,7 @@
         {
             "name": "typ_5p00V_25C",
             "process_name": "Typical",
+            "corner_group": "CMOS_5V",
             "voltage": 5.0,
             "temperature": 25.0,
             "default_max_cap": 50.0,
@@ -36,6 +45,7 @@
         {
             "name": "slow_4p50V_85C",
             "process_name": "Slow",
+            "corner_group": "CMOS_5V",
             "voltage": 4.5,
             "temperature": 85.0,
             "default_max_cap": 50.0,
@@ -44,6 +54,7 @@
         {
             "name": "fast_5p50V_m40C",
             "process_name": "Fast",
+            "corner_group": "CMOS_5V",
             "voltage": 5.5,
             "temperature": -40.0,
             "default_max_cap": 50.0,
