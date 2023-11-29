@@ -1,0 +1,30 @@
+# Copyright 2023 Tobias Senti
+# Solderpad Hardware License, Version 0.51, see LICENSE for details.
+# SPDX-License-Identifier: SHL-0.51
+
+# ${stamp}
+
+# Load Corners
+% for idx, group in enumerate(corner_groups):
+% if idx > 0:
+else\
+% endif
+if { $CORNER_GROUP == "${group}" } {
+    % for corner in corner_groups[group]
+    read_liberty -corner ${corner['process_name']} ../pdk/${corner_group[corner]['library_name']}_${corner['name']}.lib
+    % endfor
+} \
+% endfor
+else {
+    puts "Corner Group ${CORNER_GROUP} not found"
+    exit
+}
+
+# Load Technology files
+read_lef ../pdk/lef/${lef_name}_tech.lef
+read_lef ../pdk/lef/${lef_name}_site.lef
+
+# Load Cell LEFs
+% for library in libraries:
+read_lef ../pdk/lef/${library}.lef
+% endif

@@ -2,8 +2,11 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-source init_tech.tcl
+# Design Setup
 set design_name servisia
+set CORNER_GROUP "CMOS_5V"
+
+source init_tech.tcl
 
 proc placeDetail {} {
   detailed_placement

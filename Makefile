@@ -8,7 +8,7 @@ all: synth
 	pip install -r requirements.txt --break-system-packages
 	touch .python_setup
 
-pdk/.pdk: .python_setup utils/*.py config/*.json config/macros/*.json templates/*.template
+pdk/.pdk: .python_setup utils/*.py config/*.json config/libraries/*.json templates/*.template
 	mkdir -p pdk
 	mkdir -p pdk/lef
 	mkdir -p pdk/lib
