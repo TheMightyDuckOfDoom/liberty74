@@ -103,21 +103,42 @@ library(${lib_name}) {
       % if "bus_name" in input:
     bus (${input["bus_name"]}) {
       bus_type: ${input['bus_type']};
-      direction: input;
-      capacitance: ${corner["default_input_cap"]};
-    }
+
+      pin (${input['bus_name']}[${bus_types[input['bus_type']]['from']}:${bus_types[input['bus_type']]['to']}]) {
+      
       % else:
     pin (${input["name"]}) {
+      % endif
       direction: input;
       capacitance: ${corner["default_input_cap"]};
-        % if "clock" in input and input["clock"]:
+      % if "clock" in input and input["clock"]:
       clock: true;
-        % endif
-        % if "timing" in input:
+      % endif
+      % if 'min_pulse_width' in input:
+      min_pulse_width() {
+          % if 'desc' in input['min_pulse_width']:
+        /* ${input['min_pulse_width']['desc']} */
+          % endif
+          % if 'when' in input['min_pulse_width']:
+        when: "${input['min_pulse_width']['when']}";
+          % endif
+          % if 'low' in input['min_pulse_width']:
+        constraint_low: ${input['min_pulse_width']['low'][corner['name']]};
+          % endif
+          % if 'high' in input['min_pulse_width']:
+        constraint_high: ${input['min_pulse_width']['high'][corner['name']]};
+          % endif
+      }
+      % endif
+      % if "timing" in input:
 
-          % for timing in input["timing"]:
+        % for timing in input["timing"]:
       timing () {
+          % if 'desc' in timing:
+        /* ${timing['desc']} */
+          % endif
         related_pin: "${timing["related_pin"]}";
+          % if 'setup_time' in timing or 'hold_time' in timing:
             % if "setup_time" in timing:
         timing_type: setup_rising;
 
@@ -138,11 +159,26 @@ library(${lib_name}) {
           values ("${timing["hold_time"][corner["name"]]}");
         }
             % endif
+          % else:
+        timing_type: ${timing['timing_type']};
+            % if 'nochange_setup_hold' in timing:
+        rise_constraint(scalar) {
+          values ("${timing["nochange_setup_hold"][corner["name"]]}");
+        }
+        fall_constraint(scalar) {
+          values ("${timing["nochange_setup_hold"][corner["name"]]}");
+        }
+            % endif
+          % endif
       }
-          % endfor
-        % endif
-    }
+        % endfor
       % endif
+      % if "bus_name" in input:
+
+      }
+
+      % endif
+    }
     % endfor
   % endif
   % if 'inouts' in cell:
@@ -150,19 +186,16 @@ library(${lib_name}) {
       % if "bus_name" in inout:
     bus (${inout["bus_name"]}) {
       bus_type: ${inout['bus_type']};
-      direction: inout;
-      % if 'default_inout_cap' in corner:
-      capacitance: ${corner["default_inout_cap"]};
-      % else:
-      capacitance: ${corner["default_input_cap"]};
-      % endif
-      max_capacitance: ${corner["default_max_cap"]};
-      three_state: "${inout["three_state"]}";
-    }
+
+      pin (${inout['bus_name']}[${bus_types[inout['bus_type']]['from']}:${bus_types[inout['bus_type']]['to']}]) {
+
       % else:
     pin (${inout["name"]}) {
+      % endif
       direction: inout;
+      % if 'function' in inout:
       function: "${inout["function"]}";
+      % endif
       three_state: "${inout["three_state"]}";
       % if 'default_inout_cap' in corner:
       capacitance: ${corner["default_inout_cap"]};
@@ -171,14 +204,22 @@ library(${lib_name}) {
       % endif
       max_capacitance: ${corner["default_max_cap"]};
 
-        % if "timing" in inout:
-          % for timing in inout["timing"]:
+      % if "timing" in inout:
+        % for timing in inout["timing"]:
       timing () {
+        % if 'desc' in timing:
+        /* ${timing['desc']} */
+        % endif
         related_pin: "${timing["related_pin"]}";
+        % if 'timing_sense' in timing:
         timing_sense: ${timing["timing_sense"]};
+        % endif
         timing_type: ${timing["timing_type"]};
+        % if 'when' in timing:
+        when: ${timing["when"]};
+        % endif
 
-            % if "delays_rise_fall" in timing:
+          % if "delays_rise_fall" in timing:
         cell_rise(scalar) {
           values ("${timing["delays_rise_fall"][corner["name"]]}");
         }
@@ -191,19 +232,30 @@ library(${lib_name}) {
         fall_transition(scalar) {
           values ("0.001");
         }
-            % else:
+          % elif 'nochange_setup_hold' in timing:
+        rise_constraint(scalar) {
+          values ("${timing["nochange_setup_hold"][corner["name"]]}");
+        }
+        fall_constraint(scalar) {
+          values ("${timing["nochange_setup_hold"][corner["name"]]}");
+        }
+          % else:
         cell_fall(scalar) {
           values ("${timing["delays_fall"][corner["name"]]}");
         }
         fall_transition(scalar) {
           values ("0.001");
         }
-            % endif
+          % endif
       }
-          % endfor
-        % endif
-    }
+        % endfor
       % endif
+      % if "bus_name" in inout:
+
+      }
+
+      % endif
+    }
     % endfor
   % endif
   % if 'outputs' in cell:
@@ -223,8 +275,13 @@ library(${lib_name}) {
         % if "timing" in output:
           % for timing in output["timing"]:
       timing () {
+        % if 'desc' in timing:
+        /* ${timing['desc']} */
+        % endif
         related_pin: "${timing["related_pin"]}";
+        % if 'timing_sense' in timing:
         timing_sense: ${timing["timing_sense"]};
+        % endif
         timing_type: ${timing["timing_type"]};
 
             % if "delays_rise_fall" in timing:
@@ -241,12 +298,22 @@ library(${lib_name}) {
           values ("0.001");
         }
             % else:
+              %if 'delays_rise' in timing:
+        cell_fall(scalar) {
+          values ("${timing["delays_rise"][corner["name"]]}");
+        }
+        fall_transition(scalar) {
+          values ("0.001");
+        }
+              % endif
+              %if 'delays_fall' in timing:
         cell_fall(scalar) {
           values ("${timing["delays_fall"][corner["name"]]}");
         }
         fall_transition(scalar) {
           values ("0.001");
         }
+              % endif
             % endif
       }
           % endfor

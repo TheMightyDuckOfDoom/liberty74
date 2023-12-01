@@ -138,7 +138,28 @@
                     "pin_number": 4,
                     "function": "A",
                     "verilog_function": "!EN_N ? A : 1'bZ",
+                    "three_state": "EN_N",
                     "timing": [
+                        {
+                            "related_pin": "EN_N",
+                            "timing_type": "three_state_enable",
+                            "delays_rise": {
+                                "slow_4p50V_85C":  5.0,
+                                "typ_5p00V_25C":   2.1,
+                                "fast_5p50V_m40C": 0.5,
+                                "slow_3p00V_85C":  5.3,
+                                "typ_3p30V_25C":   2.4,
+                                "fast_3p60V_m40C": 0.5
+                            },
+                            "delays_fall": {
+                                "slow_4p50V_85C":  4.2,
+                                "typ_5p00V_25C":   2.2,
+                                "fast_5p50V_m40C": 0.5,
+                                "slow_3p00V_85C":  5.0,
+                                "typ_3p30V_25C":   3.1,
+                                "fast_3p60V_m40C": 0.5
+                            }
+                        },
                         {
                             "related_pin": "A",
                             "timing_sense": "positive_unate",

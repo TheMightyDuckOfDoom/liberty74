@@ -79,20 +79,103 @@
             "inputs": [
                 {
                     "name": "CS_N",
-                    "pin_number": 20
+                    "pin_number": 20,
+                    "min_pulse_width": {
+                        "desc": "Write pulse width constraint",
+                        "when": "!WE_N",
+                        "low": {
+                            "slow_4p75V_70C": 18,
+                            "typ_5p00V_25C":  18,
+                            "fast_5p25V_0C":  18
+                        },
+                        "high": {
+                            "slow_4p75V_70C": 17,
+                            "typ_5p00V_25C":  17,
+                            "fast_5p25V_0C":  17
+                        }
+                    }
                 },
                 {
                     "name": "WE_N",
-                    "pin_number": 27
+                    "pin_number": 27,
+                    "desc": "Should not change while CS_N is low",
+                    "timing": [
+                        {
+                            "desc": "If high, then needs to be stable while CS_N is low",
+                            "related_pin": "CS_N",
+                            "timing_type": "nochange_high_low",
+                            "nochange_setup_hold": {
+                                "slow_4p75V_70C": 0,
+                                "typ_5p00V_25C":  0,
+                                "fast_5p25V_0C":  0
+                            }
+                        },
+                        {
+                            "desc": "If low, then needs to be stable while CS_N is low",
+                            "related_pin": "CS_N",
+                            "timing_type": "nochange_low_low",
+                            "nochange_setup_hold": {
+                                "slow_4p75V_70C": 0,
+                                "typ_5p00V_25C":  0,
+                                "fast_5p25V_0C":  0
+                            }
+                        }
+                    ]
                 },
                 {
                     "name": "OE_N",
-                    "pin_number": 22
+                    "pin_number": 22,
+                    "desc": "Should not change while writing",
+                    "timing": [
+                        {
+                            "desc": "If high, then needs to be stable while WE_N is low",
+                            "related_pin": "WE_N",
+                            "timing_type": "nochange_high_low",
+                            "nochange_setup_hold": {
+                                "slow_4p75V_70C": 0,
+                                "typ_5p00V_25C":  0,
+                                "fast_5p25V_0C":  0
+                            }
+                        },
+                        {
+                            "desc": "If low, then needs to be stable while WE_N is low",
+                            "related_pin": "WE_N",
+                            "timing_type": "nochange_low_low",
+                            "nochange_setup_hold": {
+                                "slow_4p75V_70C": 0,
+                                "typ_5p00V_25C":  0,
+                                "fast_5p25V_0C":  0
+                            }
+                        }
+                    ]
                 },
                 {
                     "bus_name": "A",
                     "bus_type": "A_13_0",
-                    "bus_pins": [10, 9, 8, 7, 6, 5, 4, 3, 25, 24, 21, 23, 2, 26]
+                    "bus_pins": [10, 9, 8, 7, 6, 5, 4, 3, 25, 24, 21, 23, 2, 26],
+                    "desc": "Should not change while writing",
+                    "timing": [
+                        {
+                            "desc": "If high, then needs to be stable while WE_N is low",
+                            "related_pin": "WE_N",
+                            "timing_type": "nochange_high_low",
+                            "nochange_setup_hold": {
+                                "slow_4p75V_70C": 0,
+                                "typ_5p00V_25C":  0,
+                                "fast_5p25V_0C":  0
+                            }
+                        },
+                        {
+                            "desc": "If low, then needs to be stable while WE_N is low",
+                            "related_pin": "WE_N",
+                            "timing_type": "nochange_low_low",
+                            "nochange_setup_hold": {
+                                "slow_4p75V_70C": 0,
+                                "typ_5p00V_25C":  0,
+                                "fast_5p25V_0C":  0
+                            }
+                        }
+                    ]
                 }
             ],
             "inouts": [
@@ -100,9 +183,63 @@
                     "bus_name": "IO",
                     "bus_type": "IO_8_1",
                     "bus_pins": [11, 12, 13, 15, 16, 17, 18, 19],
-                    "three_state": "OE_N",
-                    "function": "",
+                    "three_state": "CS_N | OE_N | !WE_N",
+                    "desc": "Should not change while writing",
                     "timing": [
+                        {
+                            "desc": "Three State enable",
+                            "related_pin": "CS_N OE_N WE_N",
+                            "timing_type": "three_state_enable",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 17,
+                                "typ_5p00V_25C":  17,
+                                "fast_5p25V_0C":  17
+                            }
+                        },
+                        {
+                            "desc": "Address controlled read cycle",
+                            "related_pin": "A",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "when": "!CS_N & !WE_N & !OE_N",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 35,
+                                "typ_5p00V_25C":  35,
+                                "fast_5p25V_0C":  35
+                            }
+                        },
+                        {
+                            "desc": "Chip select controlled read cycle",
+                            "related_pin": "CS_N",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "when": "!WE_N & !OE_N",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 35,
+                                "typ_5p00V_25C":  35,
+                                "fast_5p25V_0C":  35
+                            }
+                        },
+                        {
+                            "desc": "If high, then needs to be stable while WE_N is low",
+                            "related_pin": "WE_N",
+                            "timing_type": "nochange_high_low",
+                            "nochange_setup_hold": {
+                                "slow_4p75V_70C": 0,
+                                "typ_5p00V_25C":  0,
+                                "fast_5p25V_0C":  0
+                            }
+                        },
+                        {
+                            "desc": "If low, then needs to be stable while WE_N is low",
+                            "related_pin": "WE_N",
+                            "timing_type": "nochange_low_low",
+                            "nochange_setup_hold": {
+                                "slow_4p75V_70C": 0,
+                                "typ_5p00V_25C":  0,
+                                "fast_5p25V_0C":  0
+                            }
+                        }
                     ]
                 }
                 
