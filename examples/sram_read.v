@@ -1,3 +1,7 @@
+// Copyright 2023 Tobias Senti
+// Solderpad Hardware License, Version 0.51, see LICENSE for details.
+// SPDX-License-Identifier: SHL-0.51
+
 module sram_read (
     input wire clk_i,
     input wire rst_ni,

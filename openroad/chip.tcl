@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Design Setup
-set design_name sram_read
+set design_name sram_rw
 set CORNER_GROUP "CMOS_5V"
 
 source ../pdk/openroad/init_tech.tcl
@@ -15,8 +15,8 @@ link_design $design_name
 create_clock -name clk -period 10 {clk_i}
 set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
 set_output_delay -clock clk 0 [all_outputs]
-report_checks -path_delay min
-report_checks -path_delay max
+report_checks -corner Fast    -path_delay min
+report_checks -corner Typical -path_delay max
 
 check_setup
 
@@ -135,8 +135,8 @@ detailed_route -output_drc route_drc.rpt \
 write_verilog -include_pwr_gnd out/$design_name.final.v
 write_def out/$design_name.final.def
 
-report_checks -path_delay min
-report_checks -path_delay max
+report_checks -corner Fast    -path_delay min
+report_checks -corner Typical -path_delay max
 
 if ![gui::enabled] {
   exit

@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Parameters
-set LIBS [list "pdk/lib/74lvc_typ_5p00V_25C.lib" "pdk/lib/W24129A_typ_5p00V_25C.lib"]
+set LIBS [list "pdk/lib/74lvc1g_typ_5p00V_25C.lib" "pdk/lib/W24129A_typ_5p00V_25C.lib"]
 #set SRC ../servisia/out/servisia.v
-set SRC examples/sram_read.v
-set TOP sram_read
+set TOP sram_rw
+set SRC examples/$TOP.v
 set OUT out/$TOP.v
 
 #set ABC_AREA 0

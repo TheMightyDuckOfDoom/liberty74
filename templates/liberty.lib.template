@@ -121,22 +121,6 @@ library(${lib_name}) {
       % if "clock" in input and input["clock"]:
       clock: true;
       % endif
-      % if 'min_pulse_width' in input:
-      min_pulse_width() {
-          % if 'desc' in input['min_pulse_width']:
-        /* ${input['min_pulse_width']['desc']} */
-          % endif
-          % if 'when' in input['min_pulse_width']:
-        when: "${input['min_pulse_width']['when']}";
-          % endif
-          % if 'low' in input['min_pulse_width']:
-        constraint_low: ${input['min_pulse_width']['low'][corner['name']]};
-          % endif
-          % if 'high' in input['min_pulse_width']:
-        constraint_high: ${input['min_pulse_width']['high'][corner['name']]};
-          % endif
-      }
-      % endif
       % if "timing" in input:
 
         % for timing in input["timing"]:
@@ -145,6 +129,9 @@ library(${lib_name}) {
         /* ${timing['desc']} */
           % endif
         related_pin: "${timing["related_pin"]}";
+          % if 'when' in timing:
+        when: "${timing["when"]}";
+          % endif
           % if 'setup_time' in timing or 'hold_time' in timing:
             % if "setup_time" in timing:
         timing_type: setup_rising;
