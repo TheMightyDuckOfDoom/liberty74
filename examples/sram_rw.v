@@ -7,6 +7,7 @@ module sram_rw (
     input wire rst_ni,
 
     input wire        read_i,
+    input wire        write_i,
     input wire [13:0] addr_i,
     input wire  [7:0] wdata_i,
     
@@ -14,7 +15,7 @@ module sram_rw (
     output reg [7:0] rdata_o
 );
     wire [7:0] data_z;
-    reg read_q;
+    reg read_q, write_q;
     reg [13:0] addr_q;
 
     // Instantiate write Tristate Flip Flop
@@ -28,7 +29,7 @@ module sram_rw (
     // Instantiate SRAM
     (* keep *) W24129A_35 i_sram (
         .CS_N ( clk_i   ),
-        .WE_N ( read_q  ),
+        .WE_N ( read_q | !write_q ),
         .OE_N ( !read_q ),
         .A    ( addr_q  ),
         .IO   ( data_z  )
@@ -38,7 +39,8 @@ module sram_rw (
     always @(posedge clk_i) begin
         addr_q <= addr_i;
         read_q <= read_i;
-        read_valid_o <= read_q;
+        write_q <= write_i;
+        read_valid_o <= read_q & !write_q;
         rdata_o <= data_z;
     end
 endmodule

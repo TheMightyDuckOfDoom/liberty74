@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Design Setup
-set design_name sram_rw
+set design_name servisia
 set CORNER_GROUP "CMOS_5V"
 
 source ../pdk/openroad/init_tech.tcl
@@ -77,12 +77,16 @@ repair_tie_fanout TIE_LO/Y
 
 repair_design
 
-set_placement_padding -global -right 3 -left 3
 set density 0.36
+set padding 4
+set_placement_padding -global -right $padding -left $padding
+
+# Initial placement to see where cells cluster together
+global_placement -density $density
 
 # Place Multirow macros
-place_macro_approx "i_wffz" 200 145 R0
-place_macro_approx "i_sram" 180 155 R0
+#place_macro_approx "i_wffz" 200 145 R0
+#place_macro_approx "i_sram" 180 155 R0
 
 # Snap multirow macros in place
 place_multirow_macros
