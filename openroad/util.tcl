@@ -16,6 +16,11 @@ proc placeDetail {} {
   }
 }
 
+proc place_macro_approx { name x y orient } {
+  set inst [odb::dbBlock_findInst [ord::get_db_block] $name]
+  odb::dbInst_setLocation $inst [expr int($x * 1000)] [expr int($y * 1000)]
+}
+
 proc place_multirow_macros {} {
   set block [ord::get_db_block]
   set rows [odb::dbBlock_getRows $block]

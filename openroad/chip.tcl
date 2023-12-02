@@ -79,8 +79,10 @@ repair_design
 
 set_placement_padding -global -right 3 -left 3
 set density 0.36
-# First placement
-global_placement -density $density
+
+# Place Multirow macros
+place_macro_approx "i_wffz" 200 145 R0
+place_macro_approx "i_sram" 180 155 R0
 
 # Snap multirow macros in place
 place_multirow_macros

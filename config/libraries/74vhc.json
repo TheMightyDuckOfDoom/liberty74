@@ -1,0 +1,254 @@
+{
+    "LICENSE": [
+        "Copyright 2023 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
+    "library_name": "74vhc",
+    "corners": [
+        {
+            "name": "typ_3p30V_25C",
+            "process_name": "Typical",
+            "corner_group": "CMOS_3V",
+            "voltage": 3.3,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "slow_3p00V_85C",
+            "process_name": "Slow",
+            "corner_group": "CMOS_3V",
+            "voltage": 3.0,
+            "temperature": 85.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "fast_3p60V_m40C",
+            "process_name": "Fast",
+            "corner_group": "CMOS_3V",
+            "voltage": 3.6,
+            "temperature": -40.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "typ_5p00V_25C",
+            "process_name": "Typical",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "slow_4p50V_85C",
+            "process_name": "Slow",
+            "corner_group": "CMOS_5V",
+            "voltage": 4.5,
+            "temperature": 85.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "fast_5p50V_m40C",
+            "process_name": "Fast",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.5,
+            "temperature": -40.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        }
+    ],
+    "bus_types": [
+        {
+            "name": "BUS_7_0",
+            "from": 7,
+            "to": 0
+        }
+    ],
+    "cells": [
+        {
+            "name": "DFFZ8_74VHC574",
+            "desc": "Octal positive D-type FF with tristate outputs",
+            "footprint": "TSSOP-20",
+            "ff_bank": {
+                "width": 8,
+                "clocked_on": "CLK",
+                "next_state": "D"
+            },
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 20,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 10,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "CLK",
+                    "pin_number": 11,
+                    "clock": true,
+                    "min_pulse_width": 5
+                },
+                {
+                    "name": "OE_N",
+                    "pin_number": 1
+                },
+                {
+                    "bus_name": "D",
+                    "bus_type": "BUS_7_0",
+                    "bus_pins": [2, 3, 4, 5, 6, 7, 8, 9],
+                    "timing": [
+                        {
+                            "related_pin": "CLK",
+                            "setup_time" : {
+                                "slow_4p50V_85C":  3.5,
+                                "typ_5p00V_25C":   3.5,
+                                "fast_5p50V_m40C": 3.5,
+                                "slow_3p00V_85C":  3.5,
+                                "typ_3p30V_25C":   3.5,
+                                "fast_3p60V_m40C": 3.5
+                            }
+                        },
+                        {
+                            "related_pin": "CLK",
+                            "hold_time" : {
+                                "slow_4p50V_85C":  1.5,
+                                "typ_5p00V_25C":   1.5,
+                                "fast_5p50V_m40C": 1.5,
+                                "slow_3p00V_85C":  1.5,
+                                "typ_3p30V_25C":   1.5,
+                                "fast_3p60V_m40C": 1.5
+                            }
+                        }
+                    ]
+                }
+            ],
+            "outputs": [
+                {
+                    "bus_name": "Z",
+                    "bus_type": "BUS_7_0",
+                    "bus_pins": [19, 18, 17, 16, 15, 14, 13, 12, 11],
+                    "three_state_enable": "OE_N",
+                    "function": "IQ",
+                    "timing": [
+                        {
+                            "related_pin": "CLK",
+                            "timing_sense": "non_unate",
+                            "timing_type": "rising_edge",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  10.0,
+                                "typ_5p00V_25C":   5.6,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  15.5,
+                                "typ_3p30V_25C":   8.5,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "DFF8_74VHC574",
+            "desc": "Octal positive D-type FF",
+            "footprint": "TSSOP-20",
+            "ff_bank": {
+                "width": 8,
+                "clocked_on": "CLK",
+                "next_state": "D"
+            },
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 20,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 10,
+                    "function": "ground"
+                },
+                {
+                    "name": "TIE_LO",
+                    "connect_to_net": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "CLK",
+                    "pin_number": 11,
+                    "clock": true,
+                    "min_pulse_width": 5
+                },
+                {
+                    "bus_name": "D",
+                    "bus_type": "BUS_7_0",
+                    "bus_pins": [2, 3, 4, 5, 6, 7, 8, 9],
+                    "timing": [
+                        {
+                            "related_pin": "CLK",
+                            "setup_time" : {
+                                "slow_4p50V_85C":  3.5,
+                                "typ_5p00V_25C":   3.5,
+                                "fast_5p50V_m40C": 3.5,
+                                "slow_3p00V_85C":  3.5,
+                                "typ_3p30V_25C":   3.5,
+                                "fast_3p60V_m40C": 3.5
+                            }
+                        },
+                        {
+                            "related_pin": "CLK",
+                            "hold_time" : {
+                                "slow_4p50V_85C":  1.5,
+                                "typ_5p00V_25C":   1.5,
+                                "fast_5p50V_m40C": 1.5,
+                                "slow_3p00V_85C":  1.5,
+                                "typ_3p30V_25C":   1.5,
+                                "fast_3p60V_m40C": 1.5
+                            }
+                        }
+                    ]
+                }
+            ],
+            "outputs": [
+                {
+                    "bus_name": "Q",
+                    "bus_type": "BUS_7_0",
+                    "bus_pins": [19, 18, 17, 16, 15, 14, 13, 12, 11],
+                    "function": "IQ",
+                    "timing": [
+                        {
+                            "related_pin": "CLK",
+                            "timing_sense": "non_unate",
+                            "timing_type": "rising_edge",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  10.0,
+                                "typ_5p00V_25C":   5.6,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  15.5,
+                                "typ_3p30V_25C":   8.5,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

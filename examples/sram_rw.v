@@ -13,22 +13,17 @@ module sram_rw (
     output reg       read_valid_o,
     output reg [7:0] rdata_o
 );
-    wire [7:0] rdata_d, data_z;
+    wire [7:0] data_z;
     reg read_q;
-    reg [7:0]  wdata_q;
     reg [13:0] addr_q;
 
-    // Instantiate Tristate Buffers
-    generate
-        genvar i;
-        for(i = 0; i < 8; i = i + 1) begin
-            ZBUF_74LVC1G125 i_zbuf(
-                .A(wdata_q[i]),
-                .EN_N(read_q),
-                .Y(data_z[i])
-            );
-        end
-    endgenerate
+    // Instantiate write Tristate Flip Flop
+    DFFZ8_74VHC574 i_wffz (
+        .CLK(clk_i),
+        .OE_N(read_q),
+        .D(wdata_i),
+        .Z(data_z)
+    );
 
     // Instantiate SRAM
     (* keep *) W24129A_35 i_sram (
@@ -42,7 +37,6 @@ module sram_rw (
     // Flip Flops
     always @(posedge clk_i) begin
         addr_q <= addr_i;
-        wdata_q <= wdata_i;
         read_q <= read_i;
         read_valid_o <= read_q;
         rdata_o <= data_z;

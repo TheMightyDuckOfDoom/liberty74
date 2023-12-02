@@ -7,35 +7,57 @@
     "footprints": [
         {
             "names": ["SC70-6", "SOT-363", "TSSOP-6", "SC88", "SC70-5", "SOT-353"],
+            "models": {
+                "SC70-6":  "Package_TO_SOT_SMD.3dshapes/SOT-363_SC-70-6",
+                "SOT-363": "Package_TO_SOT_SMD.3dshapes/SOT-363_SC-70-6",
+                "TSSOP-6": "Package_TO_SOT_SMD.3dshapes/SOT-363_SC-70-6",
+                "SC88":    "Package_TO_SOT_SMD.3dshapes/SOT-363_SC-70-6",
+                "SC70-5":  "Package_TO_SOT_SMD.3dshapes/SOT-353_SC-70-5",
+                "SOT-353": "Package_TO_SOT_SMD.3dshapes/SOT-353_SC-70-5"
+            },
             "num_pins": 6,
-            "pad_width": 1.1,
-            "pad_height": 0.4,
-            "y_center_spacing": 0.65,
-            "x_center_spacing": 2.1
+            "pad_height": 1.1,
+            "pad_width": 0.4,
+            "x_center_spacing": 0.65,
+            "y_center_spacing": 2.1
         },
         {
             "names" : ["tie_cell_footprint"],
             "num_pins": 2,
-            "pad_width": 0.75,
-            "pad_height": 0.4,
-            "y_center_spacing": 0,
-            "x_center_spacing": 2.1
+            "pad_height": 0.75,
+            "pad_width": 0.4,
+            "x_center_spacing": 0,
+            "y_center_spacing": 2.1
         },
         {
-            "names" : ["0603"],
+            "names" : ["C0603", "R0603"],
+            "models": {
+                "C0603": "Capacitor_SMD.3dshapes/C_0603_1608Metric",
+                "R0603": "Resistor_SMD.3dshapes/C_0603_1608Metric"
+            },
             "num_pins": 2,
-            "pad_width": 1.0,
-            "pad_height": 0.95,
-            "y_center_spacing": 0,
-            "x_center_spacing": 1.6
+            "pad_height": 1.0,
+            "pad_width": 0.95,
+            "x_center_spacing": 0,
+            "y_center_spacing": 1.6
         },
         {
             "names": ["SO-28"],
+            "model": "Package_SO.3dshapes/SOIC-28W_7.5x18.7mm_P1.27mm",
             "num_pins": 28,
-            "pad_width": 1.5,
-            "pad_height": 0.6,
-            "y_center_spacing": 1.27,
-            "x_center_spacing": 9.5
+            "pad_height": 1.5,
+            "pad_width": 0.6,
+            "x_center_spacing": 1.27,
+            "y_center_spacing": 9.5
+        },
+        {
+            "names": ["TSSOP-20"],
+            "model": "Package_SO.3dshapes/TSSOP-20_4.4x6.5mm_P0.65mm",
+            "num_pins": 20,
+            "pad_height": 1.1,
+            "pad_width": 0.4,
+            "x_center_spacing": 0.65,
+            "y_center_spacing": 5.72
         }
     ]
 }

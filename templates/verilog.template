@@ -57,8 +57,8 @@ module ${cell['name']} (
 );
 % if 'outputs' in cell:
   % for output in cell['outputs']:
-    % if "bus_name" not in output:
-      % if output['function'] == 'IQ':
+    % if output['function'] == 'IQ':
+      % if 'ff' in cell:
     always_ff @(posedge ${cell['ff']['clocked_on']}\
         % if 'clear' in cell['ff']:
  or \
@@ -76,12 +76,48 @@ posedge\
 ) begin
         % endif
         ${output['name']} <= ${cell['ff']['next_state']};
-    end
-      % elif 'verilog_function' in output:
-    assign ${output['name']} = ${output['verilog_function']};
       % else:
-    assign ${output['name']} = ${output['function']};
+        % if 'three_state_enable' in output:
+    logic [${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}] Q;
+
+    assign ${output['bus_name']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}]\
+ = ${output['three_state_enable']} ? 'Z : Q[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}];
+        
+        % endif
+    always_ff @(posedge ${cell['ff_bank']['clocked_on']}\
+        % if 'clear' in cell['ff_bank']:
+ or \
+          % if '!' in cell['ff_bank']['clear']:
+negedge\
+          % else:
+posedge\
+          % endif
+ ${cell['ff_bank']['clear'].replace('!', '')}) begin
+        if (${cell['ff_bank']['clear']})
+        % if 'three_state_enable' in output:
+        Q\
+        % else:
+        ${output['bus_name']}\
+        % endif
+[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']} <= '0;
+        else
+    \
+        % else:
+) begin
+        % endif
+        % if 'three_state_enable' in output:
+        Q\
+        % else:
+        ${output['bus_name']}\
+        % endif
+[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}]\
+ <= ${cell['ff_bank']['next_state']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}];
       % endif
+    end
+    % elif 'verilog_function' in output:
+    assign ${output['name']} = ${output['verilog_function']};
+    % else:
+    assign ${output['name']} = ${output['function']};
     % endif
   % endfor
 % endif

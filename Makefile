@@ -2,7 +2,7 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-PROJECT := sram_read
+PROJECT := sram_rw
 
 all: synth
 

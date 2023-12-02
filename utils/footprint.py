@@ -63,15 +63,19 @@ class Footprint:
     def __init__(self, footprint_json, technology_json, name):
         # Init Data
         self.name = name
-        self.pad_width = footprint_json['pad_height']
-        self.pad_height = footprint_json['pad_width']
-        self.x_center_spacing = footprint_json['y_center_spacing']
-        self.y_center_spacing = footprint_json['x_center_spacing']
+        self.pad_width = footprint_json['pad_width']
+        self.pad_height = footprint_json['pad_height']
+        self.x_center_spacing = footprint_json['x_center_spacing']
+        self.y_center_spacing = footprint_json['y_center_spacing']
         self.num_pins = footprint_json['num_pins']
         row_height = technology_json['row_height']
         required_height = self.y_center_spacing + self.pad_height
         self.cell_height = math.ceil(required_height / row_height) * row_height
         self.cell_width = (4 + math.ceil((self.num_pins / 2 - 1) * self.x_center_spacing / technology_json['x_wire_pitch'])) * technology_json['x_wire_pitch']
+        if 'model' in footprint_json:
+            self.model = footprint_json['model']
+        else:
+            self.model = ''
 
         # Init Pins
         self.pins = []
@@ -86,6 +90,11 @@ class Footprint:
     def from_json(footprint_json, technology_json):
         fps = {}
         for name in footprint_json['names']:
+            if 'models' in footprint_json:
+                if name in footprint_json['models']:
+                    footprint_json['model'] = footprint_json['models'][name]
+                else:
+                    footprint_json['model'] = ''
             fps[name] = Footprint(footprint_json, technology_json, name)
         return fps
 
@@ -106,7 +115,12 @@ class Footprint:
         x -= self.x_center_spacing
         for i in range(0, int(self.num_pins / 2)):
             self.pins.append(Rect(x, y_offset + self.y_center_spacing, self.pad_width, self.pad_height))
-            self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing, x + self.pad_width, self.cell_height))
+            if round(self.cell_height / technology_json['row_height']) % 2 == 1:
+                # Cell is an odd multple of rows tall -> can connect power normaly
+                self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing, x + self.pad_width, self.cell_height))
+            else:
+                # Cell is an even multiple of rows tall -> Need to connect towars middle
+                self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing + self.pad_height, x + self.pad_width, self.cell_height - technology_json['row_height']))
             x -= self.x_center_spacing
 
     # Create Pin lef
@@ -142,3 +156,6 @@ class Footprint:
 
     def get_power_pin(self, pin_num):
         return self.power_pins[pin_num - 1]
+
+    def get_model(self):
+        return self.model

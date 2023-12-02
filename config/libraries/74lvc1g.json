@@ -64,9 +64,9 @@
     "cells": [
         {
             "name": "PWR_CAP",
-            "desc": "Capacitor",
+            "desc": "0603 Capacitor",
             "tapcell": true,
-            "footprint": "0603",
+            "footprint": "C0603",
             "power": [
                 {
                     "name": "VDD",
@@ -887,12 +887,8 @@
                     "pin_number": 1,
                     "clock": true,
                     "min_pulse_width": {
-                        "slow_4p50V_85C":  2.0,
-                        "typ_5p00V_25C":   2.0,
-                        "fast_5p50V_m40C": 2.0,
-                        "slow_3p00V_85C":  2.7,
-                        "typ_3p30V_25C":   2.7,
-                        "fast_3p60V_m40C": 2.7
+                        "CMOS_5V":  2.0,
+                        "CMOS_3V":  2.7
                     }
                 },
                 {
@@ -974,12 +970,8 @@
                     "pin_number": 1,
                     "clock": true,
                     "min_pulse_width": {
-                        "slow_4p50V_85C":  2.0,
-                        "typ_5p00V_25C":   2.0,
-                        "fast_5p50V_m40C": 2.0,
-                        "slow_3p00V_85C":  2.7,
-                        "typ_3p30V_25C":   2.7,
-                        "fast_3p60V_m40C": 2.7
+                        "CMOS_5V":  2.0,
+                        "CMOS_3V":  2.7
                     }
                 },
                 {
@@ -1014,12 +1006,8 @@
                     "name": "RST_N",
                     "pin_number": 6,
                     "min_pulse_width_low": {
-                        "slow_4p50V_85C":  2.0,
-                        "typ_5p00V_25C":   2.0,
-                        "fast_5p50V_m40C": 2.0,
-                        "slow_3p00V_85C":  2.7,
-                        "typ_3p30V_25C":   2.7,
-                        "fast_3p60V_m40C": 2.7
+                        "CMOS_5V":  2.0,
+                        "CMOS_3V":  2.7
                     }
                 }
             ],

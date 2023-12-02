@@ -93,6 +93,15 @@ library(${lib_name}) {
     % endif
     }
   % endif
+  % if "ff_bank" in cell:
+    ff_bank ("IQ", "IQN", ${cell['ff_bank']['width']}) {
+      clocked_on: ${cell["ff_bank"]["clocked_on"]};
+      next_state: ${cell["ff_bank"]["next_state"]};
+    % if "clear" in cell["ff_bank"]:
+      clear: "${cell["ff_bank"]["clear"]}";
+    % endif
+    }
+  % endif
   % if 'power' in cell:
     % for power in cell["power"]:
     pg_pin (${power["name"]}) {
@@ -257,28 +266,32 @@ library(${lib_name}) {
       % if "bus_name" in output:
     bus (${output["bus_name"]}) {
       bus_type: ${output['bus_type']};
-      direction: output;
-      capacitance: ${corner["default_input_cap"]};
-    }
+
+      pin (${output['bus_name']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}]) {
+
       % else:
     pin (${output["name"]}) {
+      % endif
       direction: output;
       function: "${output["function"]}";
+      % if 'default_output_cap' in corner:
+      capacitance: ${corner["default_output_cap"]};
+      % endif
       max_capacitance: ${corner["default_max_cap"]};
+      % if "timing" in output:
 
-        % if "timing" in output:
-          % for timing in output["timing"]:
+        % for timing in output["timing"]:
       timing () {
-        % if 'desc' in timing:
+          % if 'desc' in timing:
         /* ${timing['desc']} */
-        % endif
+          % endif
         related_pin: "${timing["related_pin"]}";
-        % if 'timing_sense' in timing:
+          % if 'timing_sense' in timing:
         timing_sense: ${timing["timing_sense"]};
-        % endif
+          % endif
         timing_type: ${timing["timing_type"]};
 
-            % if "delays_rise_fall" in timing:
+          % if "delays_rise_fall" in timing:
         cell_rise(scalar) {
           values ("${timing["delays_rise_fall"][corner["name"]]}");
         }
@@ -291,29 +304,33 @@ library(${lib_name}) {
         fall_transition(scalar) {
           values ("0.001");
         }
-            % else:
-              %if 'delays_rise' in timing:
+          % else:
+            %if 'delays_rise' in timing:
         cell_fall(scalar) {
           values ("${timing["delays_rise"][corner["name"]]}");
         }
         fall_transition(scalar) {
           values ("0.001");
         }
-              % endif
-              %if 'delays_fall' in timing:
+            % endif
+            %if 'delays_fall' in timing:
         cell_fall(scalar) {
           values ("${timing["delays_fall"][corner["name"]]}");
         }
         fall_transition(scalar) {
           values ("0.001");
         }
-              % endif
             % endif
+          % endif
       }
-          % endfor
-        % endif
-    }
+        % endfor
       % endif
+      % if "bus_name" in output:
+
+      }
+
+      % endif
+    }
     % endfor
   % endif
   }
