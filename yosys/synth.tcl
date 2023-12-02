@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Parameters
-set LIB pdk/lib/74lvc_typ_5p00V_25C.lib
-set SRC ../servisia/out/servisia.v
-set TOP servisia
+set LIBS [list "pdk/lib/74lvc_typ_5p00V_25C.lib" "pdk/lib/W24129A_typ_5p00V_25C.lib"]
+#set SRC ../servisia/out/servisia.v
+set SRC examples/sram_read.v
+set TOP sram_read
 set OUT out/$TOP.v
 
 #set ABC_AREA 0
@@ -17,7 +18,9 @@ set OUT out/$TOP.v
 yosys -import
 
 # Read Liberty
-read_liberty -lib $LIB
+foreach lib $LIBS {
+  read_liberty -lib $lib
+}
 
 # Read and check rtl
 read_verilog -defer $SRC
@@ -29,7 +32,7 @@ flatten
 synth -top $TOP
 
 # Map Flip Flops
-dfflibmap -liberty $LIB
+dfflibmap -liberty [lindex $LIBS 0]
 
 opt
 
@@ -43,13 +46,13 @@ opt
 #    abc -D [expr ($CLOCK_PERIOD * 1000)] -script $abc_script -liberty $LIB -constr out/abc.constr
 #} else {
 #}
-abc -liberty $LIB -dff
+abc -liberty [lindex $LIBS 0] -dff
 
 setundef -zero
 splitnets
 opt_clean -purge
 hilomap -singleton -hicell TIE_HI Y -locell TIE_LO Y
 
-stat -width -liberty $LIB
+stat -width -liberty [lindex $LIBS 0]
 
 write_verilog -noattr -noexpr -nohex -nodec $OUT

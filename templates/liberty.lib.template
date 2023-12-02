@@ -77,6 +77,13 @@ library(${lib_name}) {
     is_tap_cell: true;
   % endif
     area: ${footprints[cell["footprint"]]["cell_width"] * footprints[cell["footprint"]]["cell_height"]};
+  % if 'memory' in cell:
+    memory() {
+      type: ram;
+      address_width: ${cell['memory']['address_width']};
+      word_width:    ${cell['memory']['word_width']};
+    }
+  % endif
   % if "ff" in cell:
     ff ("IQ", "IQN") {
       clocked_on: ${cell["ff"]["clocked_on"]};
@@ -216,7 +223,7 @@ library(${lib_name}) {
         % endif
         timing_type: ${timing["timing_type"]};
         % if 'when' in timing:
-        when: ${timing["when"]};
+        when: "${timing["when"]}";
         % endif
 
           % if "delays_rise_fall" in timing:

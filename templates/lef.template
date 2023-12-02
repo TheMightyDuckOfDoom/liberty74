@@ -10,7 +10,11 @@ DIVIDERCHAR "/" ;
 
 % for cell in cells:
 MACRO ${cell["name"]}
+  % if 'is_std_cell' in footprints[cell["footprint"]] and not footprints[cell["footprint"]]['is_std_cell']:
+  CLASS BLOCK ;
+  % else:
   CLASS CORE ;
+  % endif
   ORIGIN 0 0 ;
   SIZE ${footprints[cell["footprint"]]["cell_width"]} BY ${footprints[cell["footprint"]]["cell_height"]} ;
   % if "tapcell" in cell and cell["tapcell"]:
@@ -18,7 +22,9 @@ MACRO ${cell["name"]}
   % else:
   SYMMETRY R90 ;
   % endif
+  % if 'is_std_cell' not in footprints[cell["footprint"]] or ('is_std_cell' not in footprints[cell["footprint"]] and footprints[cell["footprint"]]['is_std_cell']):
   SITE CoreSite ;
+  % endif
 
   % if 'inputs' in cell:
     % for pin in cell["inputs"]:
@@ -39,6 +45,37 @@ ${footprints[cell["footprint"]]["pin_lef_template"][pin["bus_pins"][i]]}
       % else:
   PIN ${pin["name"]}
     DIRECTION INPUT ;
+    USE SIGNAL ;
+    PORT
+        % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
+        % else:
+${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
+        % endif
+    END
+  END ${pin["name"]}
+      % endif
+    % endfor
+  % endif
+  % if 'inouts' in cell:
+    % for pin in cell["inouts"]:
+      % if "bus_name" in pin:
+        % for i in range(0, bus_types[pin["bus_type"]]["width"]):
+  PIN ${pin["bus_name"]}[${i + min(bus_types[pin["bus_type"]]["from"], bus_types[pin["bus_type"]]["to"])}]
+    DIRECTION INOUT ;
+    USE SIGNAL ;
+    PORT
+          % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["bus_pins"][i]]}
+          % else:
+${footprints[cell["footprint"]]["pin_lef_template"][pin["bus_pins"][i]]}
+          % endif
+    END
+  END ${pin["bus_name"]}[${i + min(bus_types[pin["bus_type"]]["from"], bus_types[pin["bus_type"]]["to"])}]
+        % endfor
+      % else:
+  PIN ${pin["name"]}
+    DIRECTION INOUT ;
     USE SIGNAL ;
     PORT
         % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:

@@ -201,7 +201,7 @@
                             "related_pin": "A",
                             "timing_sense": "non_unate",
                             "timing_type": "combinational",
-                            "when": "!CS_N & !WE_N & !OE_N",
+                            "when": "!CS_N & WE_N & !OE_N",
                             "delays_rise_fall": {
                                 "slow_4p75V_70C": 35,
                                 "typ_5p00V_25C":  35,
@@ -213,7 +213,7 @@
                             "related_pin": "CS_N",
                             "timing_sense": "non_unate",
                             "timing_type": "combinational",
-                            "when": "!WE_N & !OE_N",
+                            "when": "WE_N & !OE_N",
                             "delays_rise_fall": {
                                 "slow_4p75V_70C": 35,
                                 "typ_5p00V_25C":  35,

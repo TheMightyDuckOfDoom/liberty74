@@ -2,6 +2,8 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
+PROJECT := sram_read
+
 all: synth
 
 .python_setup:
@@ -36,10 +38,10 @@ chip_gui: openroad-setup gen_pdk
 	cd openroad && openroad -threads max chip.tcl -gui -log openroad.log
 
 pcb: gen_pdk
-	python3 utils/def2pcb.py openroad/out/servisia.final.def
+	python3 utils/def2pcb.py openroad/out/${PROJECT}.final.def
 
 open_pcb:
-	pcbnew out/servisia.final.kicad_pcb
+	pcbnew out/${PROJECT}.final.kicad_pcb
 
 clean:
 	rm -rf slpp_all && true

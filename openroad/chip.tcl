@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Design Setup
-set design_name servisia
+set design_name sram_read
 set CORNER_GROUP "CMOS_5V"
 
 source ../pdk/openroad/init_tech.tcl
@@ -12,11 +12,9 @@ source util.tcl
 read_verilog ../out/${design_name}.v
 link_design $design_name
 
-gui::pause
-
 create_clock -name clk -period 10 {clk_i}
-set_input_delay -clock clk 1 [delete_from_list [all_inputs] [get_ports clk_i]]
-set_output_delay -clock clk 1 [all_outputs]
+set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
+set_output_delay -clock clk 0 [all_outputs]
 report_checks -path_delay min
 report_checks -path_delay max
 
@@ -80,7 +78,15 @@ repair_tie_fanout TIE_LO/Y
 repair_design
 
 set_placement_padding -global -right 3 -left 3
-global_placement -density 0.36
+set density 0.36
+# First placement
+global_placement -density $density
+
+# Snap multirow macros in place
+place_multirow_macros
+
+# Second placement
+global_placement -density $density
 
 repair_design
 improve_placement

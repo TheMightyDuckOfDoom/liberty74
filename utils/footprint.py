@@ -67,9 +67,10 @@ class Footprint:
         self.pad_height = footprint_json['pad_width']
         self.x_center_spacing = footprint_json['y_center_spacing']
         self.y_center_spacing = footprint_json['x_center_spacing']
-        self.single_layer_footprint = footprint_json['single_layer_footprint']
         self.num_pins = footprint_json['num_pins']
-        self.cell_height = technology_json['row_height']
+        row_height = technology_json['row_height']
+        required_height = self.y_center_spacing + self.pad_height
+        self.cell_height = math.ceil(required_height / row_height) * row_height
         self.cell_width = (4 + math.ceil((self.num_pins / 2 - 1) * self.x_center_spacing / technology_json['x_wire_pitch'])) * technology_json['x_wire_pitch']
 
         # Init Pins
@@ -78,10 +79,8 @@ class Footprint:
         self.power_pins = []
         self.power_pins_lef = []
 
-        num_metal_layers = 1 if self.single_layer_footprint else technology_json['metal_layers']
-
         self.__create_pins(technology_json)
-        self.__gen_pin_lefs(num_metal_layers)
+        self.__gen_pin_lefs()
 
     # Init Multiple Footprints
     def from_json(footprint_json, technology_json):
@@ -93,7 +92,7 @@ class Footprint:
     # Creates Pads
     def __create_pins(self, technology_json):
         # Verticaly center
-        y_offset = (technology_json['row_height'] - self.pad_height - self.y_center_spacing) / 2
+        y_offset = (self.cell_height - self.pad_height - self.y_center_spacing) / 2
         
         # Align pad center with vertical tracks
         x = 2 * technology_json['x_wire_pitch'] - self.pad_width / 2
@@ -111,20 +110,18 @@ class Footprint:
             x -= self.x_center_spacing
 
     # Create Pin lef
-    def __gen_pin_lefs(self, num_metal_layers):
+    def __gen_pin_lefs(self):
         for pin in self.pins:
             lef = ''
-            for layer in range(1, num_metal_layers + 1):
-                lef += f'      LAYER Metal{layer} ;\n'
-                lef += f'        ' + pin.to_lef()
+            lef += f'      LAYER Metal1 ;\n'
+            lef += f'        ' + pin.to_lef()
 
             self.pins_lef.append(lef)
 
         for pin in self.power_pins:
             lef = ''
-            for layer in range(1, num_metal_layers + 1):
-                lef += f'      LAYER Metal{layer} ;\n'
-                lef += f'        ' + pin.to_lef()
+            lef += f'      LAYER Metal1 ;\n'
+            lef += f'        ' + pin.to_lef()
 
             self.power_pins_lef.append(lef)
 
@@ -145,6 +142,3 @@ class Footprint:
 
     def get_power_pin(self, pin_num):
         return self.power_pins[pin_num - 1]
-
-    def is_single_layer_footprint(self):
-        return self.single_layer_footprint
