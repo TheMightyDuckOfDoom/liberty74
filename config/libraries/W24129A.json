@@ -55,8 +55,13 @@
             "desc": "16k x 8bit 35ns SRAM",
             "footprint": "SO-28",
             "memory": {
+                "chip_select":   "!CS_N",
+                "write_enable":  "!WE_N",
+                "output_enable": "!OE_N",
+                "address":       "A",
+                "data":          "IO",
                 "address_width": 14,
-                "word_width": 8
+                "word_width":    8
             },
             "power": [
                 {

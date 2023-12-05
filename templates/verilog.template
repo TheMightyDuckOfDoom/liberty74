@@ -8,8 +8,13 @@
 // ${cell['desc']}
 module ${cell['name']} (
   % if pwr_pins and 'power' in cell:
-    % for power_pin in cell['power']:
-    input  logic ${power_pin['name']},
+    % for idx, power_pin in enumerate(cell['power']):
+    input  logic ${power_pin['name']}\
+      % if idx < len(cell['power']) - 1 or 'inputs' in cell or 'inouts' in cell or 'outputs' in cell:
+,
+      % else:
+
+      % endif
     % endfor
   % endif
   % if 'inputs' in cell:
@@ -55,7 +60,18 @@ module ${cell['name']} (
     % endfor
   % endif
 );
-% if 'outputs' in cell:
+% if 'memory' in cell:
+  single_port_async_sram #(
+    .ADDR_WIDTH ( ${cell['memory']['address_width']} ),
+    .DATA_WIDTH ( ${cell['memory']['word_width']} )
+  ) i_sram_model (
+    .cs_i    ( ${cell['memory']['chip_select']} ),
+    .we_i    ( ${cell['memory']['write_enable']} ),
+    .oe_i    ( ${cell['memory']['output_enable']} ),
+    .addr_i  ( ${cell['memory']['address']} ),
+    .data_io ( ${cell['memory']['data']} )
+  );
+% elif 'outputs' in cell:
   % for output in cell['outputs']:
     % if output['function'] == 'IQ':
       % if 'ff' in cell:

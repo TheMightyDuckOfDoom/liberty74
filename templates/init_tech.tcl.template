@@ -7,23 +7,26 @@
 # Load Corners
 % for idx, group in enumerate(corner_groups):
     % if idx > 0:
-else\
+ else\
     % endif
 if { $CORNER_GROUP == "${group}" } {
     define_corners \
-    % for pn_idx, process_name in enumerate(corner_groups_process_names[group]):
+    % for pn_idx, process_name in enumerate(corner_groups[group]):
 ${process_name} \
-        % if pn_idx == len(corner_groups_process_names[group]) - 1:
+        % if pn_idx == len(corner_groups[group]) - 1:
  \
         % endif
     % endfor
 
-    % for corner in corner_groups[group]:
-    read_liberty -corner ${corner_groups[group][corner]['process_name']} ../pdk/lib/${corner}.lib
+    % for process_name in corner_groups[group]:
+
+        % for corner in corner_groups[group][process_name]:
+    read_liberty -corner ${process_name} ../pdk/lib/${corner}.lib
+        % endfor
     % endfor
-} \
+}\
 % endfor
-else {
+ else {
     puts "Corner Group $\
 {CORNER_GROUP} not found"
     exit

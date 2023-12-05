@@ -3,10 +3,8 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Parameters
-set LIBS [list "pdk/lib/74lvc1g_typ_5p00V_25C.lib" "pdk/lib/74vhc_typ_5p00V_25C.lib" "pdk/lib/W24129A_typ_5p00V_25C.lib"]
-set TOP servisia
-set SRC ../servisia/out/servisia.v
-set OUT out/$TOP.v
+source pdk/yosys/yosys_libs.tcl
+set OUT out/temp.v
 
 #set ABC_AREA 0
 #set CLOCK_PERIOD 100
@@ -23,7 +21,6 @@ foreach lib $LIBS {
 
 # Read and check rtl
 read_verilog -defer $SRC
-read_verilog -defer out/sram_rw.v
 hierarchy -check -top $TOP
 
 flatten

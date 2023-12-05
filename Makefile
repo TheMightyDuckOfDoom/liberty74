@@ -2,7 +2,10 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-PROJECT := servisia
+PROJECT 		:= servisia
+SRC    		  	:= ../servisia/out/servisia.v
+CORNER_GROUP  	:= CMOS_5V
+SYNTH_PROCESS 	:= Typical
 
 all: synth
 
@@ -12,12 +15,13 @@ all: synth
 
 pdk/.pdk: .python_setup utils/*.py config/*.json config/libraries/*.json templates/*.template
 	mkdir -p pdk
-	mkdir -p pdk/lef
-	mkdir -p pdk/lib
-	mkdir -p pdk/verilog
-	mkdir -p pdk/openroad
 	mkdir -p pdk/kicad
 	mkdir -p pdk/kicad/footprints
+	mkdir -p pdk/lef
+	mkdir -p pdk/lib
+	mkdir -p pdk/openroad
+	mkdir -p pdk/verilog
+	mkdir -p pdk/yosys
 	touch pdk/.pdk
 	python3 utils/generate.py
 
@@ -25,8 +29,10 @@ gen_pdk: pdk/.pdk
 
 synth: gen_pdk
 	mkdir -p out
-	yosys yosys/synth.tcl
+	echo "set TOP "${PROJECT}"\nset SRC "${SRC}"\nset CORNER_GROUP "${CORNER_GROUP}"\nset PROCESS "${SYNTH_PROCESS}"\nsource yosys/synth.tcl" | yosys -C
+	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource rename.tcl" | openroad)
 	rm -rf slpp_all
+	rm -f temp.v
 
 openroad-setup:
 	mkdir -p openroad/out
