@@ -38,10 +38,10 @@ openroad-setup:
 	mkdir -p openroad/out
 
 chip: openroad-setup gen_pdk
-	cd openroad && openroad -threads max chip.tcl -log openroad.log
+	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource chip.tcl" | openroad -threads max -log openroad.log)
 
 chip_gui: openroad-setup gen_pdk
-	cd openroad && openroad -threads max chip.tcl -gui -log openroad.log
+	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource chip.tcl" | openroad -threads max -gui -log openroad.log)
 
 pcb: gen_pdk
 	python3 utils/def2pcb.py openroad/out/${PROJECT}.final.def
