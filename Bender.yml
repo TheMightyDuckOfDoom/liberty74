@@ -1,0 +1,34 @@
+# Copyright 2023 Tobias Senti
+# Solderpad Hardware License, Version 0.51, see LICENSE for details.
+# SPDX-License-Identifier: SHL-0.51
+
+package: 
+  name: liberty74
+  authors: 
+    - "Tobias Senti"
+
+sources:
+  # Simulation Models
+  - target: not(SYNTH)
+    files:
+      - verilog_models/DS9808.sv
+      - verilog_models/single_port_async_sram.sv
+
+  # PDK
+  - target: SIM_LAYOUT
+    defines:
+      PWR_PINS: ~
+    files:
+      - pdk/verilog/74lvc1g.v
+      - pdk/verilog/74vhc.v
+      - pdk/verilog/DS9808.v
+      - pdk/verilog/Led.v
+      - pdk/verilog/W24129A.v
+
+  - target: any(SIM, SIM_SYNTH)
+    files:
+      - pdk/verilog/74lvc1g.v
+      - pdk/verilog/74vhc.v
+      - pdk/verilog/DS9808.v
+      - pdk/verilog/Led.v
+      - pdk/verilog/W24129A.v

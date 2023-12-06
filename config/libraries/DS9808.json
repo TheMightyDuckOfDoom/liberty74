@@ -1,0 +1,125 @@
+{
+    "LICENSE": [
+        "Copyright 2023 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
+    "library_name": "DS9808",
+    "corners": [
+        {
+            "name": "typ_3p30V_25C",
+            "process_name": "Typical",
+            "corner_group": "CMOS_3V",
+            "voltage": 3.3,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "slow_3p00V_85C",
+            "process_name": "Slow",
+            "corner_group": "CMOS_3V",
+            "voltage": 3.0,
+            "temperature": 85.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "fast_3p60V_m40C",
+            "process_name": "Fast",
+            "corner_group": "CMOS_3V",
+            "voltage": 3.6,
+            "temperature": -40.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "typ_5p00V_25C",
+            "process_name": "Typical",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "slow_4p50V_85C",
+            "process_name": "Slow",
+            "corner_group": "CMOS_5V",
+            "voltage": 4.5,
+            "temperature": 85.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "fast_5p50V_m40C",
+            "process_name": "Fast",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.5,
+            "temperature": -40.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        }
+    ],
+    "cells": [
+        {
+            "name": "POR_DS9809PRSS3",
+            "desc": "Power On Reset Circuit / Voltag Detector with Push-Pull Output, 2.63V Threshold and 210ms active low reset pulse width",
+            "footprint": "SSOT-23",
+            "custom_verilog_model": true,
+            "power": [
+                {
+                    "name": "VCC",
+                    "pin_number": 5,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "RESET_N",
+                    "pin_number": 3,
+                    "function": ""
+                }
+            ]
+        },
+        {
+            "name": "DS9809PRSS3",
+            "desc": "Power On Reset Circuit / Voltag Detector with Push-Pull Output, 2.63V Threshold and 210ms active low reset pulse width",
+            "footprint": "SSOT-23",
+            "custom_verilog_model": true,
+            "power": [
+                {
+                    "name": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "IN",
+                    "pin_number": 5
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "RESET_N",
+                    "pin_number": 3,
+                    "function": "IN"
+                }
+            ]
+        }
+    ]
+}
+

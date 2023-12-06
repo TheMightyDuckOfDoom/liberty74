@@ -22,6 +22,15 @@
             "y_center_spacing": 2.1
         },
         {
+            "names": ["SOT-23", "SSOT-23"],
+            "model": "Package_SO.3dshapes/SOT-23",
+            "num_pins": 6,
+            "pad_height": 0.6,
+            "pad_width": 0.5,
+            "x_center_spacing": 0.95,
+            "y_center_spacing": 2
+        },
+        {
             "names" : ["tie_cell_footprint"],
             "num_pins": 2,
             "pad_height": 0.75,

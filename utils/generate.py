@@ -169,15 +169,8 @@ for config_name in library_json:
                 start_pin_rect = fp.get_pin(start_pin_number)
                 end_pin_rect = fp.get_pin(end_pin_number)
 
-                
-                print("Start Pos: " + str(start_pin_rect.get_x()) + " " + str(start_pin_rect.get_y()))
-                print("Start Pos2: " + str(start_pin_rect.get_x2()) + " " + str(start_pin_rect.get_y2()))
-                print("Start Center: " + str(start_pin_rect.get_center_kiposition().X) + " " + str(start_pin_rect.get_center_kiposition().Y))
-                print("End Center: " + str(end_pin_rect.get_center_kiposition().X) + " " + str(end_pin_rect.get_center_kiposition().Y))
                 center = KiPosition((start_pin_rect.get_center_kiposition().X + end_pin_rect.get_center_kiposition().X) / 2,
                     (start_pin_rect.get_center_kiposition().Y + end_pin_rect.get_center_kiposition().Y) / 2)
-
-                print("Center: " + str(center.X) + " " + str(center.Y))
 
                 size = start_pin_rect.get_size_kiposition()
                 if start_pin_rect.get_center_kiposition().Y == end_pin_rect.get_center_kiposition().Y:
@@ -186,8 +179,6 @@ for config_name in library_json:
                 else:
                     # Vertical Connection -> Make taller
                     size.Y = abs(start_pin_rect.get_center_kiposition().Y - end_pin_rect.get_center_kiposition().Y)
-                
-                print("Size: " + str(size.X) + " " + str(size.Y))
 
                 cell['internal_connections_lef'].append('      LAYER Metal1 ;\n        ' + Rect.from_center_size(center, size).to_lef())
                 
@@ -246,8 +237,7 @@ for config_name in library_json:
     verilog_context = {
         'stamp': stamp,
         'cells': cells,
-        'bus_types': bus_types,
-        'pwr_pins': False
+        'bus_types': bus_types
     }
 
     print('Generating Verilog...')
@@ -255,15 +245,6 @@ for config_name in library_json:
     rendered_verilog = verilog_template.render(**verilog_context)
 
     with open(verilog_path + config_json['library_name'] + '.v', 'w', encoding='utf-8') as verilog_file:
-        verilog_file.write(rendered_verilog)
-
-    verilog_context['pwr_pins'] = True
-
-    print('Generating Verilog with power pins...')
-
-    rendered_verilog = verilog_template.render(**verilog_context)
-
-    with open(verilog_path + config_json['library_name'] + '_pwr_pins.v', 'w', encoding='utf-8') as verilog_file:
         verilog_file.write(rendered_verilog)
 
     print('Generating Kicad Footprints')

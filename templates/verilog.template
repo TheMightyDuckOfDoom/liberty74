@@ -5,9 +5,14 @@
 /* ${stamp} */
 
 % for cell in cells:
+  % if 'custom_verilog_model' in cell and cell['custom_verilog_model']:
+    <% break %>
+  % endif
+
 // ${cell['desc']}
 module ${cell['name']} (
-  % if pwr_pins and 'power' in cell:
+  % if 'power' in cell:
+    `ifdef PWR_PINS
     % for idx, power_pin in enumerate(cell['power']):
     input  logic ${power_pin['name']}\
       % if idx < len(cell['power']) - 1 or 'inputs' in cell or 'inouts' in cell or 'outputs' in cell:
@@ -16,6 +21,7 @@ module ${cell['name']} (
 
       % endif
     % endfor
+    `endif
   % endif
   % if 'inputs' in cell:
     % for idx, input in enumerate(cell['inputs']):
