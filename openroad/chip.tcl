@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Design Setup
+set density 0.46
+set padding 4
+
 source ../pdk/openroad/init_tech.tcl
 source util.tcl
 
@@ -74,8 +77,6 @@ repair_tie_fanout TIE_LO/Y
 
 repair_design
 
-set density 0.45
-set padding 4
 set_placement_padding -global -right $padding -left $padding
 
 # Initial placement to see where cells cluster together

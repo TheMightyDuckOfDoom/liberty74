@@ -14,7 +14,9 @@ module DS9809PRSS3 #(
 
     initial begin
         RESET_N = 1'b0;
-        @( posedge IN )
+        /* verilator lint_off WAITCONST */
+        wait(IN);
+        /* verilator lint_on WAITCONST */
         #DELAY
         RESET_N = 1'b1;
     end
