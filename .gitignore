@@ -6,5 +6,6 @@ slpp_all
 .python_setup
 openroad/out
 openroad/*.log
+openroad/start.tcl
 utils/__pycache__
 utils/lef_def_parser/__pycache__

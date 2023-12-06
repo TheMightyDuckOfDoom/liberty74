@@ -33,12 +33,23 @@
             "names" : ["C0603", "R0603"],
             "models": {
                 "C0603": "Capacitor_SMD.3dshapes/C_0603_1608Metric",
-                "R0603": "Resistor_SMD.3dshapes/C_0603_1608Metric"
+                "R0603": "Resistor_SMD.3dshapes/R_0603_1608Metric"
             },
             "num_pins": 2,
             "pad_height": 1.0,
             "pad_width": 0.95,
             "x_center_spacing": 0,
+            "y_center_spacing": 1.6
+        },
+        {
+            "names" : ["LED_RES_0603"],
+            "models": {
+                "LED_RES_0603": "Resistor_SMD.3dshapes/R_0603_1608Metric"
+            },
+            "num_pins": 4,
+            "pad_height": 0.95,
+            "pad_width": 1.0,
+            "x_center_spacing": 1.6,
             "y_center_spacing": 1.6
         },
         {

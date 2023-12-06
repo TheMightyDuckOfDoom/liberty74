@@ -266,18 +266,23 @@ library(${lib_name}) {
       % if "bus_name" in output:
     bus (${output["bus_name"]}) {
       bus_type: ${output['bus_type']};
-
-      pin (${output['bus_name']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}]) {
-
-      % else:
-    pin (${output["name"]}) {
-      % endif
       direction: output;
       function: "${output["function"]}";
       % if 'default_output_cap' in corner:
       capacitance: ${corner["default_output_cap"]};
       % endif
       max_capacitance: ${corner["default_max_cap"]};
+
+      pin (${output['bus_name']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}]) {
+      % else:
+    pin (${output["name"]}) {
+      direction: output;
+      function: "${output["function"]}";
+      % if 'default_output_cap' in corner:
+      capacitance: ${corner["default_output_cap"]};
+      % endif
+      max_capacitance: ${corner["default_max_cap"]};
+      % endif
       % if "timing" in output:
 
         % for timing in output["timing"]:

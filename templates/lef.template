@@ -26,6 +26,19 @@ MACRO ${cell["name"]}
   SITE CoreSite ;
   % endif
 
+  % if 'internal_pins' in cell:
+  OBS
+    % for pin in cell['internal_pins']:
+${footprints[cell['footprint']]['pin_lef_template'][pin]}
+    % endfor
+    % if 'internal_connections_lef' in cell:
+      % for ic in cell['internal_connections_lef']:
+${ic}
+      % endfor
+    % endif
+  END
+
+  % endif
   % if 'inputs' in cell:
     % for pin in cell["inputs"]:
       % if "bus_name" in pin:

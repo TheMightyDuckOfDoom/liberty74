@@ -74,7 +74,7 @@ repair_tie_fanout TIE_LO/Y
 
 repair_design
 
-set density 0.36
+set density 0.45
 set padding 4
 set_placement_padding -global -right $padding -left $padding
 
@@ -94,6 +94,8 @@ global_placement -density $density
 repair_design
 improve_placement
 placeDetail
+
+gui::pause
 
 repair_clock_inverters
 placeDetail

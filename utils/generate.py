@@ -5,6 +5,7 @@
 # Generates Library
 
 from footprint import Footprint
+from footprint import Rect
 
 import datetime
 import os
@@ -155,9 +156,41 @@ for config_name in library_json:
             corner_groups[cg][pn] = {}
         corner_groups[cg][pn][config_json['library_name'] + "_" + cn] = corner_data
 
-    # Load Corners
+    # Build internal connections
     cells = config_json['cells']
+    for cell in cells:
+        if 'internal_connections' in cell:
+            cell['internal_connections_lef'] = []
+            for connections in cell['internal_connections']:
+                start_pin_number = connections[0]
+                end_pin_number = connections[1]
 
+                fp = new_fps[cell['footprint']]
+                start_pin_rect = fp.get_pin(start_pin_number)
+                end_pin_rect = fp.get_pin(end_pin_number)
+
+                
+                print("Start Pos: " + str(start_pin_rect.get_x()) + " " + str(start_pin_rect.get_y()))
+                print("Start Pos2: " + str(start_pin_rect.get_x2()) + " " + str(start_pin_rect.get_y2()))
+                print("Start Center: " + str(start_pin_rect.get_center_kiposition().X) + " " + str(start_pin_rect.get_center_kiposition().Y))
+                print("End Center: " + str(end_pin_rect.get_center_kiposition().X) + " " + str(end_pin_rect.get_center_kiposition().Y))
+                center = KiPosition((start_pin_rect.get_center_kiposition().X + end_pin_rect.get_center_kiposition().X) / 2,
+                    (start_pin_rect.get_center_kiposition().Y + end_pin_rect.get_center_kiposition().Y) / 2)
+
+                print("Center: " + str(center.X) + " " + str(center.Y))
+
+                size = start_pin_rect.get_size_kiposition()
+                if start_pin_rect.get_center_kiposition().Y == end_pin_rect.get_center_kiposition().Y:
+                    # Horizontal Connection -> Make wider
+                    size.X = abs(start_pin_rect.get_center_kiposition().X - end_pin_rect.get_center_kiposition().X)
+                else:
+                    # Vertical Connection -> Make taller
+                    size.Y = abs(start_pin_rect.get_center_kiposition().Y - end_pin_rect.get_center_kiposition().Y)
+                
+                print("Size: " + str(size.X) + " " + str(size.Y))
+
+                cell['internal_connections_lef'].append('      LAYER Metal1 ;\n        ' + Rect.from_center_size(center, size).to_lef())
+                
     # Load liberty template
     lib_template = Template(filename='./templates/liberty.lib.template')
 
@@ -329,7 +362,7 @@ for config_name in library_json:
                         number = pin_number,
                         type = 'smd',
                         shape = 'rect',
-                        position = pin_rect.get_center_kiposition(),
+                        position = pin_rect.get_center_kiposition_inv_y(),
                         size = pin_rect.get_size_kiposition(),
                         layers = ['F.Cu', 'F.Paste', 'F.Mask'],
                         pinFunction = pin_function
@@ -342,7 +375,7 @@ for config_name in library_json:
                         number = pin_number,
                         type = 'smd',
                         shape = 'rect',
-                        position = power_pin_rect.get_center_kiposition(),
+                        position = power_pin_rect.get_center_kiposition_inv_y(),
                         size = power_pin_rect.get_size_kiposition(),
                         layers = ['F.Cu'],
                         pinFunction = pin_function
@@ -371,7 +404,7 @@ for config_name in library_json:
                             number = pin_number,
                             type = 'smd',
                             shape = 'rect',
-                            position = pin_rect.get_center_kiposition(),
+                            position = pin_rect.get_center_kiposition_inv_y(),
                             size = pin_rect.get_size_kiposition(),
                             layers = ['F.Cu', 'F.Paste', 'F.Mask'],
                             pinFunction = pin['bus_name'] + '[' + str(i + min(type['from'], type['to'])) + ']' 
@@ -387,12 +420,58 @@ for config_name in library_json:
                         number = pin_number,
                         type = 'smd',
                         shape = 'rect',
-                        position = pin_rect.get_center_kiposition(),
+                        position = pin_rect.get_center_kiposition_inv_y(),
                         size = pin_rect.get_size_kiposition(),
                         layers = ['F.Cu', 'F.Paste', 'F.Mask'],
                         pinFunction = pin['name']
                     )
                 )
+    
+        # Internal Pins
+        if 'internal_pins' in cell:
+            for pin_number in cell['internal_pins']:
+                pin_rect = fp.get_pin(pin_number)
+
+                # Add SMD pad
+                kifp.pads.append(
+                    KiPad(
+                        type = 'smd',
+                        shape = 'rect',
+                        position = pin_rect.get_center_kiposition_inv_y(),
+                        size = pin_rect.get_size_kiposition(),
+                        layers = ['F.Cu', 'F.Paste', 'F.Mask']
+                    )
+                )
+        
+        if 'internal_connections' in cell:
+            for connections in cell['internal_connections']:
+                start_pin_number = connections[0]
+                end_pin_number = connections[1]
+
+                start_pin_rect = fp.get_pin(start_pin_number)
+                end_pin_rect = fp.get_pin(end_pin_number)
+                center = KiPosition((start_pin_rect.get_center_kiposition_inv_y().X + end_pin_rect.get_center_kiposition_inv_y().X) / 2,
+                    (start_pin_rect.get_center_kiposition_inv_y().Y + end_pin_rect.get_center_kiposition_inv_y().Y) / 2)
+
+                size = start_pin_rect.get_size_kiposition()
+                if start_pin_rect.get_center_kiposition_inv_y().Y == end_pin_rect.get_center_kiposition_inv_y().Y:
+                    # Horizontal Connection -> Make wider
+                    size.X = abs(start_pin_rect.get_center_kiposition_inv_y().X - end_pin_rect.get_center_kiposition_inv_y().X)
+                else:
+                    # Vertical Connection -> Make taller
+                    size.Y = abs(start_pin_rect.get_center_kiposition_inv_y().Y - end_pin_rect.get_center_kiposition_inv_y().Y)
+                
+                # Add SMD pad
+                kifp.pads.append(
+                    KiPad(
+                        type = 'smd',
+                        shape = 'rect',
+                        position = center,
+                        size = pin_rect.get_size_kiposition(),
+                        layers = ['F.Cu']
+                    )
+                )
+
         # Add 3D model
         if fp.get_model() != '':
             model = KiModel()

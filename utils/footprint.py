@@ -11,6 +11,9 @@ class Rect:
         self.y = y
         self.width = width
         self.height = height
+    
+    def from_center_size(center, size):
+        return Rect(center.X - size.X / 2, center.Y - size.Y / 2, size.X, size.Y)
         
     def translate(self, x_offset, y_offset):
         self.x += x_offset
@@ -49,8 +52,11 @@ class Rect:
         return self.height
         
     # Makes Y coordinate negative
-    def get_center_kiposition(self):
+    def get_center_kiposition_inv_y(self):
         return KiPosition(self.x + self.width / 2, -(self.y + self.height / 2))
+
+    def get_center_kiposition(self):
+        return KiPosition(self.x + self.width / 2, self.y + self.height / 2)
     
     def get_size_kiposition(self):
         return KiPosition(self.width, self.height)
@@ -65,13 +71,17 @@ class Footprint:
         self.name = name
         self.pad_width = footprint_json['pad_width']
         self.pad_height = footprint_json['pad_height']
+        if 'single_row' in footprint_json:
+            self.single_row = footprint_json['single_row']
+        else:
+            self.single_row = False
         self.x_center_spacing = footprint_json['x_center_spacing']
         self.y_center_spacing = footprint_json['y_center_spacing']
         self.num_pins = footprint_json['num_pins']
         row_height = technology_json['row_height']
         required_height = self.y_center_spacing + self.pad_height
         self.cell_height = math.ceil(required_height / row_height) * row_height
-        self.cell_width = (4 + math.ceil((self.num_pins / 2 - 1) * self.x_center_spacing / technology_json['x_wire_pitch'])) * technology_json['x_wire_pitch']
+        self.cell_width = (4 + math.ceil((self.num_pins / (1 if self.single_row else 2) - 1) * self.x_center_spacing / technology_json['x_wire_pitch'])) * technology_json['x_wire_pitch']
         if 'model' in footprint_json:
             self.model = footprint_json['model']
         else:
@@ -106,22 +116,31 @@ class Footprint:
         # Align pad center with vertical tracks
         x = 2 * technology_json['x_wire_pitch'] - self.pad_width / 2
 
-        # Loop over pins
-        for i in range(0, int(self.num_pins / 2)):
-            self.pins.append(Rect(x, y_offset, self.pad_width, self.pad_height))
-            self.power_pins.append(Rect.from_x1y1_x2y2(x, 0, x + self.pad_width, y_offset + self.pad_height))
-            x += self.x_center_spacing
+        if self.single_row:
+            # Single row footprint
+            for i in range(0, self.num_pins):
+                self.pins.append(Rect(x, y_offset, self.pad_width, self.pad_height))
+                self.power_pins.append(Rect.from_x1y1_x2y2(x, 0, x + self.pad_width, y_offset + self.pad_height))
+                x += self.x_center_spacing
+        else:
+            # Dual row footprint
+            # Create bottom row
+            for i in range(0, int(self.num_pins / 2)):
+                self.pins.append(Rect(x, y_offset, self.pad_width, self.pad_height))
+                self.power_pins.append(Rect.from_x1y1_x2y2(x, 0, x + self.pad_width, y_offset + self.pad_height))
+                x += self.x_center_spacing
 
-        x -= self.x_center_spacing
-        for i in range(0, int(self.num_pins / 2)):
-            self.pins.append(Rect(x, y_offset + self.y_center_spacing, self.pad_width, self.pad_height))
-            if round(self.cell_height / technology_json['row_height']) % 2 == 1:
-                # Cell is an odd multple of rows tall -> can connect power normaly
-                self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing, x + self.pad_width, self.cell_height))
-            else:
-                # Cell is an even multiple of rows tall -> Need to connect towars middle
-                self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing + self.pad_height, x + self.pad_width, self.cell_height - technology_json['row_height']))
+            # Create top row
             x -= self.x_center_spacing
+            for i in range(0, int(self.num_pins / 2)):
+                self.pins.append(Rect(x, y_offset + self.y_center_spacing, self.pad_width, self.pad_height))
+                if round(self.cell_height / technology_json['row_height']) % 2 == 1:
+                    # Cell is an odd multple of rows tall -> can connect power normaly
+                    self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing, x + self.pad_width, self.cell_height))
+                else:
+                    # Cell is an even multiple of rows tall -> Need to connect towars middle
+                    self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing + self.pad_height, x + self.pad_width, self.cell_height - technology_json['row_height']))
+                x -= self.x_center_spacing
 
     # Create Pin lef
     def __gen_pin_lefs(self):
@@ -159,3 +178,6 @@ class Footprint:
 
     def get_model(self):
         return self.model
+
+    def is_single_row(self):
+        return self.single_row
