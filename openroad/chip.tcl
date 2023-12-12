@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Design Setup
-set density 0.46
-set padding 4
+set density 0.48
+set padding 5
 
 source ../pdk/openroad/init_tech.tcl
 source util.tcl
@@ -34,6 +34,7 @@ add_global_connection -net VDD -inst_pattern .* -pin_pattern VDD -power
 add_global_connection -net GND -inst_pattern .* -pin_pattern GND -ground
 add_global_connection -net VDD -inst_pattern .* -pin_pattern TIE_HI
 add_global_connection -net GND -inst_pattern .* -pin_pattern TIE_LO
+add_global_connection -net VDD -inst_pattern .* -pin_pattern NC_VDD
 add_global_connection -net GND -inst_pattern .* -pin_pattern NC
 
 global_connect
@@ -129,6 +130,7 @@ pin_access
 
 global_connect
 
+write_def out/$design_name.pre_route.def
 gui::pause
 
 set_propagated_clock [all_clocks]

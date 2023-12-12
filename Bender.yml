@@ -21,6 +21,7 @@ sources:
     files:
       - pdk/verilog/74lvc1g.v
       - pdk/verilog/74vhc.v
+      - pdk/verilog/AM29.v
       - pdk/verilog/DS9808.v
       - pdk/verilog/Led.v
       - pdk/verilog/W24129A.v
@@ -29,6 +30,7 @@ sources:
     files:
       - pdk/verilog/74lvc1g.v
       - pdk/verilog/74vhc.v
+      - pdk/verilog/AM29.v
       - pdk/verilog/DS9808.v
       - pdk/verilog/Led.v
       - pdk/verilog/W24129A.v

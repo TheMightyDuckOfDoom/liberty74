@@ -455,12 +455,26 @@ for config_name in library_json:
 
         # Add 3D model
         if fp.get_model() != '':
-            model = KiModel()
-            model.path = '${KICAD7_3DMODEL_DIR}/' + fp.get_model() + '.wrl'
-            model.rotate.Z = -90.0
-            model.pos.X = fp.get_cell_width()  / 2
-            model.pos.Y = fp.get_cell_height() / 2
-            kifp.models.append(model)
+            fp_model = fp.get_model()
+            if 'pins' in fp_model and 'models' in fp_model:
+                for idx, model in enumerate(fp_model['models']):
+                    ki_model = KiModel()
+                    ki_model.path = '${KICAD7_3DMODEL_DIR}/' + model + '.wrl'
+                    ki_model.rotate.Z = -90.0
+
+                    pin1_center = fp.get_pin(fp_model['pins'][idx][0]).get_center_kiposition()
+                    pin2_center = fp.get_pin(fp_model['pins'][idx][1]).get_center_kiposition()
+
+                    ki_model.pos.X = (pin1_center.X + pin2_center.X) / 2
+                    ki_model.pos.Y = (pin1_center.Y + pin2_center.Y) / 2
+                    kifp.models.append(ki_model)
+            else:
+                model = KiModel()
+                model.path = '${KICAD7_3DMODEL_DIR}/' + fp.get_model() + '.wrl'
+                model.rotate.Z = -90.0
+                model.pos.X = fp.get_cell_width()  / 2
+                model.pos.Y = fp.get_cell_height() / 2
+                kifp.models.append(model)
 
         # Write to file
         kifp.to_file(footprint_path + cell['name'] + '_N.kicad_mod')
@@ -478,6 +492,7 @@ for config_name in library_json:
                 item.end.Y   = -item.end.Y   - fp.get_cell_height()
 
         for model in kifp.models:
+            model.pos.X = fp.get_cell_width() - model.pos.X
             model.rotate.Z += 180.0
 
         kifp.entryName = cell['name'] + '_S'

@@ -23,7 +23,7 @@
         },
         {
             "names": ["SOT-23", "SSOT-23"],
-            "model": "Package_SO.3dshapes/SOT-23",
+            "model": "Package_TO_SOT_SMD.3dshapes/SOT-23",
             "num_pins": 6,
             "pad_height": 0.6,
             "pad_width": 0.5,
@@ -53,7 +53,13 @@
         {
             "names" : ["LED_RES_0603"],
             "models": {
-                "LED_RES_0603": "Resistor_SMD.3dshapes/R_0603_1608Metric"
+                "LED_RES_0603": {
+                    "pins": [[1, 4], [2, 3]],
+                    "models": [
+                        "LED_SMD.3dshapes/LED_0603_1608Metric",
+                        "Resistor_SMD.3dshapes/R_0603_1608Metric"
+                    ]
+                }
             },
             "num_pins": 4,
             "pad_height": 0.95,
@@ -78,6 +84,15 @@
             "pad_width": 0.4,
             "x_center_spacing": 0.65,
             "y_center_spacing": 5.72
+        },
+        {
+            "names": ["SO-44"],
+            "model": "Package_SO.3dshapes/PSOP-44_16.9x27.17mm_P1.27mm",
+            "num_pins": 44,
+            "pad_height": 1.5,
+            "pad_width": 0.5,
+            "x_center_spacing": 1.27,
+            "y_center_spacing": 15.367
         }
     ]
 }

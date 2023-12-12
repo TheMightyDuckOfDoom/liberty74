@@ -44,7 +44,7 @@ module ${cell['name']} (
       % else:
     inout  logic ${output['name']}\
       % endif
-      % if idx < len(cell['inouts']) - 1 or (outputs in cell and len(cell['outputs']) > 0):
+      % if idx < len(cell['inouts']) - 1 or ('outputs' in cell and len(cell['outputs']) > 0):
 ,
       % else:
 
@@ -67,16 +67,26 @@ module ${cell['name']} (
   % endif
 );
 % if 'memory' in cell:
-  single_port_async_sram #(
-    .ADDR_WIDTH ( ${cell['memory']['address_width']} ),
-    .DATA_WIDTH ( ${cell['memory']['word_width']} )
-  ) i_sram_model (
-    .cs_i    ( ${cell['memory']['chip_select']} ),
-    .we_i    ( ${cell['memory']['write_enable']} ),
-    .oe_i    ( ${cell['memory']['output_enable']} ),
-    .addr_i  ( ${cell['memory']['address']} ),
-    .data_io ( ${cell['memory']['data']} )
-  );
+    single_port_async_sram #(
+        .ADDR_WIDTH ( ${cell['memory']['address_width']} ),
+        .DATA_WIDTH ( ${cell['memory']['word_width']} )
+    ) i_sram_model (
+        .cs_i    ( ${cell['memory']['chip_select']} ),
+        .we_i    ( ${cell['memory']['write_enable']} ),
+        .oe_i    ( ${cell['memory']['output_enable']} ),
+        .addr_i  ( ${cell['memory']['address']} ),
+        .data_io ( ${cell['memory']['data']} )
+    );
+
+  % if 'outputs' in cell:
+    % for output in cell['outputs']:
+      % if 'verilog_function' in output:
+    assign ${output['name']} = ${output['verilog_function']};
+      % else:
+    assign ${output['name']} = ${output['function']};
+      % endif
+    % endfor
+  % endif
 % elif 'outputs' in cell:
   % for output in cell['outputs']:
     % if output['function'] == 'IQ':

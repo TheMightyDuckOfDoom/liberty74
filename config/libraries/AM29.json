@@ -1,0 +1,210 @@
+{
+    "LICENSE": [
+        "Copyright 2023 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
+    "library_name": "AM29",
+    "corners": [
+        {
+            "name": "typ_5p00V_25C",
+            "process_name": "Typical",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
+        },
+        {
+            "name": "slow_4p75V_70C",
+            "process_name": "Slow",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 70.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
+        },
+        {
+            "name": "fast_5p25V_0C",
+            "process_name": "Fast",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 0.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
+        }
+    ],
+    "bus_types": [
+        {
+            "name": "A_19_0",
+            "from": 19,
+            "to": 0
+        },
+        {
+            "name": "DQ_7_0",
+            "from": 7,
+            "to": 0
+        }
+    ],
+    "cells": [
+        {
+            "name": "AM29F080B_90SF",
+            "desc": "1M x 8bit 90ns FLASH",
+            "footprint": "SO-44",
+            "memory": {
+                "chip_select":   "!CE_N",
+                "write_enable":  "1'b0",
+                "output_enable": "!OE_N",
+                "address":       "A",
+                "data":          "DQ",
+                "address_width": 20,
+                "word_width":    8
+            },
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 44,
+                    "function": "power"
+                },
+                {
+                    "name": "VDD",
+                    "pin_number": 23,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 21,
+                    "function": "ground"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 22,
+                    "function": "ground"
+                },
+                {
+                    "name": "NC",
+                    "connect_to_net": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                },
+                {
+                    "name": "NC",
+                    "connect_to_net": "GND",
+                    "pin_number": 11,
+                    "function": "ground"
+                },
+                {
+                    "name": "NC",
+                    "connect_to_net": "GND",
+                    "pin_number": 12,
+                    "function": "ground"
+                },
+                {
+                    "name": "NC_VDD",
+                    "connect_to_net": "VDD",
+                    "pin_number": 34,
+                    "function": "power"
+                },
+                {
+                    "name": "NC_VDD",
+                    "connect_to_net": "VDD",
+                    "pin_number": 33,
+                    "function": "power"
+                },
+                {
+                    "name": "NC_VDD",
+                    "connect_to_net": "VDD",
+                    "pin_number": 32,
+                    "function": "power"
+                },
+                {
+                    "name": "NC_VDD",
+                    "connect_to_net": "VDD",
+                    "pin_number": 31,
+                    "function": "power"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "RESET_N",
+                    "pin_number": 2
+                },
+                {
+                    "name": "CE_N",
+                    "pin_number": 43
+                },
+                {
+                    "name": "WE_N",
+                    "pin_number": 30,
+                    "desc": "Should not change while CE_N is low"
+                },
+                {
+                    "name": "OE_N",
+                    "pin_number": 29,
+                    "desc": "Should not change while writing"
+                },
+                {
+                    "bus_name": "A",
+                    "bus_type": "A_19_0",
+                    "bus_pins": [16, 15, 14, 13, 10, 9, 8, 7, 6, 5, 4, 3, 42, 41, 40, 39, 38, 37, 36, 35]
+                }
+            ],
+            "inouts": [
+                {
+                    "bus_name": "DQ",
+                    "bus_type": "DQ_7_0",
+                    "bus_pins": [17, 18, 19, 20, 24, 25, 26, 27],
+                    "three_state": "CE_N | OE_N | !WE_N",
+                    "desc": "Should not change while writing",
+                    "timing": [
+                        {
+                            "desc": "Three State enable",
+                            "related_pin": "CE_N OE_N WE_N",
+                            "timing_type": "three_state_enable",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 20,
+                                "typ_5p00V_25C":  20,
+                                "fast_5p25V_0C":  20
+                            }
+                        },
+                        {
+                            "desc": "Address controlled read cycle",
+                            "related_pin": "A",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "when": "!CE_N & WE_N & !OE_N",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 90,
+                                "typ_5p00V_25C":  90,
+                                "fast_5p25V_0C":  90
+                            }
+                        },
+                        {
+                            "desc": "Chip enable controlled read cycle",
+                            "related_pin": "CE_N",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "when": "WE_N & !OE_N",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 90,
+                                "typ_5p00V_25C":  90,
+                                "fast_5p25V_0C":  90
+                            }
+                        }   
+                    ]
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "READY",
+                    "pin_number": 28,
+                    "function": "1",
+                    "verilog_function": "RESET_N"
+                }
+            ]
+        }
+    ]
+}
