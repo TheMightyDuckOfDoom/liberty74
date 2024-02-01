@@ -1,6 +1,6 @@
 {
     "LICENSE": [
-        "Copyright 2023 Tobias Senti",
+        "Copyright 2024 Tobias Senti",
         "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
         "SPDX-License-Identifier: SHL-0.51"
     ],
@@ -93,6 +93,15 @@
             "pad_width": 0.5,
             "x_center_spacing": 1.27,
             "y_center_spacing": 15.367
+        },
+        {
+            "names": ["header_16pin_2_54mm"],
+            "single_row": true,
+            "num_pins": 16,
+            "pad_height": 1.5,
+            "pad_width": 1.5,
+            "x_center_spacing": 2.54,
+            "y_center_spacing": 0
         }
     ]
 }

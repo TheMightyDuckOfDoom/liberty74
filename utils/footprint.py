@@ -1,4 +1,4 @@
-# Copyright 2023 Tobias Senti
+# Copyright 2024 Tobias Senti
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
@@ -120,7 +120,9 @@ class Footprint:
             # Single row footprint
             for i in range(0, self.num_pins):
                 self.pins.append(Rect(x, y_offset, self.pad_width, self.pad_height))
+                # Add both bottom and top power pin connections
                 self.power_pins.append(Rect.from_x1y1_x2y2(x, 0, x + self.pad_width, y_offset + self.pad_height))
+                self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing, x + self.pad_width, self.cell_height))
                 x += self.x_center_spacing
         else:
             # Dual row footprint

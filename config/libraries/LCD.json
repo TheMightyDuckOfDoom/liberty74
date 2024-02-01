@@ -1,0 +1,104 @@
+{
+    "LICENSE": [
+        "Copyright 2024 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
+    "library_name": "LCD",
+    "corners": [
+        {
+            "name": "typ_5p00V_25C",
+            "process_name": "Typical",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "slow_4p50V_85C",
+            "process_name": "Slow",
+            "corner_group": "CMOS_5V",
+            "voltage": 4.5,
+            "temperature": 85.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "fast_5p50V_m40C",
+            "process_name": "Fast",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.5,
+            "temperature": -40.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        }
+    ],
+    "bus_types": [
+        {
+            "name": "DB_7_0",
+            "from": 7,
+            "to": 0
+        }
+    ],
+    "cells": [
+        {
+            "name": "LCD_16x2",
+            "desc": "16 pin 16x2 LCD Display Module",
+            "footprint": "header_16pin_2_54mm",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 1,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                },
+                {
+                    "name": "VDD_LED",
+                    "connect_to_net": "VDD",
+                    "pin_number": 15,
+                    "function": "power"
+                },
+                {
+                    "name": "GND_LED",
+                    "connect_to_net": "GND",
+                    "pin_number": 16,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "Vee",
+                    "pin_number": 3
+                },
+                {
+                    "name": "RS",
+                    "pin_number": 4
+                },
+                {
+                    "name": "RW",
+                    "pin_number": 5
+                },
+                {
+                    "name": "EN",
+                    "pin_number": 6
+                }
+            ],
+            "inouts": [
+                {
+                    "bus_name": "DB",
+                    "bus_type": "DB_7_0",
+                    "bus_pins": [14, 13, 12, 11, 10, 9, 8, 7],
+                    "three_state": "RW"
+                }
+            ]
+        }
+    ]
+}

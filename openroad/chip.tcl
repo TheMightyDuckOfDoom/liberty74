@@ -1,9 +1,9 @@
-# Copyright 2023 Tobias Senti
+# Copyright 2024 Tobias Senti
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
 # Design Setup
-set density 0.48
+set density 0.49
 set padding 5
 
 source ../pdk/openroad/init_tech.tcl

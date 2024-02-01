@@ -1,4 +1,4 @@
-# Copyright 2023 Tobias Senti
+# Copyright 2024 Tobias Senti
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
@@ -74,11 +74,16 @@ for fp in footprints:
     
     footprints[fp]['cell_height'] = new_fps[fp].get_cell_height()
     footprints[fp]['cell_width'] = new_fps[fp].get_cell_width()
+    footprints[fp]['single_row'] = new_fps[fp].is_single_row()
 
     # Loop over pins
     for i in range(1, footprints[fp]['num_pins'] + 1):
         footprints[fp]['pin_lef_template'].append(new_fps[fp].get_pin_lef(i))
-        footprints[fp]['power_pin_lef_template'].append(new_fps[fp].get_power_pin_lef(i))
+        if new_fps[fp].is_single_row():
+            footprints[fp]['power_pin_lef_template'].append(new_fps[fp].get_power_pin_lef(i * 2 - 1))
+            footprints[fp]['power_pin_lef_template'].append(new_fps[fp].get_power_pin_lef(i * 2))
+        else:
+            footprints[fp]['power_pin_lef_template'].append(new_fps[fp].get_power_pin_lef(i))
 
 print('Footprints generated')
 
@@ -336,6 +341,11 @@ for config_name in library_json:
                 pin_number = power_pin['pin_number']
                 pin_rect = fp.get_pin(pin_number)
                 power_pin_rect = fp.get_power_pin(pin_number)
+                if fp.is_single_row():
+                    if power_pin['function'] == 'ground':
+                        power_pin_rect = fp.get_power_pin(pin_number * 2 - 1)
+                    else:
+                        power_pin_rect = fp.get_power_pin(pin_number * 2)
 
                 # Normal Pad for soldering
                 kifp.pads.append(
