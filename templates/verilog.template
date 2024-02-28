@@ -153,6 +153,6 @@ posedge\
     % endif
   % endfor
 % endif
-endmodule : ${cell['name']}
+endmodule
 
 % endfor

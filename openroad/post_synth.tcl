@@ -35,7 +35,7 @@ foreach inst $insts {
     if {[string match *FF* $name]} {
         set pins [odb::dbInst_getITerms $inst]
         foreach pin $pins {
-            if {[odb::dbITerm_isOutputSignal $pin]} {
+            if {[odb::dbITerm_isOutputSignal $pin] && [odb::dbITerm_isConnected $pin]} {
                 set inst_name [odb::dbInst_getName $inst]
                 set inst_net [odb::dbITerm_getNet $pin]
                 set net_name [odb::dbNet_getName $inst_net]

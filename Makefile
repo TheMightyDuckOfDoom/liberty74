@@ -34,6 +34,15 @@ synth: gen_pdk
 	rm -rf slpp_all
 	rm -rf out/temp.v
 
+dft:
+	rm -rf out/dft
+	mkdir -p out/dft
+	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource dft_prepare.tcl" | openroad)
+	fault cut -d DFF_74LVC1G175 out/dft/${PROJECT}.dft.v -o out/dft/${PROJECT}.cut.v
+	cd out/dft && cat ../../pdk/verilog/74lvc1g.v > cells.sv
+	cd out/dft && cat ../../verilog_models/DS9808.sv >> cells.sv
+	cd out/dft && fault -c cells.sv -v 1 -r 1 -m 95 --ceiling 1 --clock clk_i ${PROJECT}.cut.v
+
 openroad-setup:
 	mkdir -p openroad/out
 
