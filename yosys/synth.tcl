@@ -1,4 +1,4 @@
-# Copyright 2023 Tobias Senti
+# Copyright 2024 Tobias Senti
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
@@ -53,3 +53,9 @@ hilomap -singleton -hicell TIE_HI Y -locell TIE_LO Y
 stat -width -liberty [lindex $LIBS 0]
 
 write_verilog -noattr -noexpr -nohex -nodec $OUT
+
+extract -map yosys/en_ff.v
+
+stat -width -liberty [lindex $LIBS 0]
+
+write_verilog -noattr -noexpr -nohex -nodec out/extract.v

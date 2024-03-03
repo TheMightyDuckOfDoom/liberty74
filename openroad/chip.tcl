@@ -9,7 +9,28 @@ set padding 5
 source ../pdk/openroad/init_tech.tcl
 source util.tcl
 
-read_verilog ../out/${design_name}.v
+set merge_cells [list en_ff]
+
+set db [ord::get_db]
+set lib [odb::dbDatabase_findLib $db "liberty74_site"]
+set site [odb::dbLib_findSite $lib "CoreSite"]
+
+foreach cell $merge_cells {
+  puts "Reading Merge Cell $cell"
+  read_liberty -corner Typical out/typ_$cell.lib
+  read_liberty -corner Fast    out/fast_$cell.lib
+  read_liberty -corner Slow    out/slow_$cell.lib
+  read_lef out/$cell.lef
+
+  set master [odb::dbDatabase_findMaster $db $cell]
+  odb::dbMaster_setSite $master $site
+  odb::dbMaster_setType $master "CORE"
+}
+
+
+#read_verilog ../out/${design_name}.v
+read_verilog ../out/extract.v
+#read_verilog ../yosys/mux_ff.v
 link_design $design_name
 
 create_clock -name clk -period 10 {clk_i}
