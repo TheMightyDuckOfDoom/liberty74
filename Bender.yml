@@ -8,6 +8,12 @@ package:
     - "Tobias Senti"
 
 sources:
+  # Merge Cells
+  - config/merge_cells/a32o.v
+  - config/merge_cells/dis_ff_led.v
+  - config/merge_cells/en_ff_led.v
+  - config/merge_cells/ff_led.v
+
   # Simulation Models
   - target: not(SYNTH)
     files:
@@ -23,6 +29,7 @@ sources:
       - pdk/verilog/74vhc.v
       - pdk/verilog/AM29.v
       - pdk/verilog/DS9808.v
+      - pdk/verilog/LCD.v
       - pdk/verilog/Led.v
       - pdk/verilog/W24129A.v
 
@@ -32,5 +39,6 @@ sources:
       - pdk/verilog/74vhc.v
       - pdk/verilog/AM29.v
       - pdk/verilog/DS9808.v
+      - pdk/verilog/LCD.v
       - pdk/verilog/Led.v
       - pdk/verilog/W24129A.v

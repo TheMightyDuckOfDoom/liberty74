@@ -5,7 +5,7 @@
 set CORNER_GROUP CMOS_5V
 
 source ../pdk/openroad/init_tech.tcl
-read_verilog ../out/pre_extract.v
+read_verilog ../out/extract.v
 link_design servisia
 
 set block [ord::get_db_block]

@@ -5,6 +5,7 @@
 # Parameters
 source pdk/yosys/yosys_libs.tcl
 set OUT out/temp.v
+set OUT_NO_MERGE out/${TOP}_no_merge.v
 
 #set ABC_AREA 0
 #set CLOCK_PERIOD 100
@@ -52,10 +53,19 @@ hilomap -singleton -hicell TIE_HI Y -locell TIE_LO Y
 
 stat -width -liberty [lindex $LIBS 0]
 
-write_verilog -noattr -noexpr -nohex -nodec $OUT
+# Add leds
+extract -map yosys/ff_led_dummy.v
+techmap -map config/merge_cells/ff_led.v
 
-extract -map yosys/en_ff.v
+write_verilog -noattr -noexpr -nohex -nodec $OUT_NO_MERGE
+
+# Add merge cells
+set merge_cells [lsort [glob config/merge_cells/*.v]]
+puts $merge_cells
+foreach cell $merge_cells {
+  extract -map $cell
+}
 
 stat -width -liberty [lindex $LIBS 0]
 
-write_verilog -noattr -noexpr -nohex -nodec out/extract.v
+write_verilog -noattr -noexpr -nohex -nodec $OUT

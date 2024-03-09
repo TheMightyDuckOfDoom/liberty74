@@ -1,4 +1,4 @@
-# Copyright 2023 Tobias Senti
+# Copyright 2024 Tobias Senti
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
@@ -25,7 +25,11 @@ pdk/.pdk: .python_setup utils/*.py config/*.json config/libraries/*.json templat
 	touch pdk/.pdk
 	python3 utils/generate.py
 
-gen_pdk: pdk/.pdk
+openroad/out/.merge_cells: openroad-setup
+	cd openroad && ./merge_cells.sh ${CORNER_GROUP}
+	touch openroad/out/.merge_cells
+
+gen_pdk: pdk/.pdk openroad/out/.merge_cells
 
 synth: gen_pdk
 	mkdir -p out
@@ -54,7 +58,7 @@ chip_gui: openroad-setup gen_pdk
 	cd openroad && openroad -threads max -gui -log openroad.log start.tcl
 
 pcb: gen_pdk
-	python3 utils/def2pcb.py openroad/out/${PROJECT}.final.def
+	python3 utils/def2pcb.py openroad/out/${PROJECT}.final.def openroad/out/merge_cell_*.def
 
 open_pcb:
 	pcbnew out/${PROJECT}.final.kicad_pcb

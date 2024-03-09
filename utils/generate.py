@@ -239,6 +239,16 @@ for config_name in library_json:
     # Load Verilog template
     verilog_template = Template(filename='./templates/verilog.template')
 
+    # Determine unique power pins for verilog module
+    for cell in cells:
+        if 'power' in cell:
+            cell['unique_power'] = []
+            power_names = []
+            for power_pin in cell['power']:
+                if power_pin['name'] not in power_names:
+                    power_names.append(power_pin['name'])
+                    cell['unique_power'].append(power_pin)
+
     verilog_context = {
         'stamp': stamp,
         'cells': cells,

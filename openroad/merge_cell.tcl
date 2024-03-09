@@ -2,18 +2,18 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-set CORNER_GROUP CMOS_5V
+set open_results 0
 
 source ../pdk/openroad/init_tech.tcl
 set site CoreSite
 
-set design_name en_ff
-read_verilog ../yosys/$design_name.v
+read_verilog ../config/merge_cells/$design_name.v
 link_design $design_name
 
 set block [ord::get_db_block]
 set insts [odb::dbBlock_getInsts $block]
 
+# Determine die size -> Put all instances next to each other
 set width 0
 set height 0
 foreach inst $insts {
@@ -26,9 +26,12 @@ foreach inst $insts {
     set inst_width [odb::dbMaster_getWidth $master]
     set width [expr {$width + $inst_width / 1000.0}]
 }
+
+# Initialize floorplan and make tracks
 initialize_floorplan -site $site -die_area "0 0 $width $height" -core_area "0 0 $width $height"
 source ../pdk/openroad/make_tracks.tcl
 
+# Place instances
 set x 0.0
 foreach inst $insts {
     set master [odb::dbInst_getMaster $inst]
@@ -39,7 +42,7 @@ foreach inst $insts {
     set x [expr {$x + $inst_width}]
 }
 
-# Create pins
+# Place pins on top of the instance pins
 foreach bterm [odb::dbBlock_getBTerms $block] {
     set name [odb::dbBTerm_getName $bterm]
     puts [odb::dbBTerm_getName $bterm]
@@ -70,29 +73,34 @@ foreach bterm [odb::dbBlock_getBTerms $block] {
     #place_pin -pin_name $name -layer Metal1 -location {$x $y} -pin_size {$width $height}
     ppl::place_pin $bterm $layer $x $y $width $height 0
 }
-set_pin_thick_multiplier -ver_multiplier 2 -hor_multiplier 2
-place_pins -hor_layers Metal1 -ver_layers Metal2
 
-create_clock -name clk -period 10 {clk_i}
-set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
-set_output_delay -clock clk 0 [all_outputs]
+# Constraints -> only if clock exists
+if {[get_ports clk_i] != ""} {
+    create_clock -name clk -period 10 {clk_i}
+    set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
+    set_output_delay -clock clk 0 [all_outputs]
+}
 
 report_checks -corner Fast    -path_delay min
 report_checks -corner Typical -path_delay max
 
+# Global route
 set_routing_layers -signal Metal1-Metal2 -clock Metal1-Metal2
 global_route -verbose -allow_congestion
 
-detailed_route
+# Detailed route
+detailed_route -output_drc merge_macros_route_drc.rpt
 
-# TODO: Add VIAs to obstructions
+# Write def, lef and libs
+write_def out/merge_cell_$design_name.def
+write_abstract_lef -bloat_factor 0 out/merge_cell_$design_name.lef
+write_timing_model -corner Typical out/merge_cell_typ_$design_name.lib  -library_name merge_cell_typ_$design_name
+write_timing_model -corner Fast    out/merge_cell_fast_$design_name.lib -library_name merge_cell_fast_$design_name
+write_timing_model -corner Slow    out/merge_cell_slow_$design_name.lib -library_name merge_cell_slow_$design_name
 
-write_def out/$design_name.def
-write_abstract_lef -bloat_factor 0 out/$design_name.lef
-write_timing_model -corner Typical out/typ_$design_name.lib  -library_name typ_$design_name
-write_timing_model -corner Fast    out/fast_$design_name.lib -library_name fast_$design_name
-write_timing_model -corner Slow    out/slow_$design_name.lib -library_name slow_$design_name
+# Open Results
+if {$open_results} {
+    gui::show
+}
 
-#gui::show
-
-#exit
+exit

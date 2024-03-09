@@ -13,7 +13,7 @@
 module ${cell['name']} (
   % if 'power' in cell:
     `ifdef PWR_PINS
-    % for idx, power_pin in enumerate(cell['power']):
+    % for idx, power_pin in enumerate(cell['unique_power']):
     input  logic ${power_pin['name']}\
       % if idx < len(cell['power']) - 1 or 'inputs' in cell or 'inouts' in cell or 'outputs' in cell:
 ,

@@ -2,8 +2,14 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
+# Parameters
+set ADD_LEDS 0
+
 # Load Tech
 source ../pdk/openroad/init_tech.tcl
+
+source util.tcl
+load_merge_cells
 
 # Read netlist
 read_verilog ../out/temp.v
@@ -27,23 +33,25 @@ foreach net [odb::dbBlock_getNets $block] {
 }
 puts "Renamed nets"
 
-# Add leds to flip flops
-set led_master [odb::dbDatabase_findMaster [ord::get_db] "Led_Res_0603"]
-foreach inst $insts {
-    set master [odb::dbInst_getMaster $inst]
-    set name [odb::dbMaster_getName $master]
-    if {[string match *FF* $name]} {
-        set pins [odb::dbInst_getITerms $inst]
-        foreach pin $pins {
-            if {[odb::dbITerm_isOutputSignal $pin] && [odb::dbITerm_isConnected $pin]} {
-                set inst_name [odb::dbInst_getName $inst]
-                set inst_net [odb::dbITerm_getNet $pin]
-                set net_name [odb::dbNet_getName $inst_net]
-                append inst_name "_led"
-                set led [odb::dbInst_create $block $led_master $inst_name]
-                foreach led_input [odb::dbInst_getITerms $led] {
-                    if {[odb::dbITerm_isInputSignal $led_input]} {
-                        odb::dbITerm_connect $led_input $inst_net
+if { $ADD_LEDS } {
+    # Add leds to flip flops
+    set led_master [odb::dbDatabase_findMaster [ord::get_db] "Led_Res_0603"]
+    foreach inst $insts {
+        set master [odb::dbInst_getMaster $inst]
+        set name [odb::dbMaster_getName $master]
+        if {[string match *FF* $name]} {
+            set pins [odb::dbInst_getITerms $inst]
+            foreach pin $pins {
+                if {[odb::dbITerm_isOutputSignal $pin] && [odb::dbITerm_isConnected $pin]} {
+                    set inst_name [odb::dbInst_getName $inst]
+                    set inst_net [odb::dbITerm_getNet $pin]
+                    set net_name [odb::dbNet_getName $inst_net]
+                    append inst_name "_led"
+                    set led [odb::dbInst_create $block $led_master $inst_name]
+                    foreach led_input [odb::dbInst_getITerms $led] {
+                        if {[odb::dbITerm_isInputSignal $led_input]} {
+                            odb::dbITerm_connect $led_input $inst_net
+                        }
                     }
                 }
             }

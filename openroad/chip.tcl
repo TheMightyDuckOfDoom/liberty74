@@ -3,34 +3,26 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Design Setup
-set density 0.49
-set padding 5
+set routing_channels 1
+set drt_end_iter 60
+set open_results 1
+
+set SIZE 280.0
+
+if { $routing_channels } {
+  set density 0.7
+  set padding 0
+} else {
+  set density 0.56
+  set padding 5
+}
 
 source ../pdk/openroad/init_tech.tcl
 source util.tcl
 
-set merge_cells [list en_ff]
+load_merge_cells
 
-set db [ord::get_db]
-set lib [odb::dbDatabase_findLib $db "liberty74_site"]
-set site [odb::dbLib_findSite $lib "CoreSite"]
-
-foreach cell $merge_cells {
-  puts "Reading Merge Cell $cell"
-  read_liberty -corner Typical out/typ_$cell.lib
-  read_liberty -corner Fast    out/fast_$cell.lib
-  read_liberty -corner Slow    out/slow_$cell.lib
-  read_lef out/$cell.lef
-
-  set master [odb::dbDatabase_findMaster $db $cell]
-  odb::dbMaster_setSite $master $site
-  odb::dbMaster_setType $master "CORE"
-}
-
-
-#read_verilog ../out/${design_name}.v
-read_verilog ../out/extract.v
-#read_verilog ../yosys/mux_ff.v
+read_verilog ../out/${design_name}.v
 link_design $design_name
 
 create_clock -name clk -period 10 {clk_i}
@@ -41,10 +33,9 @@ report_checks -corner Typical -path_delay max
 
 check_setup
 
-ICeWall::load_footprint floorplan.strategy
 initialize_floorplan \
-  -die_area  [ICeWall::get_die_area] \
-  -core_area [ICeWall::get_core_area] \
+  -die_area  [list 0 0 $SIZE $SIZE] \
+  -core_area [list 10 10 [expr $SIZE - 10] [expr $SIZE - 10]] \
   -site      CoreSite
 
 source ../pdk/openroad/make_tracks.tcl
@@ -67,10 +58,10 @@ add_pdn_ring -grid {grid}     \
     -layer {Metal1 Metal2}    \
     -widths {1.00 1.00}     \
     -spacings {0.50 0.50}     \
-    -core_offsets {4.00 4.00 4.00 4.00} \
-    -add_connect
+    -core_offsets {4.00 4.00 4.00 4.00}
 
-add_pdn_strip -grid grid -layer Metal1 -width 1.00 -followpins -extend_to_core_ring
+add_pdn_strip -grid grid -layer Metal1 -width 0.5 -followpins -extend_to_core_ring
+add_pdn_connect -layers {Metal1 Metal2} -fixed_vias {Via1_Power} -max_rows 1 -max_columns 1
 
 pdngen
 
@@ -81,15 +72,16 @@ set cap_distance [expr $die_width / 3]
 
 #tapcell -tapcell_master PWR_CAP -distance $cap_distance
 
-set rows [odb::dbBlock_getRows [ord::get_db_block]]
-
-#set index 0
-#foreach row $rows {
-#  if $index {
-#    odb::dbRow_destroy $row
-#  }
-#  set index [expr !$index] 
-#}
+if { $routing_channels } {
+  set rows [odb::dbBlock_getRows [ord::get_db_block]]
+  set index 0
+  foreach row $rows {
+    if $index {
+      odb::dbRow_destroy $row
+    }
+    set index [expr !$index] 
+  }
+}
 
 remove_buffers
 
@@ -159,6 +151,7 @@ set_propagated_clock [all_clocks]
 detailed_route -output_drc route_drc.rpt \
                -bottom_routing_layer Metal1 \
                -top_routing_layer Metal2 \
+               -droute_end_iter $drt_end_iter \
                -verbose 1
 
 write_verilog -include_pwr_gnd out/$design_name.final.v
@@ -167,6 +160,9 @@ write_def out/$design_name.final.def
 report_checks -corner Fast    -path_delay min
 report_checks -corner Typical -path_delay max
 
+if { $open_results } {
+  gui::show
+}
 if ![gui::enabled] {
   exit
 }

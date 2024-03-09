@@ -53,4 +53,13 @@ VIA Via${i}_0 DEFAULT
     RECT -${technology["via_diameter"] / 2 + technology["via_annular_ring"]} -${technology["via_diameter"] / 2 + technology["via_annular_ring"]} ${technology["via_diameter"] / 2 + technology["via_annular_ring"]} ${technology["via_diameter"] / 2 + technology["via_annular_ring"]} ;
 END Via${i}_0
 
+VIA Via${i}_Power
+  LAYER Metal${i} ;
+    RECT -0.01 -0.01 0.01 0.01 ;
+  LAYER Via${i} ;
+    RECT -0.01 -0.01 0.01 0.01 ;
+  LAYER Metal${i + 1} ;
+    RECT -0.01 -0.01 0.01 0.01 ;
+END Via${i}_Power
+
 % endfor

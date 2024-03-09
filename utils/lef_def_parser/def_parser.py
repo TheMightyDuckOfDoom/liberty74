@@ -29,6 +29,7 @@ Date: August 2016
 Changes by Tobias Senti
 - SPECIALNETS support
 - improved to_def_format()
+- Write Format: Make similar to OpenROAD's DEF writer
 """
 
 from .def_util import *
@@ -162,6 +163,23 @@ class DefParser:
                 self.nets = sec
         print("Parsing DEF file done.\n")
 
+    def update_sec(self, sec, sec_type):
+        if sec_type == "PROPERTY_DEF":
+            self.property = sec
+        elif sec_type == "COMPONENTS_DEF":
+            self.components = sec
+        elif sec_type == "PINS_DEF":
+            self.pins = sec
+        elif sec_type == "SPECIALNETS_DEF":
+            self.specialnets = sec
+        elif sec_type == "NETS_DEF":
+            self.nets = sec
+
+        for idx, old_sec in enumerate(self.sections):
+            if old_sec.type == sec_type:
+                self.sections[idx] = sec
+                return
+
     def to_def_format(self):
         s = ""
         s += "VERSION " + self.version + " ;" + "\n"
@@ -169,7 +187,6 @@ class DefParser:
         s += "BUSBITCHARS " + self.busbitchars + " ;" + "\n"
         s += "DESIGN " + self.design_name + " ;" + "\n"
         s += "UNITS DISTANCE " + self.units + " " + self.scale + " ;" + "\n"
-        s += "\n"
         s += "DIEAREA"
         s += " ( " + str(self.diearea[0][0]) + " " + str(self.diearea[0][1]) + " )"
         s += (
@@ -184,18 +201,16 @@ class DefParser:
         for each_row in self.rows:
             s += each_row.to_def_format()
             s += "\n"
-        s += "\n"
         for each_tracks in self.tracks:
             s += each_tracks.to_def_format()
             s += "\n"
-        s += "\n"
         for each_gcell in self.gcellgrids:
             s += each_gcell.to_def_format()
             s += "\n"
-        s += "\n"
         for sec in self.sections:
             s += sec.to_def_format()
             s += "\n"
+        s += "END DESIGN\n"
         return s
 
     def write_def(self, new_def, back_end=True, front_end=True):

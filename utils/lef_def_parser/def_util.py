@@ -29,6 +29,9 @@ Date: August 2016
 Changes by Tobias Senti
 - SPECIALNETS support
 - Signal Class support for Nets and SpecialNets
+- Write Format: Make similar to OpenROAD's DEF writer
+- SOURCE support for Components
+- FIXED and PLACED support for Components during writing
 """
 from .util import *
 
@@ -130,12 +133,13 @@ class Pin:
         #  + LAYER metal2 ( -70 0 ) ( 70 140 )
         #  + PLACED ( 27930 0 ) N ;
         s = ""
-        s += "- " + self.name + " + NET " + self.net
+        s += "    - " + self.name + " + NET " + self.net
         s += " + DIRECTION " + self.direction + " + USE " + self.use + "\n"
+        s += "      + PORT\n"
         if self.layer:
-            s += "  + " + self.layer.to_def_format() + "\n"
+            s += "        + " + self.layer.to_def_format() + "\n"
         if self.placed:
-            s += "  + " + "PLACED " + "( " + str(self.placed[0]) + " "
+            s += "        + " + "PLACED " + "( " + str(self.placed[0]) + " "
             s += str(self.placed[1]) + " ) " + self.orient
         s += " ;"
         return s
@@ -189,12 +193,12 @@ class Components:
         else:
             current_comp = self.get_last_comp()
             # parse the next info
-            if info[0] == "PLACED":
-                current_comp.placed = [int(info[2]), int(info[3])]
+            if info[0] == "PLACED" or info[0] == "FIXED":
+                current_comp.location_type = info[0]
+                current_comp.location = [int(info[2]), int(info[3])]
                 current_comp.orient = info[5]
-            elif info[0] == "FIXED":
-                current_comp.placed = [int(info[2]), int(info[3])]
-                current_comp.orient = info[5]
+            elif info[0] == "SOURCE":
+                current_comp.source = info[1]
 
     def __len__(self):
         return len(self.comps)
@@ -229,9 +233,11 @@ class Component:
     def __init__(self, name):
         self.type = "COMPONENT_DEF"
         self.name = name
-        self.macro = None
-        self.placed = None
-        self.orient = None
+        self.macro = ''
+        self.location = [0, 0]
+        self.location_type = ''
+        self.orient = ''
+        self.source = ''
 
     def get_macro(self):
         return self.macro
@@ -240,13 +246,17 @@ class Component:
         s = ""
         s += self.type + ": " + self.name + "\n"
         s += "    " + "Macro: " + self.macro + "\n"
-        s += "    " + "Placed: " + str(self.placed) + " " + self.orient + "\n"
+        s += "    " + "Location Type: " + self.location_type + " Location: " + str(self.location) + " " + self.orient + "\n"
+        s += "    " + "Source: " + self.source + "\n"
         return s
 
     def to_def_format(self):
         s = ""
-        s += "- " + self.name + " " + self.macro + " + " + "PLACED"
-        s += " ( " + str(self.placed[0]) + " " + str(self.placed[1]) + " ) "
+        s += "- " + self.name + " " + self.macro
+        if self.source is not None:
+            s += " + SOURCE " + self.source
+        s += " + " + self.location_type
+        s += " ( " + str(self.location[0]) + " " + str(self.location[1]) + " ) "
         s += self.orient + " ;"
         return s
 
@@ -362,8 +372,7 @@ class SpecialNet:
 
     def to_def_format(self):
         s = ""
-        s += "- " + self.name + "\n"
-        s += " "
+        s += "    - " + self.name
         for each_comp in self.comp_pin:
             # study each comp/pin
             # if it's a pin, check the Pin object layer (already parsed) -
@@ -371,9 +380,9 @@ class SpecialNet:
             s += " ( " + " ".join(each_comp) + " )"
         s += " + USE " + self.signal_class
         if self.shapes:
-            s += "\n  + ROUTED " + self.shapes[0].to_def_format()
+            s += "\n      + ROUTED " + self.shapes[0].to_def_format()
             for i in range(1, len(self.shapes)):
-                s += "\n    " + "NEW " + self.shapes[i].to_def_format()
+                s += "\n      " + "NEW " + self.shapes[i].to_def_format()
         s += " ;"
         return s
 
@@ -536,8 +545,7 @@ class Net:
 
     def to_def_format(self):
         s = ""
-        s += "- " + self.name + "\n"
-        s += " "
+        s += "    - " + self.name
         for each_comp in self.comp_pin:
             # study each comp/pin
             # if it's a pin, check the Pin object layer (already parsed) -
@@ -545,9 +553,9 @@ class Net:
             s += " ( " + " ".join(each_comp) + " )"
         s += " + USE " + self.signal_class
         if self.routed:
-            s += "\n  + ROUTED " + self.routed[0].to_def_format() + "\n"
+            s += "\n      + ROUTED " + self.routed[0].to_def_format()
             for i in range(1, len(self.routed)):
-                s += "    " + "NEW " + self.routed[i].to_def_format()
+                s += "\n      " + "NEW " + self.routed[i].to_def_format()
         s += " ;"
         return s
 
@@ -582,11 +590,16 @@ class Routed:
     def to_def_format(self):
         s = ""
         s += self.layer
+        previous_pt = None
         for pt in self.points:
             s += " ("
-            for coor in pt:
-                s += " " + str(coor)
+            for idx, coor in enumerate(pt):
+                if previous_pt is not None and idx < len(previous_pt) and previous_pt[idx] == coor:
+                    s += " *"
+                else:
+                    s += " " + str(coor)
             s += " )"
+            previous_pt = pt
         if self.end_via != None:
             s += " " + self.end_via
         return s
