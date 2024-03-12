@@ -1,4 +1,4 @@
-# Copyright 2023 Tobias Senti
+# Copyright 2024 Tobias Senti
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
@@ -9,10 +9,15 @@ package:
 
 sources:
   # Merge Cells
-  - config/merge_cells/a32o.v
+  - config/merge_cells/a22o.v
   - config/merge_cells/dis_ff_led.v
   - config/merge_cells/en_ff_led.v
   - config/merge_cells/ff_led.v
+  - config/merge_cells/mux2_and.v
+  - config/merge_cells/mux2_ands.v
+  - config/merge_cells/mux3.v
+  - config/merge_cells/mux3s.v
+  - config/merge_cells/mux4.v
 
   # Simulation Models
   - target: not(SYNTH)

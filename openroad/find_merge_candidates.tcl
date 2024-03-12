@@ -5,7 +5,7 @@
 set CORNER_GROUP CMOS_5V
 
 source ../pdk/openroad/init_tech.tcl
-read_verilog ../out/extract.v
+read_verilog ../out/servisia.v
 link_design servisia
 
 set block [ord::get_db_block]
@@ -73,7 +73,7 @@ foreach merge_candidate $unique_merge_candidates {
 }
 
 # Sort by number of occurances
-set sorted_merge_candidates [lsort -decreasing -stride 2 -index 1 -integer $merge_candidates_dict]
+set sorted_merge_candidates [lsort -increasing -stride 2 -index 1 -integer $merge_candidates_dict]
 
 dict for {candidate num_occurances} $sorted_merge_candidates {
     set driver_sink [split $candidate " "]

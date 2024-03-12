@@ -7,7 +7,7 @@ set routing_channels 1
 set drt_end_iter 60
 set open_results 1
 
-set SIZE 280.0
+set SIZE 260.0
 
 if { $routing_channels } {
   set density 0.7

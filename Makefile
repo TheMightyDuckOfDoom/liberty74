@@ -33,6 +33,7 @@ gen_pdk: pdk/.pdk openroad/out/.merge_cells
 
 synth: gen_pdk
 	mkdir -p out
+	mkdir -p yosys/reports
 	echo "set TOP "${PROJECT}"\nset SRC "${SRC}"\nset CORNER_GROUP "${CORNER_GROUP}"\nset PROCESS "${SYNTH_PROCESS}"\nsource yosys/synth.tcl" | yosys -C
 	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource post_synth.tcl" | openroad)
 	rm -rf slpp_all
@@ -47,7 +48,7 @@ dft:
 	cd out/dft && cat ../../verilog_models/DS9808.sv >> cells.sv
 	cd out/dft && fault -c cells.sv -v 1 -r 1 -m 95 --ceiling 1 --clock clk_i ${PROJECT}.cut.v
 
-openroad-setup:
+openroad-setup: openroad/out
 	mkdir -p openroad/out
 
 chip: openroad-setup gen_pdk

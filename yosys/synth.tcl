@@ -7,6 +7,16 @@ source pdk/yosys/yosys_libs.tcl
 set OUT out/temp.v
 set OUT_NO_MERGE out/${TOP}_no_merge.v
 
+set REPORT_DIR yosys/reports
+
+proc report_all {report_name} {
+  global TOP
+  global LIBS
+  global REPORT_DIR
+  tee -q -o "$REPORT_DIR/${report_name}_synth.rpt" check
+  tee -q -o "$REPORT_DIR/${report_name}_area.rpt"  stat -top $TOP -liberty [lindex $LIBS 0]
+}
+
 #set ABC_AREA 0
 #set CLOCK_PERIOD 100
 #set ABC_DRIVER_CELL BUF_74LVC1G125
@@ -27,24 +37,70 @@ hierarchy -check -top $TOP
 flatten
 
 # Generic Synthesis
-synth -top $TOP
+if {0} {
+  yosys proc
+  opt_expr
+  opt_clean
+  check
+  opt -nodffe -nosdff
+  fsm -fm_set_fsm_file $REPORT_DIR/fsm_map.rpt
+  opt -full
+  wreduce
+  wreduce
+  peepopt
+  opt_clean
+  share
+  opt
+  booth
+  yosys memory -nomap
+  opt_clean
+
+  memory_collect
+  opt -fast
+  memory_map
+  opt -full
+
+  opt_dff -sat -nodffe -nosdff
+  share
+  rmports
+  clean -purge
+
+  tee -q -o "$REPORT_DIR/abstract.rpt" stat -tech cmos
+
+  techmap
+  opt -fast
+  clean -purge
+
+  tee -q -o "$REPORT_DIR/generic.rpt" stat -tech cmos
+
+  clean -purge
+  opt_dff -nodffe -nosdff
+  techmap
+  clean -purge
+} else {
+  synth
+}
+
+tee -q -o "$REPORT_DIR/pre_map.rpt" stat -tech cmos
 
 # Map Flip Flops
 dfflibmap -liberty [lindex $LIBS 0]
 
-opt
-
-#set constr [open out/abc.constr w]
-#puts $constr "set_driving_cell $ABC_DRIVER_CELL)"
-#puts $constr "set_load $ABC_LOAD_IN_FF"
-#close $constr
+set constr [open out/abc.constr w]
+puts $constr "set_driving_cell BUF_74LVC1G125"
+puts $constr "set_load 0"
+close $constr
 
 #if {$ABC_AREA} {
 #    set abc_script yosys/abc.area
 #    abc -D [expr ($CLOCK_PERIOD * 1000)] -script $abc_script -liberty $LIB -constr out/abc.constr
 #} else {
 #}
-abc -liberty [lindex $LIBS 0] -dff
+set period_ps [expr (10 * 1000)]
+set abc_comb_script yosys/abc-comb-iggy16.script
+#set abc_comb_script yosys/abc.comb
+set constr out/abc.constr
+abc -liberty [lindex $LIBS 0] -D $period_ps -script $abc_comb_script -constr $constr -showtmp -exe "yosys/abc.sh"
 
 setundef -zero
 splitnets
@@ -57,6 +113,8 @@ stat -width -liberty [lindex $LIBS 0]
 extract -map yosys/ff_led_dummy.v
 techmap -map config/merge_cells/ff_led.v
 
+report_all "synth"
+
 write_verilog -noattr -noexpr -nohex -nodec $OUT_NO_MERGE
 
 # Add merge cells
@@ -67,5 +125,7 @@ foreach cell $merge_cells {
 }
 
 stat -width -liberty [lindex $LIBS 0]
+
+report_all "merge"
 
 write_verilog -noattr -noexpr -nohex -nodec $OUT
