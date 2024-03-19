@@ -7,7 +7,7 @@ SRC    		  	:= ../servisia/out/servisia.v
 CORNER_GROUP  	:= CMOS_5V
 SYNTH_PROCESS 	:= Typical
 
-all: synth
+all: gen_pdk
 
 .python_setup:
 	pip install -r requirements.txt --break-system-packages
@@ -25,11 +25,13 @@ pdk/.pdk: .python_setup utils/*.py config/*.json config/libraries/*.json templat
 	touch pdk/.pdk
 	python3 utils/generate.py
 
-openroad/out/.merge_cells: openroad-setup
+openroad/out: config/merge_cells/*.v pdk/.pdk
+	mkdir -p openroad/out
 	cd openroad && ./merge_cells.sh ${CORNER_GROUP}
-	touch openroad/out/.merge_cells
 
-gen_pdk: pdk/.pdk openroad/out/.merge_cells
+openroad-setup: openroad/out
+
+gen_pdk: pdk/.pdk openroad/out
 
 synth: gen_pdk
 	mkdir -p out
@@ -48,13 +50,10 @@ dft:
 	cd out/dft && cat ../../verilog_models/DS9808.sv >> cells.sv
 	cd out/dft && fault -c cells.sv -v 1 -r 1 -m 95 --ceiling 1 --clock clk_i ${PROJECT}.cut.v
 
-openroad-setup: openroad/out
-	mkdir -p openroad/out
-
-chip: openroad-setup gen_pdk
+chip: gen_pdk
 	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource chip.tcl" | openroad -threads max -log openroad.log)
 
-chip_gui: openroad-setup gen_pdk
+chip_gui: gen_pdk
 	echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource chip.tcl" > openroad/start.tcl
 	cd openroad && openroad -threads max -gui -log openroad.log start.tcl
 

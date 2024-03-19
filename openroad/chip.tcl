@@ -28,6 +28,14 @@ link_design $design_name
 create_clock -name clk -period 10 {clk_i}
 set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
 set_output_delay -clock clk 0 [all_outputs]
+
+foreach pin [delete_from_list [get_pins i_servisia_mem__i_sram/*] [get_pins i_servisia_mem__i_sram/CS_N]] {
+  set_data_check -setup 0 -fall_from [get_pins i_servisia_mem__i_sram/CS_N] -to $pin
+  set_data_check -hold  0 -rise_from [get_pins i_servisia_mem__i_sram/CS_N] -to $pin
+}
+
+set_false_path -through [get_pins i_servisia_mem__i_flash/A*] -to [get_pins i_servisia_mem__i_sram/IO*]
+
 report_checks -corner Fast    -path_delay min
 report_checks -corner Typical -path_delay max
 
@@ -133,6 +141,8 @@ global_route -verbose -allow_congestion
 
 repair_design
 repair_timing
+
+gui::show
 
 placeDetail
 check_placement -verbose

@@ -23,7 +23,8 @@ alias compress2rs "b -l; rs -K 6 -l; rw -l; rs -K 6 -N 2 -l; rf -l; rs -K 8 -l; 
 rec_start3 yosys/rec6Lib_final_filtered3_recanon.aig
 
 # main loop:
-alias &opt_iter "&st; &if -y -K 6; &syn2; &if -K 6; &st; &b -d"
+# Maybe remove -d from &b -> ignore delay
+alias &opt_iter "&st; &if -y -K 6; &syn2; &if -K 6 -a; &st; &b"
 # &if -y -K 6; &syn2; &if -K 6, see https://people.eecs.berkeley.edu/~alanmi/publications/2012/iccad12_lms.pdf
 # &dc2 AIG rewriting (greedy minimization)
 # &b   balance structure for depth
@@ -31,7 +32,7 @@ alias &opt_iter "&st; &if -y -K 6; &syn2; &if -K 6; &st; &b -d"
 # &dc  compute structural choices
 # &nf  select choice and map to tech
 # &ps  print statistics
-alias &map_iter "&st; &dch -x; &nf {D}; &ps"
+alias &map_iter "&st; &dch -x; &nf {D} -a; &ps"
 
 # initial mapping iteration
 &get -n
@@ -59,6 +60,7 @@ echo "High effort delay optimization..."
 # in my experience it seems to get 99% there after 5-6 with a lower runtime
 &get -n
 echo "Optimization Iterations..."
+# Map iter recovers area, while opt_iter for timing -> try only map_opt
 &opt_iter; &map_iter;
 &opt_iter; &map_iter;
 &opt_iter; &map_iter;
