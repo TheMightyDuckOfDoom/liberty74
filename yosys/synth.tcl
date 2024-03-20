@@ -110,8 +110,10 @@ hilomap -singleton -hicell TIE_HI Y -locell TIE_LO Y
 stat -width -liberty [lindex $LIBS 0]
 
 # Add leds
-extract -map yosys/ff_led_dummy.v
-techmap -map config/merge_cells/ff_led.v
+extract -map yosys/dff_led_dummy.v
+extract -map yosys/dffr_led_dummy.v
+techmap -map config/merge_cells/dff_led.v
+techmap -map config/merge_cells/dffr_led.v
 
 report_all "synth"
 

@@ -2,8 +2,13 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
+#PROJECT 		:= alu
+#SRC    		  	:= examples/${PROJECT}.v
+#PCB_SIZE        := 1000
 PROJECT 		:= servisia
 SRC    		  	:= ../servisia/out/servisia.v
+PCB_WIDTH		:= 300
+PCB_HEIGHT		:= 200
 CORNER_GROUP  	:= CMOS_5V
 SYNTH_PROCESS 	:= Typical
 
@@ -40,6 +45,7 @@ synth: gen_pdk
 	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource post_synth.tcl" | openroad)
 	rm -rf slpp_all
 	rm -rf out/temp.v
+	cat yosys/reports/merge_area.rpt
 
 dft:
 	rm -rf out/dft
@@ -51,10 +57,10 @@ dft:
 	cd out/dft && fault -c cells.sv -v 1 -r 1 -m 95 --ceiling 1 --clock clk_i ${PROJECT}.cut.v
 
 chip: gen_pdk
-	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource chip.tcl" | openroad -threads max -log openroad.log)
+	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nset PCB_WIDTH "${PCB_WIDTH}"\nset PCB_HEIGHT "${PCB_HEIGHT}"\nsource chip.tcl" | openroad -threads max -log openroad.log)
 
 chip_gui: gen_pdk
-	echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource chip.tcl" > openroad/start.tcl
+	echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nset PCB_WIDTH "${PCB_WIDTH}"\nset PCB_HEIGHT "${PCB_HEIGHT}"\nsource chip.tcl" > openroad/start.tcl
 	cd openroad && openroad -threads max -gui -log openroad.log start.tcl
 
 pcb: gen_pdk

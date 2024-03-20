@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: SHL-0.51
 
 set CORNER_GROUP CMOS_5V
+set TOP reorder_buffer
 
 source ../pdk/openroad/init_tech.tcl
-read_verilog ../out/servisia.v
-link_design servisia
+read_verilog ../out/$TOP.v
+link_design $TOP
 
 set block [ord::get_db_block]
 set insts [odb::dbBlock_getInsts $block]

@@ -7,10 +7,21 @@ set routing_channels 1
 set drt_end_iter 60
 set open_results 1
 
-set SIZE 260.0
+set endcap 1
+
+set PCB_EDGE_MARGIN 5
+set PCB_TILE_SIZE             100
+set PCB_TILE_PLACEMENT_MARGIN 7.5
+set PCB_TILE_ROUTING_MARGIN   5
+set NUM_X_PCB_TILES [expr floor(double($PCB_WIDTH)  / double($PCB_TILE_SIZE))]
+set NUM_Y_PCB_TILES [expr floor(double($PCB_HEIGHT) / double($PCB_TILE_SIZE))]
 
 if { $routing_channels } {
-  set density 0.7
+  if { $endcap } {
+    set density 0.75
+  } else {
+    set density 0.74
+  }
   set padding 0
 } else {
   set density 0.56
@@ -41,9 +52,20 @@ report_checks -corner Typical -path_delay max
 
 check_setup
 
+for {set y 1} {$y < $NUM_Y_PCB_TILES} {incr y} {
+  # Create Horizontal Placement Blockages
+  set x0 [ord::microns_to_dbu 0]
+  set x1 [ord::microns_to_dbu $PCB_WIDTH]
+  set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
+  set y1 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
+
+  set obstruction [odb::dbBlockage_create [ord::get_db_block] $x0 $y0 $x1 $y1]
+  puts "Horizontal Blockage: $x0 $y0 $x1 $y1"
+}
+
 initialize_floorplan \
-  -die_area  [list 0 0 $SIZE $SIZE] \
-  -core_area [list 10 10 [expr $SIZE - 10] [expr $SIZE - 10]] \
+  -die_area  [list 0 0 $PCB_WIDTH $PCB_HEIGHT] \
+  -core_area [list $PCB_EDGE_MARGIN $PCB_EDGE_MARGIN [expr $PCB_WIDTH - $PCB_EDGE_MARGIN] [expr $PCB_HEIGHT - $PCB_EDGE_MARGIN]] \
   -site      CoreSite
 
 source ../pdk/openroad/make_tracks.tcl
@@ -66,19 +88,13 @@ add_pdn_ring -grid {grid}     \
     -layer {Metal1 Metal2}    \
     -widths {1.00 1.00}     \
     -spacings {0.50 0.50}     \
-    -core_offsets {4.00 4.00 4.00 4.00}
-
+    -pad_offsets {1.0 1.0 1.0 1.0}
 add_pdn_strip -grid grid -layer Metal1 -width 0.5 -followpins -extend_to_core_ring
+add_pdn_strip -grid grid -layer Metal2 -width 1.0 -pitch 100  -extend_to_core_ring -offset [expr $PCB_TILE_SIZE - $PCB_EDGE_MARGIN - ($PCB_TILE_ROUTING_MARGIN / 2)] -spacing [expr ($PCB_TILE_ROUTING_MARGIN / 2)]
+#add_pdn_strip -grid grid -layer Metal2 -width 1.0 -pitch 200  -extend_to_core_ring -offset [expr -0.25 * $PCB_TILE_PLACEMENT_MARGIN - 1.0] -starts_with GROUND
 add_pdn_connect -layers {Metal1 Metal2} -fixed_vias {Via1_Power} -max_rows 1 -max_columns 1
 
 pdngen
-
-set die_area [ord::get_die_area]
-set die_width [expr [lindex $die_area 3] - [lindex $die_area 0]]
-
-set cap_distance [expr $die_width / 3]
-
-#tapcell -tapcell_master PWR_CAP -distance $cap_distance
 
 if { $routing_channels } {
   set rows [odb::dbBlock_getRows [ord::get_db_block]]
@@ -90,6 +106,86 @@ if { $routing_channels } {
     set index [expr !$index] 
   }
 }
+
+set die_area [ord::get_die_area]
+set die_width [expr [lindex $die_area 3] - [lindex $die_area 0]]
+
+set cap_distance [expr $die_width / 3]
+#tapcell -tapcell_master PWR_CAP -distance $cap_distance
+
+if { $endcap } {
+  tapcell -endcap_master PWR_CAP
+}
+set pwr_cap_master [odb::dbDatabase_findMaster [ord::get_db] "PWR_CAP"]
+odb::dbMaster_setType $pwr_cap_master "BLOCK"
+#cut_rows -halo_width_x 0 -halo_width_y 0
+#odb::dbMaster_setType $master "CORE"
+
+#gui::show
+
+set tech [ord::get_db_tech]
+set layer1 [odb::dbTech_findLayer $tech Metal1]
+set via1   [odb::dbTech_findLayer $tech Via1]
+set layer2 [odb::dbTech_findLayer $tech Metal2]
+
+set master [odb::dbDatabase_findMaster [ord::get_db] "TIE_HI"]
+set master_width  [odb::dbMaster_getWidth $master]
+set master_height [odb::dbMaster_getHeight $master]
+odb::dbMaster_setType $master "BLOCK"
+
+set inst [odb::dbInst_create [ord::get_db_block] $master "PCB_TILE"]
+odb::dbInst_setPlacementStatus $inst "PLACED"
+
+odb::dbMaster_setHeight $master [ord::microns_to_dbu $PCB_HEIGHT]
+odb::dbMaster_setWidth  $master [ord::microns_to_dbu $PCB_TILE_PLACEMENT_MARGIN]
+
+for {set x 1} {$x < $NUM_X_PCB_TILES} {incr x} {
+  # Create Vertical Placement Blockages
+  set x0 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE + -$PCB_TILE_PLACEMENT_MARGIN / 2.0]]
+
+  odb::dbInst_setLocation $inst $x0 0
+  cut_rows -halo_width_x 0 -halo_width_y 0
+
+  # Create Vertical Routing Obstructions
+  set x0 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
+  set x1 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
+  set y0 [ord::microns_to_dbu 0]
+  set y1 [ord::microns_to_dbu $PCB_HEIGHT]
+
+  set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer2 $x0 $y0 $x1 $y1]
+  set obstruction [odb::dbObstruction_create [ord::get_db_block] $via1   $x0 $y0 $x1 $y1]
+  set bbox [list $x0 $y0 $x1 $y1]
+  puts "Vertical Obstruction: $x0 $y0 $x1 $y1"
+}
+
+odb::dbMaster_setHeight $master [ord::microns_to_dbu $PCB_TILE_PLACEMENT_MARGIN]
+odb::dbMaster_setWidth  $master [ord::microns_to_dbu $PCB_WIDTH]
+
+for {set y 1} {$y < $NUM_Y_PCB_TILES} {incr y} {
+  # Create Horizontal Placement Blockages
+  set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_PLACEMENT_MARGIN / 2.0]]
+
+  odb::dbInst_setLocation $inst 0 $y0
+  cut_rows -halo_width_x 0 -halo_width_y 0
+
+  # Create Horizontal Routing Obstructions
+  set x0 [ord::microns_to_dbu 0]
+  set x1 [ord::microns_to_dbu $PCB_WIDTH]
+  set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
+  set y1 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
+
+  set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer1 $x0 $y0 $x1 $y1]
+  set obstruction [odb::dbObstruction_create [ord::get_db_block] $via1   $x0 $y0 $x1 $y1]
+  puts "Horizontal Obstruction: $x0 $y0 $x1 $y1"
+}
+
+odb::dbMaster_setHeight $master $master_height
+odb::dbMaster_setWidth  $master $master_width
+odb::dbMaster_setType   $master "CORE"
+
+odb::dbInst_destroy $inst
+
+#gui::show
 
 remove_buffers
 
@@ -114,6 +210,8 @@ place_multirow_macros
 # Second placement
 global_placement -density $density
 
+#gui::show
+
 repair_design
 improve_placement
 placeDetail
@@ -134,6 +232,7 @@ placeDetail
 repair_timing -hold
 
 placeDetail
+#gui::show
 check_placement -verbose
 
 set_routing_layers -signal Metal1-Metal2 -clock Metal1-Metal2
@@ -142,12 +241,39 @@ global_route -verbose -allow_congestion
 repair_design
 repair_timing
 
-gui::show
-
 placeDetail
 check_placement -verbose
 
 global_route -verbose -allow_congestion
+
+set track_reduction 3
+for {set i 0} {$i < $track_reduction} {incr i} {
+  for {set x 1} {$x < $NUM_X_PCB_TILES} {incr x} {
+    # Create Horizontal Routing Obstructions
+    for {set y [expr $i * 0.26]} {$y < $PCB_HEIGHT} {set y [expr $y + ($track_reduction + 1) * 0.26]} {
+      set x0 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
+      set x1 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
+      set y0 [ord::microns_to_dbu [expr $y - 0.13 / 2]]
+      set y1 [ord::microns_to_dbu [expr $y + 0.13 / 2]]
+
+      set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer1 $x0 $y0 $x1 $y1]
+    }
+  }
+
+  for {set y 1} {$y < $NUM_Y_PCB_TILES} {incr y} {
+    # Create Vertical Routing Obstructions
+    for {set x [expr $i * 0.325]} {$x < $PCB_WIDTH} {set x [expr $x + ($track_reduction + 1) * 0.325]} {
+      set x0 [ord::microns_to_dbu [expr $x - 0.13 / 2]]
+      set x1 [ord::microns_to_dbu [expr $x + 0.13 / 2]]
+      set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
+      set y1 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
+
+      set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer2 $x0 $y0 $x1 $y1]
+    }
+  }
+}
+
+#gui::show
 
 pin_access
 
