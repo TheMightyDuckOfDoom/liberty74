@@ -89,7 +89,7 @@ module ${cell['name']} (
   % endif
 % elif 'outputs' in cell:
   % for output in cell['outputs']:
-    % if output['function'] == 'IQ':
+    % if output['function'].startswith('IQ'):
       % if 'ff' in cell:
     always_ff @(posedge ${cell['ff']['clocked_on']}\
         % if 'clear' in cell['ff']:
@@ -110,22 +110,24 @@ posedge\
         ${output['name']} <= ${cell['ff']['next_state']};
       % else:
         % if 'three_state_enable' in output:
-    logic [${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}] Q;
+    logic [${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}] ${output['bus_name']}_q;
 
     assign ${output['bus_name']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}]\
- = ${output['three_state_enable']} ? 'Z : Q[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}];
-        
+ = ${output['three_state_enable']} ? 'Z : ${output['bus_name']}_q[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}];
         % endif
-    always_ff @(posedge ${cell['ff_bank']['clocked_on']}\
-        % if 'clear' in cell['ff_bank']:
+<%
+ff_bank = list(filter(lambda x: x['name'] == output['function'], cell['ff_banks']))[0]
+%>
+    always_ff @(posedge ${ff_bank['clocked_on']}\
+        % if 'clear' in ff_bank:
  or \
-          % if '!' in cell['ff_bank']['clear']:
+          % if '!' in ff_bank['clear']:
 negedge\
           % else:
 posedge\
           % endif
- ${cell['ff_bank']['clear'].replace('!', '')}) begin
-        if (${cell['ff_bank']['clear']})
+ ${ff_bank['clear'].replace('!', '')}) begin
+        if (${ff_bank['clear']})
         % if 'three_state_enable' in output:
         Q\
         % else:
@@ -138,12 +140,12 @@ posedge\
 ) begin
         % endif
         % if 'three_state_enable' in output:
-        Q\
+        ${output['bus_name']}_q\
         % else:
         ${output['bus_name']}\
         % endif
 [${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}]\
- <= ${cell['ff_bank']['next_state']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}];
+ <= ${ff_bank['next_state']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}];
       % endif
     end
     % elif 'verilog_function' in output:
@@ -151,6 +153,7 @@ posedge\
     % else:
     assign ${output['name']} = ${output['function']};
     % endif
+
   % endfor
 % endif
 endmodule

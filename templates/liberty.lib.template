@@ -93,14 +93,16 @@ library(${lib_name}) {
     % endif
     }
   % endif
-  % if "ff_bank" in cell:
-    ff_bank ("IQ", "IQN", ${cell['ff_bank']['width']}) {
-      clocked_on: ${cell["ff_bank"]["clocked_on"]};
-      next_state: ${cell["ff_bank"]["next_state"]};
-    % if "clear" in cell["ff_bank"]:
-      clear: "${cell["ff_bank"]["clear"]}";
-    % endif
+  % if "ff_banks" in cell:
+    % for ff_bank in cell['ff_banks']:
+    ff_bank ("${ff_bank['name']}", "${ff_bank['name']}N", ${ff_bank['width']}) {
+      clocked_on: ${ff_bank["clocked_on"]};
+      next_state: ${ff_bank["next_state"]};
+      % if "clear" in ff_bank:
+      clear: "${ff_bank["clear"]}";
+      % endif
     }
+    % endfor
   % endif
   % if 'power' in cell:
     % for power in cell["power"]:

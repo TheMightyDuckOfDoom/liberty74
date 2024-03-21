@@ -1,6 +1,6 @@
 {
     "LICENSE": [
-        "Copyright 2023 Tobias Senti",
+        "Copyright 2024 Tobias Senti",
         "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
         "SPDX-License-Identifier: SHL-0.51"
     ],
@@ -9,7 +9,7 @@
         {
             "name": "typ_3p30V_25C",
             "process_name": "Typical",
-            "corner_group": "CMOS_3V",
+            "corner_group": "CMOS_3V3",
             "voltage": 3.3,
             "temperature": 25.0,
             "default_max_cap": 50.0,
@@ -19,7 +19,7 @@
         {
             "name": "slow_3p00V_85C",
             "process_name": "Slow",
-            "corner_group": "CMOS_3V",
+            "corner_group": "CMOS_3V3",
             "voltage": 3.0,
             "temperature": 85.0,
             "default_max_cap": 50.0,
@@ -29,7 +29,7 @@
         {
             "name": "fast_3p60V_m40C",
             "process_name": "Fast",
-            "corner_group": "CMOS_3V",
+            "corner_group": "CMOS_3V3",
             "voltage": 3.6,
             "temperature": -40.0,
             "default_max_cap": 50.0,
@@ -79,11 +79,14 @@
             "name": "DFFZ8_74VHC574",
             "desc": "Octal positive D-type FF with tristate outputs",
             "footprint": "TSSOP-20",
-            "ff_bank": {
-                "width": 8,
-                "clocked_on": "CLK",
-                "next_state": "D"
-            },
+            "ff_banks": [
+                {
+                    "name": "IQ",
+                    "width": 8,
+                    "clocked_on": "CLK",
+                    "next_state": "D"
+                }
+            ],
             "power": [
                 {
                     "name": "VDD",
@@ -166,11 +169,14 @@
             "name": "DFF8_74VHC574",
             "desc": "Octal positive D-type FF",
             "footprint": "TSSOP-20",
-            "ff_bank": {
-                "width": 8,
-                "clocked_on": "CLK",
-                "next_state": "D"
-            },
+            "ff_banks": [
+                {
+                    "name": "IQ",
+                    "width": 8,
+                    "clocked_on": "CLK",
+                    "next_state": "D"
+                }
+            ],
             "power": [
                 {
                     "name": "VDD",

@@ -143,14 +143,10 @@ ${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
       % endif
     ##SHAPE ABUTMENT ;
     PORT
-      % if footprints[cell["footprint"]]['single_row']:
-        % if pin["function"] == "ground":
+      % if pin["function"] == "ground":
 ${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"] * 2 - 1]}
-        % else:
-${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"] * 2]}
-        % endif
       % else:
-${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"] * 2]}
       % endif
     END
   END ${pin["name"]}

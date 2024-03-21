@@ -12,6 +12,7 @@ import os
 import json
 import subprocess
 from mako.template import Template
+from mako import exceptions
 from kiutils.items.common import Position as KiPosition
 from kiutils.footprint import Footprint as KiFootprint
 from kiutils.footprint import DrillDefinition
@@ -79,11 +80,8 @@ for fp in footprints:
     # Loop over pins
     for i in range(1, footprints[fp]['num_pins'] + 1):
         footprints[fp]['pin_lef_template'].append(new_fps[fp].get_pin_lef(i))
-        if new_fps[fp].is_single_row():
-            footprints[fp]['power_pin_lef_template'].append(new_fps[fp].get_power_pin_lef(i * 2 - 1))
-            footprints[fp]['power_pin_lef_template'].append(new_fps[fp].get_power_pin_lef(i * 2))
-        else:
-            footprints[fp]['power_pin_lef_template'].append(new_fps[fp].get_power_pin_lef(i))
+        footprints[fp]['power_pin_lef_template'].append(new_fps[fp].get_power_pin_lef(i * 2 - 1))
+        footprints[fp]['power_pin_lef_template'].append(new_fps[fp].get_power_pin_lef(i * 2))
 
 print('Footprints generated')
 
@@ -97,7 +95,11 @@ tech_lef_context = {
 
 print('Generating Tech LEF...')
 
-rendered_tech_lef = tech_lef_template.render(**tech_lef_context)
+try:
+    rendered_tech_lef = tech_lef_template.render(**tech_lef_context)
+except:
+    print(exceptions.text_error_template().render())
+    exit()
 
 with open(lef_path + lef_name + '_tech.lef', 'w', encoding='utf-8') as tech_lef_file:
     tech_lef_file.write(rendered_tech_lef)
@@ -113,7 +115,11 @@ site_lef_context = {
 
 print('Generating Site LEF...')
 
-rendered_site_lef = site_lef_template.render(**site_lef_context)
+try:
+    rendered_site_lef = site_lef_template.render(**site_lef_context)
+except:
+    print(exceptions.text_error_template().render())
+    exit()
 
 with open(lef_path + lef_name + '_site.lef', 'w', encoding='utf-8') as site_lef_file:
     site_lef_file.write(rendered_site_lef)
@@ -128,7 +134,11 @@ tech_context = {
 
 print('Generating make_tracks.tcl...')
 
-rendered_make_tracks = make_tracks_template.render(**tech_context)
+try:
+    rendered_make_tracks = make_tracks_template.render(**tech_context)
+except:
+    print(exceptions.text_error_template().render())
+    exit()
 
 with open(openroad_path + 'make_tracks.tcl', 'w', encoding='utf-8') as tcl_file:
     tcl_file.write(rendered_make_tracks)
@@ -212,7 +222,11 @@ for config_name in library_json:
             'footprints': footprints
         }
 
-        rendered_lib = lib_template.render(**lib_context)
+        try:
+            rendered_lib = lib_template.render(**lib_context)
+        except:
+            print(exceptions.text_error_template().render())
+            exit()
 
         with open(lib_path + lib_name + '.lib', 'w', encoding='utf-8') as lib_file:
             lib_file.write(rendered_lib)
@@ -231,7 +245,11 @@ for config_name in library_json:
 
     print('Generating LEF...')
 
-    rendered_lef = lef_template.render(**lef_context)
+    try:
+        rendered_lef = lef_template.render(**lef_context)
+    except:
+        print(exceptions.text_error_template().render())
+        exit()
 
     with open(lef_path + config_json['library_name'] + '.lef', 'w', encoding='utf-8') as lef_file:
         lef_file.write(rendered_lef)
@@ -257,7 +275,12 @@ for config_name in library_json:
 
     print('Generating Verilog...')
 
-    rendered_verilog = verilog_template.render(**verilog_context)
+    rendered_verilog = None
+    try:
+        rendered_verilog = verilog_template.render(**verilog_context)
+    except:
+        print(exceptions.text_error_template().render())
+        exit()
 
     with open(verilog_path + config_json['library_name'] + '.v', 'w', encoding='utf-8') as verilog_file:
         verilog_file.write(rendered_verilog)
@@ -351,11 +374,10 @@ for config_name in library_json:
                 pin_number = power_pin['pin_number']
                 pin_rect = fp.get_pin(pin_number)
                 power_pin_rect = fp.get_power_pin(pin_number)
-                if fp.is_single_row():
-                    if power_pin['function'] == 'ground':
-                        power_pin_rect = fp.get_power_pin(pin_number * 2 - 1)
-                    else:
-                        power_pin_rect = fp.get_power_pin(pin_number * 2)
+                if power_pin['function'] == 'ground':
+                    power_pin_rect = fp.get_power_pin(pin_number * 2 - 1)
+                else:
+                    power_pin_rect = fp.get_power_pin(pin_number * 2)
 
                 # Normal Pad for soldering
                 kifp.pads.append(
@@ -531,7 +553,11 @@ init_tech_context = {
 
 print('Generating init_tech.tcl...')
 
-rendered_init_tech = init_tech_template.render(**init_tech_context)
+try:
+    rendered_init_tech = init_tech_template.render(**init_tech_context)
+except:
+    print(exceptions.text_error_template().render())
+    exit()
 
 with open(openroad_path + 'init_tech.tcl', 'w', encoding='utf-8') as tcl_file:
     tcl_file.write(rendered_init_tech)
@@ -548,7 +574,11 @@ yosys_libs_context = {
 
 print('Generating yosys_libs.tcl...')
 
-rendered_yosys_libs = yosys_libs_template.render(**yosys_libs_context)
+try:
+    rendered_yosys_libs = yosys_libs_template.render(**yosys_libs_context)
+except:
+    print(exceptions.text_error_template().render())
+    exit()
 
 with open(yosys_path + 'yosys_libs.tcl', 'w', encoding='utf-8') as tcl_file:
     tcl_file.write(rendered_yosys_libs)

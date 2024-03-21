@@ -79,8 +79,9 @@ class Footprint:
         self.y_center_spacing = footprint_json['y_center_spacing']
         self.num_pins = footprint_json['num_pins']
         row_height = technology_json['row_height']
-        required_height = self.y_center_spacing + self.pad_height
-        self.cell_height = math.ceil(required_height / row_height) * row_height
+        required_height = self.y_center_spacing + self.pad_height + 0.5
+        self.cell_height_in_rows = math.ceil(required_height / row_height)
+        self.cell_height = self.cell_height_in_rows * row_height
         self.cell_width = (4 + math.ceil((self.num_pins / (1 if self.single_row else 2) - 1) * self.x_center_spacing / technology_json['x_wire_pitch'])) * technology_json['x_wire_pitch']
         if 'model' in footprint_json:
             self.model = footprint_json['model']
@@ -121,44 +122,42 @@ class Footprint:
             for i in range(0, self.num_pins):
                 self.pins.append(Rect(x, y_offset, self.pad_width, self.pad_height))
                 # Add both bottom and top power pin connections
-                self.power_pins.append(Rect.from_x1y1_x2y2(x, 0, x + self.pad_width, y_offset + self.pad_height))
-                self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing, x + self.pad_width, self.cell_height))
+                self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, 0, x + self.pad_width * 0.75, y_offset + self.pad_height))
+                self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset + self.y_center_spacing, x + self.pad_width * 0.75, self.cell_height))
                 x += self.x_center_spacing
         else:
-            # Dual row footprint
+            # Multi row footprint
             # Create bottom row
             for i in range(0, int(self.num_pins / 2)):
                 self.pins.append(Rect(x, y_offset, self.pad_width, self.pad_height))
-                self.power_pins.append(Rect.from_x1y1_x2y2(x, 0, x + self.pad_width, y_offset + self.pad_height))
+                self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, 0, x + self.pad_width * 0.75, y_offset + self.pad_height))
+                self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset, x + self.pad_width * 0.75, technology_json['row_height']))
                 x += self.x_center_spacing
 
             # Create top row
             x -= self.x_center_spacing
             for i in range(0, int(self.num_pins / 2)):
                 self.pins.append(Rect(x, y_offset + self.y_center_spacing, self.pad_width, self.pad_height))
-                if round(self.cell_height / technology_json['row_height']) % 2 == 1:
-                    # Cell is an odd multple of rows tall -> can connect power normaly
-                    self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing, x + self.pad_width, self.cell_height))
-                else:
-                    # Cell is an even multiple of rows tall -> Need to connect towars middle
-                    self.power_pins.append(Rect.from_x1y1_x2y2(x, y_offset + self.y_center_spacing + self.pad_height, x + self.pad_width, self.cell_height - technology_json['row_height']))
+                self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset + self.y_center_spacing + self.pad_height, x + self.pad_width * 0.75, self.cell_height - technology_json['row_height']))
+                self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset + self.y_center_spacing, x + self.pad_width * 0.75, self.cell_height))
                 x -= self.x_center_spacing
 
     # Create Pin lef
     def __gen_pin_lefs(self):
-        for pin in self.pins:
+        for i in range(0, int(self.num_pins)):
+            print(i)
             lef = ''
             lef += f'      LAYER Metal1 ;\n'
-            lef += f'        ' + pin.to_lef()
-
+            lef += f'        ' + self.pins[i].to_lef()
             self.pins_lef.append(lef)
 
-        for pin in self.power_pins:
+        for i in range(0, int(self.num_pins)):
+            print(i)
             lef = ''
             lef += f'      LAYER Metal1 ;\n'
-            lef += f'        ' + pin.to_lef()
-
-            self.power_pins_lef.append(lef)
+            lef += f'        ' + self.pins[i].to_lef()
+            self.power_pins_lef.append(lef + f'\n        ' + self.power_pins[i * 2    ].to_lef())
+            self.power_pins_lef.append(lef + f'\n        ' + self.power_pins[i * 2 + 1].to_lef())
 
     def get_pin_lef(self, pin_num):
         return self.pins_lef[pin_num - 1]

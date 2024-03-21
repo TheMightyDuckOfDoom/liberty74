@@ -86,6 +86,15 @@
             "y_center_spacing": 5.72
         },
         {
+            "names": ["TSSOP-48-6.1x12.5-P0.5"],
+            "model": "Package_SO.3dshapes/TSSOP-48_6.1x12.5mm_P0.5mm",
+            "num_pins": 48,
+            "pad_height": 1.4,
+            "pad_width": 0.3,
+            "x_center_spacing": 0.5,
+            "y_center_spacing": 7.5
+        },
+        {
             "names": ["SO-44"],
             "model": "Package_SO.3dshapes/PSOP-44_16.9x27.17mm_P1.27mm",
             "num_pins": 44,

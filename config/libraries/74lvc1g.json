@@ -9,7 +9,7 @@
         {
             "name": "typ_3p30V_25C",
             "process_name": "Typical",
-            "corner_group": "CMOS_3V",
+            "corner_group": "CMOS_3V3",
             "voltage": 3.3,
             "temperature": 25.0,
             "default_max_cap": 50.0,
@@ -18,7 +18,7 @@
         {
             "name": "slow_3p00V_85C",
             "process_name": "Slow",
-            "corner_group": "CMOS_3V",
+            "corner_group": "CMOS_3V3",
             "voltage": 3.0,
             "temperature": 85.0,
             "default_max_cap": 50.0,
@@ -27,7 +27,7 @@
         {
             "name": "fast_3p60V_m40C",
             "process_name": "Fast",
-            "corner_group": "CMOS_3V",
+            "corner_group": "CMOS_3V3",
             "voltage": 3.6,
             "temperature": -40.0,
             "default_max_cap": 50.0,
@@ -1254,7 +1254,7 @@
                     "clock": true,
                     "min_pulse_width": {
                         "CMOS_5V":  2.0,
-                        "CMOS_3V":  2.7
+                        "CMOS_3V3":  2.7
                     }
                 },
                 {
@@ -1337,7 +1337,7 @@
                     "clock": true,
                     "min_pulse_width": {
                         "CMOS_5V":  2.0,
-                        "CMOS_3V":  2.7
+                        "CMOS_3V3":  2.7
                     }
                 },
                 {
@@ -1373,7 +1373,7 @@
                     "pin_number": 6,
                     "min_pulse_width_low": {
                         "CMOS_5V":  2.0,
-                        "CMOS_3V":  2.7
+                        "CMOS_3V3":  2.7
                     }
                 }
             ],
