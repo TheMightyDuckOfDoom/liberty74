@@ -1,0 +1,29 @@
+{
+    "LICENSE": [
+        "Copyright 2023 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
+    "technology": {
+        "row_height_multiplier": 18,
+        "metal_layers": 2,
+        "y_wire_pitch": 0.26,
+        "x_wire_pitch": 0.325,
+        "wire_width": 0.13,
+        "wire_spacing": 0.13,
+        "via_diameter": 0.3,
+        "via_annular_ring": 0.13,
+        "via_hole_to_hole_spacing": 0.5
+    },
+    "pcb_stackup": {
+        "name": "jlcpcb_2layer_1mm6",
+        "pcb_thickness": 1.6,
+        "copper_layers": 2,
+        "copper_thickness": [0.035, 0.035],
+        "dielectric_thickness": [1.53],
+        "dielectric_materials": ["FR4"],
+        "dielectric_constants": [4.5],
+        "dielectric_types": ["core"],
+        "dielectric_loss_tangents": [0.02]
+    }
+}

@@ -10,6 +10,7 @@ PROJECT 		:= servisia
 SRC    		  	:= ../servisia/out/servisia.v
 PCB_WIDTH		:= 300
 PCB_HEIGHT		:= 200
+CONFIG 			:= config/cmos_config
 CORNER_GROUP  	:= CMOS_5V
 SYNTH_PROCESS 	:= Typical
 
@@ -19,7 +20,7 @@ all: gen_pdk
 	pip install -r requirements.txt --break-system-packages
 	touch .python_setup
 
-pdk/.pdk: .python_setup utils/*.py config/*.json config/libraries/*.json templates/*.template
+pdk/.pdk: .python_setup utils/*.py config/*/*.json config/*/libraries/*.json templates/*.template
 	mkdir -p pdk
 	mkdir -p pdk/kicad
 	mkdir -p pdk/kicad/footprints
@@ -29,7 +30,7 @@ pdk/.pdk: .python_setup utils/*.py config/*.json config/libraries/*.json templat
 	mkdir -p pdk/verilog
 	mkdir -p pdk/yosys
 	touch pdk/.pdk
-	python3 utils/generate.py
+	python3 utils/generate.py ${CONFIG}
 
 openroad/out: config/merge_cells/*.v pdk/.pdk
 	mkdir -p openroad/out
