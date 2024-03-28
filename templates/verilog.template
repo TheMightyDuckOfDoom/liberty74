@@ -1,4 +1,4 @@
-// Copyright 2023 Tobias Senti
+// Copyright 2024 Tobias Senti
 // Solderpad Hardware License, Version 0.51, see LICENSE for details.
 // SPDX-License-Identifier: SHL-0.51
 
@@ -90,7 +90,21 @@ module ${cell['name']} (
 % elif 'outputs' in cell:
   % for output in cell['outputs']:
     % if output['function'].startswith('IQ'):
-      % if 'ff' in cell:
+      % if 'latch' in cell:
+        % if 'three_state_enable' in output:
+    logic ${output['name']}_q;
+
+    assign ${output['name']} = ${output['three_state_enable']} ? 1'bZ : ${output['name']}_q;
+
+        % endif
+    always_latch begin
+        if (${cell['latch']['enable']})
+        % if 'three_state_enable' in output:
+            ${output['name']}_q = ${cell['latch']['data_in']};
+        % else:
+            ${output['name']} = ${cell['latch']['data_in']};
+        % endif
+      % elif 'ff' in cell:
     always_ff @(posedge ${cell['ff']['clocked_on']}\
         % if 'clear' in cell['ff']:
  or \
@@ -156,6 +170,20 @@ posedge\
 
   % endfor
 % endif
+% if 'power' in cell:
+  `ifdef PWR_PINS
+    initial begin
+    % for idx, power_pin in enumerate(cell['unique_power']):
+      % if 'connect_to_net' in power_pin:
+      assert(${power_pin['name']} == ${power_pin['connect_to_net']});
+      % elif power_pin['function'] == 'power':
+      assert(${power_pin['name']} == 1); 
+      % else:
+      assert(${power_pin['name']} == 1);
+      % endif
+    % endfor
+    end
+  `endif
+  % endif
 endmodule
-
 % endfor

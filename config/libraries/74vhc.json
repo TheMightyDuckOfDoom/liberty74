@@ -117,7 +117,7 @@
                     "timing": [
                         {
                             "related_pin": "CLK",
-                            "setup_time" : {
+                            "setup_time_rising" : {
                                 "slow_4p50V_85C":  3.5,
                                 "typ_5p00V_25C":   3.5,
                                 "fast_5p50V_m40C": 3.5,
@@ -128,7 +128,7 @@
                         },
                         {
                             "related_pin": "CLK",
-                            "hold_time" : {
+                            "hold_time_rising" : {
                                 "slow_4p50V_85C":  1.5,
                                 "typ_5p00V_25C":   1.5,
                                 "fast_5p50V_m40C": 1.5,
@@ -209,7 +209,7 @@
                     "timing": [
                         {
                             "related_pin": "CLK",
-                            "setup_time" : {
+                            "setup_time_rising" : {
                                 "slow_4p50V_85C":  3.5,
                                 "typ_5p00V_25C":   3.5,
                                 "fast_5p50V_m40C": 3.5,
@@ -220,7 +220,7 @@
                         },
                         {
                             "related_pin": "CLK",
-                            "hold_time" : {
+                            "hold_time_rising" : {
                                 "slow_4p50V_85C":  1.5,
                                 "typ_5p00V_25C":   1.5,
                                 "fast_5p50V_m40C": 1.5,

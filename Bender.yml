@@ -9,15 +9,19 @@ package:
 
 sources:
   # Merge Cells
-  - config/merge_cells/a22o.v
-  - config/merge_cells/dis_ff_led.v
-  - config/merge_cells/en_ff_led.v
-  - config/merge_cells/ff_led.v
-  - config/merge_cells/mux2_and.v
-  - config/merge_cells/mux2_ands.v
-  - config/merge_cells/mux3.v
-  - config/merge_cells/mux3s.v
-  - config/merge_cells/mux4.v
+  - config/merge_cells/verilog/a22o.v
+  - config/merge_cells/verilog/clk_gate.v
+  - config/merge_cells/verilog/dff_led.v
+  - config/merge_cells/verilog/dffr_led.v
+  - config/merge_cells/verilog/dis_dff_led.v
+  - config/merge_cells/verilog/dis_dffr_led.v
+  - config/merge_cells/verilog/en_dff_led.v
+  - config/merge_cells/verilog/en_dffr_led.v
+  - config/merge_cells/verilog/mux2_and.v
+  - config/merge_cells/verilog/mux2_ands.v
+  - config/merge_cells/verilog/mux3.v
+  - config/merge_cells/verilog/mux3s.v
+  - config/merge_cells/verilog/mux4.v
 
   # Simulation Models
   - target: not(SYNTH)
@@ -30,20 +34,22 @@ sources:
     defines:
       PWR_PINS: ~
     files:
-      - pdk/verilog/74lvc1g.v
-      - pdk/verilog/74vhc.v
-      - pdk/verilog/AM29.v
-      - pdk/verilog/DS9808.v
-      - pdk/verilog/LCD.v
-      - pdk/verilog/Led.v
-      - pdk/verilog/W24129A.v
+      - pdk/verilog/74avc.sv
+      - pdk/verilog/74lvc1g.sv
+      - pdk/verilog/74vhc.sv
+      - pdk/verilog/AM29.sv
+      - pdk/verilog/DS9808.sv
+      - pdk/verilog/LCD.sv
+      - pdk/verilog/Led.sv
+      - pdk/verilog/W24129A.sv
 
   - target: any(SIM, SIM_SYNTH)
     files:
-      - pdk/verilog/74lvc1g.v
-      - pdk/verilog/74vhc.v
-      - pdk/verilog/AM29.v
-      - pdk/verilog/DS9808.v
-      - pdk/verilog/LCD.v
-      - pdk/verilog/Led.v
-      - pdk/verilog/W24129A.v
+      - pdk/verilog/74avc.sv
+      - pdk/verilog/74lvc1g.sv
+      - pdk/verilog/74vhc.sv
+      - pdk/verilog/AM29.sv
+      - pdk/verilog/DS9808.sv
+      - pdk/verilog/LCD.sv
+      - pdk/verilog/Led.sv
+      - pdk/verilog/W24129A.sv

@@ -4,32 +4,36 @@
 
 # ${stamp}
 
-# Load Corners
-% for idx, group in enumerate(corner_groups):
-    % if idx > 0:
- else\
-    % endif
-if { $CORNER_GROUP == "${group}" } {
-    define_corners \
-    % for pn_idx, process_name in enumerate(corner_groups[group]):
-${process_name} \
-        % if pn_idx == len(corner_groups[group]) - 1:
- \
-        % endif
-    % endfor
-
-    % for process_name in corner_groups[group]:
-
-        % for corner in corner_groups[group][process_name]:
-    read_liberty -corner ${process_name} ../pdk/lib/${corner}.lib
-        % endfor
-    % endfor
-}\
-% endfor
- else {
-    puts "Corner Group $\
-{CORNER_GROUP} not found"
+# Check if CORNER_GROUP exists
+set corner_dirs [glob ../pdk/lib/*]
+set corner_names [list]
+foreach corner $corner_dirs {
+    lappend corner_names [file rootname [file tail $corner]]
+}
+if { [lsearch -exact $corner_names $CORNER_GROUP] == -1 } {
+    puts "Corner Group $CORNER_GROUP not found"
     exit
+}
+
+# Load all corners in group
+set corner_dirs [glob ../pdk/lib/$CORNER_GROUP/*]
+set corner_names [list]
+foreach corner $corner_dirs {
+    set name [file rootname [file tail $corner]]
+    lappend corner_names $name
+}
+
+# Define corners
+set tmp_fp [open tmp.tcl w]
+puts -nonewline $tmp_fp "define_corners $corner_names"
+close $tmp_fp
+source tmp.tcl
+
+# Read Libs
+foreach corner $corner_names {
+    foreach lib_file [glob ../pdk/lib/$CORNER_GROUP/$corner/*.lib] {
+        read_liberty -corner $corner $lib_file
+    }
 }
 
 # Load Technology files

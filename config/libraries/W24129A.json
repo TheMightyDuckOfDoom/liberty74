@@ -107,7 +107,7 @@
                     "bus_name": "IO",
                     "bus_type": "IO_8_1",
                     "bus_pins": [11, 12, 13, 15, 16, 17, 18, 19],
-                    "three_state": "CS_N | OE_N | !WE_N",
+                    "three_state_enable": "CS_N | OE_N | !WE_N",
                     "desc": "Should not change while writing",
                     "timing": [
                         {

@@ -1,4 +1,4 @@
-/* Copyright 2023 Tobias Senti                                        */
+/* Copyright 2024 Tobias Senti                                        */
 /* Solderpad Hardware License, Version 0.51, see LICENSE for details. */
 /* SPDX-License-Identifier: SHL-0.51                                  */
 
@@ -104,6 +104,12 @@ library(${lib_name}) {
     }
     % endfor
   % endif
+  % if "latch" in cell:
+    latch ("IQ", "IQN") {
+      enable: ${cell["latch"]["enable"]};
+      next_state: ${cell["latch"]["data_in"]};
+    }
+  % endif
   % if 'power' in cell:
     % for power in cell["power"]:
     pg_pin (${power["name"]}) {
@@ -143,25 +149,46 @@ library(${lib_name}) {
           % if 'when' in timing:
         when: "${timing["when"]}";
           % endif
-          % if 'setup_time' in timing or 'hold_time' in timing:
-            % if "setup_time" in timing:
+          % if 'setup_time_rising' in timing or 'hold_time_rising' in timing:
+            % if "setup_time_rising" in timing:
         timing_type: setup_rising;
 
         rise_constraint(scalar) {
-          values ("${timing["setup_time"][corner["name"]]}");
+          values ("${timing["setup_time_rising"][corner["name"]]}");
         }
         fall_constraint(scalar) {
-          values ("${timing["setup_time"][corner["name"]]}");
+          values ("${timing["setup_time_rising"][corner["name"]]}");
         }
             % endif
-            % if "hold_time" in timing:
+            % if "hold_time_rising" in timing:
         timing_type: hold_rising;
 
         rise_constraint(scalar) {
-          values ("${timing["hold_time"][corner["name"]]}");
+          values ("${timing["hold_time_rising"][corner["name"]]}");
         }
         fall_constraint(scalar) {
-          values ("${timing["hold_time"][corner["name"]]}");
+          values ("${timing["hold_time_rising"][corner["name"]]}");
+        }
+            % endif
+          % elif 'setup_time_falling' in timing or 'hold_time_falling' in timing:
+            % if "setup_time_falling" in timing:
+        timing_type: setup_falling;
+
+        rise_constraint(scalar) {
+          values ("${timing["setup_time_falling"][corner["name"]]}");
+        }
+        fall_constraint(scalar) {
+          values ("${timing["setup_time_falling"][corner["name"]]}");
+        }
+            % endif
+            % if "hold_time_falling" in timing:
+        timing_type: hold_falling;
+
+        rise_constraint(scalar) {
+          values ("${timing["hold_time_falling"][corner["name"]]}");
+        }
+        fall_constraint(scalar) {
+          values ("${timing["hold_time_falling"][corner["name"]]}");
         }
             % endif
           % else:
@@ -201,7 +228,7 @@ library(${lib_name}) {
       % if 'function' in inout:
       function: "${inout["function"]}";
       % endif
-      three_state: "${inout["three_state"]}";
+      three_state: "${inout["three_state_enable"]}";
       % if 'default_inout_cap' in corner:
       capacitance: ${corner["default_inout_cap"]};
       % else:
@@ -270,6 +297,9 @@ library(${lib_name}) {
       bus_type: ${output['bus_type']};
       direction: output;
       function: "${output["function"]}";
+      % if 'three_state_enable' in output:
+      three_state: "${output["three_state_enable"]}";
+      % endif
       % if 'default_output_cap' in corner:
       capacitance: ${corner["default_output_cap"]};
       % endif
@@ -280,6 +310,9 @@ library(${lib_name}) {
     pin (${output["name"]}) {
       direction: output;
       function: "${output["function"]}";
+      % if 'three_state_enable' in output:
+      three_state: "${output["three_state_enable"]}";
+      % endif
       % if 'default_output_cap' in corner:
       capacitance: ${corner["default_output_cap"]};
       % endif

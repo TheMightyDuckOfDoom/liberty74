@@ -42,11 +42,19 @@ yosys_path = pdk_path + 'yosys/'
 
 # Load Technology JSON
 tech_file = open(tech_file_name)
-tech_json = json.load(tech_file)
+try:
+    tech_json = json.load(tech_file)
+except json.JSONDecodeError as e:
+    print("Invalid JSON syntax in", tech_file_name, ":", e)
+    exit()
 
 # Read Footprints
 footprint_file = open(footprint_file_name)
-footprint_json = json.load(footprint_file)
+try:
+    footprint_json = json.load(footprint_file)
+except json.JSONDecodeError as e:
+    print("Invalid JSON syntax in ", footprint_file_name, ":", e)
+    exit()
 
 # Technology Info
 technology = tech_json['technology']
@@ -150,8 +158,12 @@ for file_path in os.listdir(library_path):
     path = os.path.join(library_path, file_path)
     if os.path.isfile(path):
         with open(path) as lib:
-            lj = json.load(lib)
-            library_json[lj['library_name']] = lj
+            try:
+                lj = json.load(lib)
+                library_json[lj['library_name']] = lj
+            except json.JSONDecodeError as e:
+                print("Invalid JSON syntax in ", path ,":", e)
+                exit()
     
 corner_groups = {}
 
@@ -211,7 +223,7 @@ for config_name in library_json:
     for c in corners:
         lib_name = config_name + '_' + c
 
-        print(f'Generating {lib_name}...')
+        print(f'Generating {lib_name}.lib...')
 
         lib_context = {
             'stamp': stamp,
@@ -228,7 +240,15 @@ for config_name in library_json:
             print(exceptions.text_error_template().render())
             exit()
 
-        with open(lib_path + lib_name + '.lib', 'w', encoding='utf-8') as lib_file:
+        c_lib_path = lib_path + corners[c]['corner_group'] + '/'
+        if not os.path.exists(c_lib_path):
+            os.mkdir(c_lib_path)
+
+        c_lib_path += corners[c]['process_name'] + '/'
+        if not os.path.exists(c_lib_path):
+            os.mkdir(c_lib_path)
+
+        with open(c_lib_path + lib_name + '.lib', 'w', encoding='utf-8') as lib_file:
             lib_file.write(rendered_lib)
         
     # Load LEF template
@@ -282,7 +302,7 @@ for config_name in library_json:
         print(exceptions.text_error_template().render())
         exit()
 
-    with open(verilog_path + config_json['library_name'] + '.v', 'w', encoding='utf-8') as verilog_file:
+    with open(verilog_path + config_json['library_name'] + '.sv', 'w', encoding='utf-8') as verilog_file:
         verilog_file.write(rendered_verilog)
 
     print('Generating Kicad Footprints')
@@ -562,25 +582,4 @@ except:
 with open(openroad_path + 'init_tech.tcl', 'w', encoding='utf-8') as tcl_file:
     tcl_file.write(rendered_init_tech)
 
-# Generate yosys_libs.tcl
-yosys_libs_template = Template(filename='./templates/yosys_libs.tcl.template')
-
-yosys_libs_context = {
-    'stamp': stamp,
-    'corner_groups': corner_groups,
-    'libraries': library_json,
-    'lef_name': lef_name
-}
-
-print('Generating yosys_libs.tcl...')
-
-try:
-    rendered_yosys_libs = yosys_libs_template.render(**yosys_libs_context)
-except:
-    print(exceptions.text_error_template().render())
-    exit()
-
-with open(yosys_path + 'yosys_libs.tcl', 'w', encoding='utf-8') as tcl_file:
-    tcl_file.write(rendered_yosys_libs)
-    
 print('Done!')

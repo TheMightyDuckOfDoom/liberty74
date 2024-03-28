@@ -2,12 +2,12 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-set open_results 0
+set open_results 1
 
 source ../pdk/openroad/init_tech.tcl
 set site CoreSite
 
-read_verilog ../config/merge_cells/$design_name.v
+read_verilog out/openroad_verilog/$design_name.v
 link_design $design_name
 
 set block [ord::get_db_block]
@@ -26,10 +26,28 @@ foreach inst $insts {
     set inst_width [odb::dbMaster_getWidth $master]
     set width [expr {$width + $inst_width / 1000.0}]
 }
+#set height [expr $height + 1.0]
 
 # Initialize floorplan and make tracks
 initialize_floorplan -site $site -die_area "0 0 $width $height" -core_area "0 0 $width $height"
 source ../pdk/openroad/make_tracks.tcl
+
+add_global_connection -net VDD -inst_pattern .* -pin_pattern VDD -power
+add_global_connection -net GND -inst_pattern .* -pin_pattern GND -ground
+add_global_connection -net VDD -inst_pattern .* -pin_pattern TIE_HI
+add_global_connection -net GND -inst_pattern .* -pin_pattern TIE_LO
+add_global_connection -net VDD -inst_pattern .* -pin_pattern NC_VDD
+add_global_connection -net GND -inst_pattern .* -pin_pattern NC
+
+global_connect
+
+set_voltage_domain -name CORE -power VDD -ground GND
+define_pdn_grid -name grid -voltage_domains CORE
+
+add_pdn_strip -grid grid -layer Metal1 -followpins
+
+pdngen -skip_trim
+#gui::show
 
 # Place instances
 set x 0.0
@@ -79,10 +97,11 @@ if {[get_ports clk_i] != ""} {
     create_clock -name clk -period 10 {clk_i}
     set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
     set_output_delay -clock clk 0 [all_outputs]
+    #set_clock_gating_check -setup 0 -hold 0 [get_cells i_and]
 }
 
-report_checks -corner Fast    -path_delay min
-report_checks -corner Typical -path_delay max
+report_checks -path_delay min
+report_checks -path_delay max
 
 # Global route
 set_routing_layers -signal Metal1-Metal2 -clock Metal1-Metal2
@@ -92,11 +111,13 @@ global_route -verbose -allow_congestion
 detailed_route -output_drc merge_macros_route_drc.rpt
 
 # Write def, lef and libs
-write_def out/merge_cell_$design_name.def
-write_abstract_lef -bloat_factor 0 out/merge_cell_$design_name.lef
-write_timing_model -corner Typical out/merge_cell_typ_$design_name.lib  -library_name merge_cell_typ_$design_name
-write_timing_model -corner Fast    out/merge_cell_fast_$design_name.lib -library_name merge_cell_fast_$design_name
-write_timing_model -corner Slow    out/merge_cell_slow_$design_name.lib -library_name merge_cell_slow_$design_name
+write_def out/def/$design_name.def
+write_abstract_lef -bloat_factor 0 out/lef/$design_name.lef
+foreach corner_dir [glob out/lib/${CORNER_GROUP}/*] {
+    set corner [file rootname [file tail $corner_dir]]
+    puts "Writing lib for $CORNER_GROUP $corner"
+    write_timing_model -corner $corner $corner_dir/${design_name}_${corner}.lib -library_name ${design_name}_${corner}
+}
 
 # Open Results
 if {$open_results} {

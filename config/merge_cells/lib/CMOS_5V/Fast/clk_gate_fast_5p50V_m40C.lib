@@ -1,0 +1,74 @@
+library (clk_gate_fast_5p50V_m40C) {
+  comment                        : "";
+  delay_model                    : table_lookup;
+  simulation                     : false;
+  capacitive_load_unit (1,pF);
+  leakage_power_unit             : 1pW;
+  current_unit                   : "1A";
+  pulling_resistance_unit        : "1kohm";
+  time_unit                      : "1ns";
+  voltage_unit                   : "1v";
+  library_features(report_delay_calculation);
+
+  input_threshold_pct_rise : 50;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_rise : 50;
+  output_threshold_pct_fall : 50;
+  slew_lower_threshold_pct_rise : 20;
+  slew_lower_threshold_pct_fall : 20;
+  slew_upper_threshold_pct_rise : 80;
+  slew_upper_threshold_pct_fall : 80;
+  slew_derate_from_library : 1.0;
+
+
+  default_max_fanout              : 8;
+  default_fanout_load             : 1;
+  
+  nom_process                    : 1.0;
+  nom_temperature                : -40.0;
+  nom_voltage                    : 5.50;
+
+
+  cell ("clk_gate") {
+    clock_gating_integrated_cell : "latch_posedge"
+    pin("clk_i") {
+      direction : input;
+      clock_gate_clock_pin : true;
+    }
+    pin("en_i") {
+      direction : input;
+      clock_gate_enable_pin : true;
+    }
+    pin("clk_o") {
+      direction : output;
+      clock_gate_out_pin : true;
+      state_function : "clk_i * M0";
+      timing () {
+        related_pin: "clk_i";
+        timing_sense: positive_unate;
+        timing_type: combinational;
+
+        cell_rise(scalar) {
+          values ("0.5");
+        }
+        cell_fall(scalar) {
+          values ("0.5");
+        }
+        rise_transition(scalar) {
+          values ("0.001");
+        }
+        fall_transition(scalar) {
+          values ("0.001");
+        }
+      }
+    }
+    pin("M0") {
+      direction: "internal";
+      internal_node: "M0";
+    }
+    statetable ("clk_i en_i", "M0") {
+      table : "L L : - : L,L H : - : H,H - : - : N";
+    }
+  }
+
+}

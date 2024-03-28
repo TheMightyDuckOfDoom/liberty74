@@ -37,6 +37,20 @@ read_verilog ../out/${design_name}.v
 link_design $design_name
 
 create_clock -name clk -period 10 {clk_i}
+if {0} {
+  set block [ord::get_db_block]
+  set insts [odb::dbBlock_getInsts $block]
+  foreach inst $insts {
+      set master [odb::dbInst_getMaster $inst]
+      if {[odb::dbMaster_getName $master] == "clk_gate" } {
+          puts "Found clk_gate"
+          set name [odb::dbInst_getName $inst]
+          puts "Name: $name"
+          
+          create_generated_clock -name clk_$name -source [get_ports clk_i] -divide_by 1 [get_pins $name/clk_o]
+      }
+  }
+}
 set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
 set_output_delay -clock clk 0 [all_outputs]
 
@@ -46,6 +60,7 @@ foreach pin [delete_from_list [get_pins i_servisia_mem__i_sram/*] [get_pins i_se
 }
 
 set_false_path -through [get_pins i_servisia_mem__i_flash/A*] -to [get_pins i_servisia_mem__i_sram/IO*]
+set_false_path -through [get_pins i_servisia_mem__i_flash/?E_N] -to [get_pins i_servisia_mem__i_sram/IO*]
 
 report_checks -corner Fast    -path_delay min
 report_checks -corner Typical -path_delay max
@@ -222,7 +237,7 @@ repair_clock_inverters
 placeDetail
 set ctsBuf [ list BUF_74LVC1G125 ]
 clock_tree_synthesis -root_buf $ctsBuf -buf_list $ctsBuf \
-                     -balance_levels -clk_nets clk_i
+                     -balance_levels
 
 set_propagated_clock [all_clocks]
 repair_clock_nets

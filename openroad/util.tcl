@@ -1,20 +1,27 @@
-# Copyright 2023 Tobias Senti
+# Copyright 2024 Tobias Senti
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
 proc load_merge_cells {} {
+  global CORNER_GROUP
+  global corner_names
   set db [ord::get_db]
   set lib [odb::dbDatabase_findLib $db "liberty74_site"]
   set site [odb::dbLib_findSite $lib "CoreSite"]
 
-  set merge_cell_files [glob ../config/merge_cells/*]
+  set merge_cell_files [glob ../config/merge_cells/verilog/*]
   foreach cell_file_name $merge_cell_files {
     set cell [file rootname [file tail $cell_file_name]]
     puts "Reading Merge Cell $cell"
-    read_liberty -corner Typical out/merge_cell_typ_$cell.lib
-    read_liberty -corner Fast    out/merge_cell_fast_$cell.lib
-    read_liberty -corner Slow    out/merge_cell_slow_$cell.lib
-    read_lef out/merge_cell_$cell.lef
+    foreach corner $corner_names {
+      # Check if seperate corner file exist
+      set lib_file [glob -nocomplain ../config/merge_cells/lib/$CORNER_GROUP/$corner/${cell}*.lib]
+      if { [llength $lib_file] == 0} {
+        set lib_file [glob out/lib/$CORNER_GROUP/$corner/${cell}_$corner.lib]
+      }
+      read_liberty -corner $corner $lib_file
+    }
+    read_lef out/lef/$cell.lef
 
     set master [odb::dbDatabase_findMaster $db $cell]
     odb::dbMaster_setSite $master $site

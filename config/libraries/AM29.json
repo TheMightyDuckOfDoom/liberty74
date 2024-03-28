@@ -157,7 +157,7 @@
                     "bus_name": "DQ",
                     "bus_type": "DQ_7_0",
                     "bus_pins": [17, 18, 19, 20, 24, 25, 26, 27],
-                    "three_state": "CE_N | OE_N | !WE_N",
+                    "three_state_enable": "CE_N | OE_N | !WE_N",
                     "desc": "Should not change while writing",
                     "timing": [
                         {
@@ -197,14 +197,7 @@
                     ]
                 }
             ],
-            "outputs": [
-                {
-                    "name": "READY",
-                    "pin_number": 28,
-                    "function": "1",
-                    "verilog_function": "RESET_N"
-                }
-            ]
+            "outputs": []
         }
     ]
 }

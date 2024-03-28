@@ -1,0 +1,17 @@
+/* Copyright 2024 Tobias Senti                                        */
+/* Solderpad Hardware License, Version 0.51, see LICENSE for details. */
+/* SPDX-License-Identifier: SHL-0.51                                  */
+
+library(clkgate) {
+  cell (clk_gate) {
+    pin (clk_i) {
+      direction: input;
+    }
+    pin (en_i) {
+      direction: input;
+    }
+    pin (clk_o) {
+      direction: output;
+    }
+  }
+}

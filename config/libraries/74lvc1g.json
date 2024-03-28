@@ -137,8 +137,8 @@
                     "name": "Y",
                     "pin_number": 4,
                     "function": "A",
-                    "verilog_function": "!EN_N ? A : 1'bZ",
-                    "three_state": "EN_N",
+                    "verilog_function": "EN_N ? 1'bZ : A",
+                    "three_state_enable": "EN_N",
                     "timing": [
                         {
                             "related_pin": "EN_N",
@@ -1263,7 +1263,7 @@
                     "timing": [
                         {
                             "related_pin": "CLK",
-                            "setup_time" : {
+                            "setup_time_rising" : {
                                 "slow_4p50V_85C":  1.1,
                                 "typ_5p00V_25C":   1.1,
                                 "fast_5p50V_m40C": 1.1,
@@ -1274,7 +1274,7 @@
                         },
                         {
                             "related_pin": "CLK",
-                            "hold_time" : {
+                            "hold_time_rising" : {
                                 "slow_4p50V_85C":  0.5,
                                 "typ_5p00V_25C":   0.5,
                                 "fast_5p50V_m40C": 0.5,
@@ -1346,7 +1346,7 @@
                     "timing": [
                         {
                             "related_pin": "CLK",
-                            "setup_time" : {
+                            "setup_time_rising" : {
                                 "slow_4p50V_85C":  1.1,
                                 "typ_5p00V_25C":   1.1,
                                 "fast_5p50V_m40C": 1.1,
@@ -1357,7 +1357,7 @@
                         },
                         {
                             "related_pin": "CLK",
-                            "hold_time" : {
+                            "hold_time_rising" : {
                                 "slow_4p50V_85C":  0.5,
                                 "typ_5p00V_25C":   0.5,
                                 "fast_5p50V_m40C": 0.5,
@@ -1405,6 +1405,104 @@
                                 "typ_5p00V_25C":   2.0,
                                 "fast_5p50V_m40C": 1.0,
                                 "slow_3p00V_85C":  5.8,
+                                "typ_3p30V_25C":   2.5,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "DLZ_74LVC1G373",
+            "desc": "Single positive D-type Latch with tristate output",
+            "footprint": "SC70-6",
+            "latch": {
+                "enable": "LE",
+                "data_in": "D"
+            },
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 5,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "LE",
+                    "pin_number": 1,
+                    "clock": true
+                },
+                {
+                    "name": "OE_N",
+                    "pin_number": 6
+                },
+                {
+                    "name": "D",
+                    "pin_number": 3,
+                    "timing": [
+                        {
+                            "related_pin": "LE",
+                            "setup_time_falling" : {
+                                "slow_4p50V_85C":  1.5,
+                                "typ_5p00V_25C":   1.5,
+                                "fast_5p50V_m40C": 1.5,
+                                "slow_3p00V_85C":  1.5,
+                                "typ_3p30V_25C":   1.5,
+                                "fast_3p60V_m40C": 1.5
+                            }
+                        },
+                        {
+                            "related_pin": "LE",
+                            "hold_time_falling" : {
+                                "slow_4p50V_85C":  1.5,
+                                "typ_5p00V_25C":   1.5,
+                                "fast_5p50V_m40C": 1.5,
+                                "slow_3p00V_85C":  1.5,
+                                "typ_3p30V_25C":   1.5,
+                                "fast_3p60V_m40C": 1.5
+                            }
+                        }
+                    ]
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Q",
+                    "pin_number": 4,
+                    "function": "IQ",
+                    "three_state_enable": "OE_N",
+                    "timing": [
+                        {
+                            "related_pin": "D",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  3.5,
+                                "typ_5p00V_25C":   2.25,
+                                "fast_5p50V_m40C": 1.0,
+
+                                "slow_3p00V_85C":  4.0,
+                                "typ_3p30V_25C":   2.5,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        },
+                        {
+                            "related_pin": "LE",
+                            "timing_sense": "non_unate",
+                            "timing_type": "rising_edge",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  3.5,
+                                "typ_5p00V_25C":   2.25,
+                                "fast_5p50V_m40C": 1.0,
+
+                                "slow_3p00V_85C":  4.0,
                                 "typ_3p30V_25C":   2.5,
                                 "fast_3p60V_m40C": 1.0
                             }
