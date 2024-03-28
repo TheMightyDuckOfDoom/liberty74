@@ -7,7 +7,7 @@ set open_results 0
 source ../pdk/openroad/init_tech.tcl
 set site CoreSite
 
-read_verilog ../config/merge_cells/$design_name.v
+read_verilog ../$CONFIG_PATH/merge_cells/$design_name.v
 link_design $design_name
 
 set block [ord::get_db_block]

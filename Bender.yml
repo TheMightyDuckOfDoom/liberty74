@@ -9,15 +9,15 @@ package:
 
 sources:
   # Merge Cells
-  - config/merge_cells/a22o.v
-  - config/merge_cells/dis_ff_led.v
-  - config/merge_cells/en_ff_led.v
-  - config/merge_cells/ff_led.v
-  - config/merge_cells/mux2_and.v
-  - config/merge_cells/mux2_ands.v
-  - config/merge_cells/mux3.v
-  - config/merge_cells/mux3s.v
-  - config/merge_cells/mux4.v
+  - config/cmos_config/merge_cells/a22o.v
+  - config/cmos_config/merge_cells/dis_ff_led.v
+  - config/cmos_config/merge_cells/en_ff_led.v
+  - config/cmos_config/merge_cells/ff_led.v
+  - config/cmos_config/merge_cells/mux2_and.v
+  - config/cmos_config/merge_cells/mux2_ands.v
+  - config/cmos_config/merge_cells/mux3.v
+  - config/cmos_config/merge_cells/mux3s.v
+  - config/cmos_config/merge_cells/mux4.v
 
   # Simulation Models
   - target: not(SYNTH)

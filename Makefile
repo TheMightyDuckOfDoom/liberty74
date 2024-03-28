@@ -32,9 +32,9 @@ pdk/.pdk: .python_setup utils/*.py config/*/*.json config/*/libraries/*.json tem
 	touch pdk/.pdk
 	python3 utils/generate.py ${CONFIG}
 
-openroad/out: config/merge_cells/*.v pdk/.pdk
+openroad/out: config/*/merge_cells/*.v pdk/.pdk
 	mkdir -p openroad/out
-	cd openroad && ./merge_cells.sh ${CORNER_GROUP}
+	cd openroad && ./merge_cells.sh ${CONFIG} ${CORNER_GROUP}
 
 openroad-setup: openroad/out
 
