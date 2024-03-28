@@ -3,11 +3,13 @@
 # SPDX-License-Identifier: SHL-0.51
 
 proc load_merge_cells {} {
+  global CONFIG
+
   set db [ord::get_db]
   set lib [odb::dbDatabase_findLib $db "liberty74_site"]
   set site [odb::dbLib_findSite $lib "CoreSite"]
 
-  set merge_cell_files [glob ../config/merge_cells/*]
+  set merge_cell_files [glob -nocomplain ../${CONFIG}/merge_cells/*]
   foreach cell_file_name $merge_cell_files {
     set cell [file rootname [file tail $cell_file_name]]
     puts "Reading Merge Cell $cell"
