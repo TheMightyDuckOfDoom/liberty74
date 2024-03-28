@@ -71,6 +71,12 @@ class Footprint:
         self.name = name
         self.pad_width = footprint_json['pad_width']
         self.pad_height = footprint_json['pad_height']
+        if 'through_hole' in footprint_json:
+            self.through_hole = footprint_json['through_hole']
+            self.hole_diameter = footprint_json['hole_diameter']
+        else:
+            self.through_hole = False
+            self.hole_diameter = 0
         if 'single_row' in footprint_json:
             self.single_row = footprint_json['single_row']
         else:
@@ -82,7 +88,9 @@ class Footprint:
         required_height = self.y_center_spacing + self.pad_height + 0.5
         self.cell_height_in_rows = math.ceil(required_height / row_height)
         self.cell_height = self.cell_height_in_rows * row_height
-        self.cell_width = (4 + math.ceil((self.num_pins / (1 if self.single_row else 2) - 1) * self.x_center_spacing / technology_json['x_wire_pitch'])) * technology_json['x_wire_pitch']
+        width_offset = math.ceil(self.pad_width / 2.0 / technology_json['x_wire_pitch'] ) + 1
+        self.x_offset = width_offset * technology_json['x_wire_pitch']
+        self.cell_width = (2 * width_offset + math.ceil((self.num_pins / (1 if self.single_row else 2) - 1) * self.x_center_spacing / technology_json['x_wire_pitch'])) * technology_json['x_wire_pitch']
         if 'model' in footprint_json:
             self.model = footprint_json['model']
         else:
@@ -115,7 +123,7 @@ class Footprint:
         y_offset = (self.cell_height - self.pad_height - self.y_center_spacing) / 2
         
         # Align pad center with vertical tracks
-        x = 2 * technology_json['x_wire_pitch'] - self.pad_width / 2
+        x = self.x_offset - self.pad_width / 2
 
         if self.single_row:
             # Single row footprint
@@ -182,3 +190,6 @@ class Footprint:
 
     def is_single_row(self):
         return self.single_row
+
+    def is_through_hole(self):
+        return self.through_hole

@@ -18,9 +18,9 @@ set NUM_Y_PCB_TILES [expr floor(double($PCB_HEIGHT) / double($PCB_TILE_SIZE))]
 
 if { $routing_channels } {
   if { $endcap } {
-    set density 0.75
+    set density 0.79
   } else {
-    set density 0.74
+    set density 0.78
   }
   set padding 0
 } else {
@@ -90,7 +90,9 @@ add_pdn_ring -grid {grid}     \
     -spacings {0.50 0.50}     \
     -pad_offsets {1.0 1.0 1.0 1.0}
 add_pdn_strip -grid grid -layer Metal1 -width 0.5 -followpins -extend_to_core_ring
-add_pdn_strip -grid grid -layer Metal2 -width 1.0 -pitch 100  -extend_to_core_ring -offset [expr $PCB_TILE_SIZE - $PCB_EDGE_MARGIN - ($PCB_TILE_ROUTING_MARGIN / 2)] -spacing [expr ($PCB_TILE_ROUTING_MARGIN / 2)]
+if { $NUM_X_PCB_TILES > 1} {
+  add_pdn_strip -grid grid -layer Metal2 -width 1.0 -pitch 100  -extend_to_core_ring -offset [expr $PCB_TILE_SIZE - $PCB_EDGE_MARGIN - ($PCB_TILE_ROUTING_MARGIN / 2)] -spacing [expr ($PCB_TILE_ROUTING_MARGIN / 2)]
+}
 #add_pdn_strip -grid grid -layer Metal2 -width 1.0 -pitch 200  -extend_to_core_ring -offset [expr -0.25 * $PCB_TILE_PLACEMENT_MARGIN - 1.0] -starts_with GROUND
 add_pdn_connect -layers {Metal1 Metal2} -fixed_vias {Via1_Power} -max_rows 1 -max_columns 1
 
@@ -216,6 +218,8 @@ repair_design
 improve_placement
 placeDetail
 
+write_def out/$design_name.placed.def
+#gui::show
 gui::pause
 
 repair_clock_inverters

@@ -106,9 +106,11 @@
         {
             "names": ["header_16pin_2_54mm"],
             "single_row": true,
+            "through_hole": true,
             "num_pins": 16,
-            "pad_height": 1.5,
-            "pad_width": 1.5,
+            "hole_diameter": 1.0,
+            "pad_height": 1.7,
+            "pad_width": 1.7,
             "x_center_spacing": 2.54,
             "y_center_spacing": 0
         }

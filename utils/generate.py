@@ -10,6 +10,7 @@ from footprint import Rect
 import datetime
 import os
 import json
+from json.decoder import JSONDecodeError
 import subprocess
 from mako.template import Template
 from mako import exceptions
@@ -42,11 +43,21 @@ yosys_path = pdk_path + 'yosys/'
 
 # Load Technology JSON
 tech_file = open(tech_file_name)
-tech_json = json.load(tech_file)
+tech_json = None
+try:
+    tech_json = json.load(tech_file)
+except JSONDecodeError as e:
+    print(f'Error loading {tech_file_name}: {e}')
+    exit()
 
 # Read Footprints
 footprint_file = open(footprint_file_name)
-footprint_json = json.load(footprint_file)
+footprint_json = None
+try:
+    footprint_json = json.load(footprint_file)
+except JSONDecodeError as e:
+    print(f'Error loading {footprint_file_name}: {e}')
+    exit()
 
 # Technology Info
 technology = tech_json['technology']
@@ -150,8 +161,12 @@ for file_path in os.listdir(library_path):
     path = os.path.join(library_path, file_path)
     if os.path.isfile(path):
         with open(path) as lib:
-            lj = json.load(lib)
-            library_json[lj['library_name']] = lj
+            try:
+                lj = json.load(lib)
+                library_json[lj['library_name']] = lj
+            except JSONDecodeError as e:
+                print(f'Error loading {path}: {e}')
+                exit()
     
 corner_groups = {}
 
@@ -303,17 +318,14 @@ for config_name in library_json:
 
         pcb_copper_layers.append(layer_name)
 
-    pcb_pad_layers = pcb_copper_layers
-    pcb_pad_layers.append('F.Paste')
-    pcb_pad_layers.append('F.Mask')
+    pcb_smd_pad_layers = []
+    pcb_smd_pad_layers.append(pcb_copper_layers[0])
+    pcb_smd_pad_layers.append('F.Paste')
+    pcb_smd_pad_layers.append('F.Mask')
 
-    drill = DrillDefinition(
-        oval = False,
-        diameter = technology['via_diameter'],
-        width = 0,
-        offset = KiPosition(0, 0)
-    )
-    via_size = KiPosition(2 * technology['via_annular_ring'] + technology['via_diameter'], 2 * technology['via_annular_ring'] + technology['via_diameter'])
+    pcb_thru_hole_layers = pcb_copper_layers.copy()
+    pcb_thru_hole_layers.append('F.Mask')
+    pcb_thru_hole_layers.append('B.Mask')
 
     for cell in cells:
         fp = new_fps[cell['footprint']]
@@ -379,15 +391,23 @@ for config_name in library_json:
                 else:
                     power_pin_rect = fp.get_power_pin(pin_number * 2)
 
+                drill = DrillDefinition(
+                    oval = False,
+                    diameter = fp.hole_diameter,
+                    width = 0,
+                    offset = KiPosition(0, 0)
+                )
+
                 # Normal Pad for soldering
                 kifp.pads.append(
                     KiPad(
                         number = pin_number,
-                        type = 'smd',
-                        shape = 'rect',
+                        type = 'thru_hole' if fp.is_through_hole() else 'smd',
+                        shape = 'oval' if fp.is_through_hole() else 'rect',
                         position = pin_rect.get_center_kiposition_inv_y(),
                         size = pin_rect.get_size_kiposition(),
-                        layers = ['F.Cu', 'F.Paste', 'F.Mask'],
+                        drill = drill,
+                        layers = pcb_thru_hole_layers if fp.is_through_hole() else  pcb_smd_pad_layers,
                         pinFunction = pin_function
                     )
                 )
@@ -396,7 +416,7 @@ for config_name in library_json:
                 kifp.pads.append(
                     KiPad(
                         number = pin_number,
-                        type = 'smd',
+                        type = 'connect',
                         shape = 'rect',
                         position = power_pin_rect.get_center_kiposition_inv_y(),
                         size = power_pin_rect.get_size_kiposition(),
@@ -421,15 +441,22 @@ for config_name in library_json:
                     pin_number = pin['bus_pins'][i]
                     pin_rect = fp.get_pin(pin_number)
 
-                    # Add SMD pad
+                    drill = DrillDefinition(
+                        oval = False,
+                        diameter = fp.hole_diameter,
+                        width = 0,
+                        offset = KiPosition(0, 0)
+                    )
+                    # Add pad
                     kifp.pads.append(
                         KiPad(
                             number = pin_number,
-                            type = 'smd',
-                            shape = 'rect',
+                            type = 'thru_hole' if fp.is_through_hole() else 'smd',
+                            shape = 'oval' if fp.is_through_hole() else 'rect',
                             position = pin_rect.get_center_kiposition_inv_y(),
                             size = pin_rect.get_size_kiposition(),
-                            layers = ['F.Cu', 'F.Paste', 'F.Mask'],
+                            drill = drill,
+                            layers = pcb_thru_hole_layers if fp.is_through_hole() else  pcb_smd_pad_layers,
                             pinFunction = pin['bus_name'] + '[' + str(i + min(type['from'], type['to'])) + ']' 
                         )
                     )
@@ -437,15 +464,22 @@ for config_name in library_json:
                 pin_number = pin['pin_number']
                 pin_rect = fp.get_pin(pin_number)
 
+                drill = DrillDefinition(
+                    oval = False,
+                    diameter = fp.hole_diameter,
+                    width = 0,
+                    offset = KiPosition(0, 0)
+                )
                 # Add SMD pad
                 kifp.pads.append(
                     KiPad(
                         number = pin_number,
-                        type = 'smd',
-                        shape = 'rect',
+                        type = 'thru_hole' if fp.is_through_hole() else 'smd',
+                        shape = 'oval' if fp.is_through_hole() else 'rect',
                         position = pin_rect.get_center_kiposition_inv_y(),
                         size = pin_rect.get_size_kiposition(),
-                        layers = ['F.Cu', 'F.Paste', 'F.Mask'],
+                        drill = drill,
+                        layers = pcb_thru_hole_layers if fp.is_through_hole() else  pcb_smd_pad_layers,
                         pinFunction = pin['name']
                     )
                 )
@@ -455,14 +489,21 @@ for config_name in library_json:
             for pin_number in cell['internal_pins']:
                 pin_rect = fp.get_pin(pin_number)
 
+                drill = DrillDefinition(
+                    oval = False,
+                    diameter = fp.hole_diameter,
+                    width = 0,
+                    offset = KiPosition(0, 0)
+                )
                 # Add SMD pad
                 kifp.pads.append(
                     KiPad(
-                        type = 'smd',
-                        shape = 'rect',
+                        type = 'thru_hole' if fp.is_through_hole() else 'smd',
+                        shape = 'oval' if fp.is_through_hole() else 'rect',
                         position = pin_rect.get_center_kiposition_inv_y(),
                         size = pin_rect.get_size_kiposition(),
-                        layers = ['F.Cu', 'F.Paste', 'F.Mask']
+                        drill = drill,
+                        layers = pcb_thru_hole_layers if fp.is_through_hole() else  pcb_smd_pad_layers
                     )
                 )
         
@@ -484,13 +525,20 @@ for config_name in library_json:
                     # Vertical Connection -> Make taller
                     size.Y = abs(start_pin_rect.get_center_kiposition_inv_y().Y - end_pin_rect.get_center_kiposition_inv_y().Y)
                 
+                drill = DrillDefinition(
+                    oval = False,
+                    diameter = fp.hole_diameter,
+                    width = 0,
+                    offset = KiPosition(0, 0)
+                )
                 # Add SMD pad
                 kifp.pads.append(
                     KiPad(
-                        type = 'smd',
-                        shape = 'rect',
+                        type = 'thru_hole' if fp.is_through_hole() else 'smd',
+                        shape = 'oval' if fp.is_through_hole() else 'rect',
                         position = center,
                         size = pin_rect.get_size_kiposition(),
+                        drill = drill,
                         layers = ['F.Cu']
                     )
                 )

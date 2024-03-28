@@ -2,9 +2,10 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-#PROJECT 		:= alu
+#PROJECT 		:= test
 #SRC    		  	:= examples/${PROJECT}.v
-#PCB_SIZE        := 1000
+#PCB_WIDTH       := 100
+#PCB_HEIGHT      := 100
 PROJECT 		:= servisia
 SRC    		  	:= ../servisia/out/servisia.v
 PCB_WIDTH		:= 300
