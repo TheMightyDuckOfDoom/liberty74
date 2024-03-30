@@ -9,12 +9,15 @@ set OUT_NO_MERGE out/${TOP}_no_merge.v
 
 set REPORT_DIR yosys/reports
 
+set MAIN_LIB pdk/lib/$MAIN_LIB.lib
+
 proc report_all {report_name} {
   global TOP
   global LIBS
   global REPORT_DIR
+  global MAIN_LIB
   tee -q -o "$REPORT_DIR/${report_name}_synth.rpt" check
-  tee -q -o "$REPORT_DIR/${report_name}_area.rpt"  stat -top $TOP -liberty [lindex $LIBS 0]
+  tee -q -o "$REPORT_DIR/${report_name}_area.rpt"  stat -top $TOP -liberty $MAIN_LIB
 }
 
 #set ABC_AREA 0
@@ -84,7 +87,7 @@ if {0} {
 tee -q -o "$REPORT_DIR/pre_map.rpt" stat -tech cmos
 
 # Map Flip Flops
-dfflibmap -liberty [lindex $LIBS 0]
+#dfflibmap -liberty [lindex $LIBS 0]
 
 set constr [open out/abc.constr w]
 puts $constr "set_driving_cell BUF_74LVC1G125"
@@ -100,20 +103,22 @@ set period_ps [expr (10 * 1000)]
 set abc_comb_script yosys/abc-comb-iggy16.script
 #set abc_comb_script yosys/abc.comb
 set constr out/abc.constr
-abc -liberty [lindex $LIBS 0] -D $period_ps -script $abc_comb_script -constr $constr -showtmp -exe "yosys/abc.sh"
+abc -liberty $MAIN_LIB -D $period_ps -script $abc_comb_script -constr $constr -showtmp -exe "yosys/abc.sh"
 
 setundef -zero
 splitnets
 opt_clean -purge
 hilomap -singleton -hicell TIE_HI Y -locell TIE_LO Y
 
-stat -width -liberty [lindex $LIBS 0]
+stat -width -liberty $MAIN_LIB
 
-# Add leds
-extract -map yosys/dff_led_dummy.v
-extract -map yosys/dffr_led_dummy.v
-techmap -map config/merge_cells/dff_led.v
-techmap -map config/merge_cells/dffr_led.v
+if { $LED } {
+  # Add leds
+  extract -map yosys/dff_led_dummy.v
+  extract -map yosys/dffr_led_dummy.v
+  techmap -map config/merge_cells/dff_led.v
+  techmap -map config/merge_cells/dffr_led.v
+}
 
 report_all "synth"
 
@@ -126,7 +131,7 @@ foreach cell $merge_cells {
   extract -map $cell
 }
 
-stat -width -liberty [lindex $LIBS 0]
+stat -width -liberty $MAIN_LIB
 
 report_all "merge"
 

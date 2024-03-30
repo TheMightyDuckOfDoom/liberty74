@@ -26,14 +26,21 @@ MACRO ${cell["name"]}
   SITE CoreSite ;
   % endif
 
-  % if 'internal_pins' in cell:
+  % if 'internal_pins' in cell or 'not_connected' in cell:
   OBS
-    % for pin in cell['internal_pins']:
+    % if 'interal_pins' in cell:
+      % for pin in cell['internal_pins']:
 ${footprints[cell['footprint']]['pin_lef_template'][pin]}
-    % endfor
-    % if 'internal_connections_lef' in cell:
-      % for ic in cell['internal_connections_lef']:
+      % endfor
+      % if 'internal_connections_lef' in cell:
+        % for ic in cell['internal_connections_lef']:
 ${ic}
+        % endfor
+      % endif
+    % endif
+    % if 'not_connected' in cell:
+      % for pin in cell['not_connected']:
+${footprints[cell['footprint']]['pin_lef_template'][pin['pin_number']]}
       % endfor
     % endif
   END
@@ -122,10 +129,20 @@ ${footprints[cell["footprint"]]["pin_lef_template"][pin["bus_pins"][i]]}
     DIRECTION OUTPUT ;
     USE SIGNAL ;
     PORT
-        % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
-${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
+        % if "pin_numbers" in pin:
+          % for i in range(0, len(pin['pin_numbers'])):
+            % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_numbers"][i]]}
+            % else:
+${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_numbers"][i]]}
+            % endif
+          % endfor
         % else:
+          % if "use_power_pin_template" in pin and pin["use_power_pin_template"]:
+${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"]]}
+          % else:
 ${footprints[cell["footprint"]]["pin_lef_template"][pin["pin_number"]]}
+          % endif
         % endif
     END
   END ${pin["name"]}

@@ -428,6 +428,8 @@ for config_name in library_json:
 
         # Pins
         pins = []
+        if 'not_connected' in cell:
+            pins += cell['not_connected']
         if 'inputs' in cell:
             pins += cell['inputs']
         if 'inouts' in cell:
@@ -462,28 +464,53 @@ for config_name in library_json:
                         )
                     )
             else:
-                pin_number = pin['pin_number']
-                pin_rect = fp.get_pin(pin_number)
+                if 'pin_numbers' in pin:
+                    for i in range(0, len(pin['pin_numbers'])):
+                        pin_number = pin['pin_numbers'][i]
+                        pin_rect = fp.get_pin(pin_number)
 
-                drill = DrillDefinition(
-                    oval = False,
-                    diameter = fp.hole_diameter,
-                    width = 0,
-                    offset = KiPosition(0, 0)
-                )
-                # Add SMD pad
-                kifp.pads.append(
-                    KiPad(
-                        number = pin_number,
-                        type = 'thru_hole' if fp.is_through_hole() else 'smd',
-                        shape = 'oval' if fp.is_through_hole() else 'rect',
-                        position = pin_rect.get_center_kiposition_inv_y(),
-                        size = pin_rect.get_size_kiposition(),
-                        drill = drill,
-                        layers = pcb_thru_hole_layers if fp.is_through_hole() else  pcb_smd_pad_layers,
-                        pinFunction = pin['name']
+                        drill = DrillDefinition(
+                            oval = False,
+                            diameter = fp.hole_diameter,
+                            width = 0,
+                            offset = KiPosition(0, 0)
+                        )
+                        # Add SMD pad
+                        kifp.pads.append(
+                            KiPad(
+                                number = pin_number,
+                                type = 'thru_hole' if fp.is_through_hole() else 'smd',
+                                shape = 'oval' if fp.is_through_hole() else 'rect',
+                                position = pin_rect.get_center_kiposition_inv_y(),
+                                size = pin_rect.get_size_kiposition(),
+                                drill = drill,
+                                layers = pcb_thru_hole_layers if fp.is_through_hole() else  pcb_smd_pad_layers,
+                                pinFunction = pin['name']
+                            )
+                        )
+                else:
+                    pin_number = pin['pin_number']
+                    pin_rect = fp.get_pin(pin_number)
+
+                    drill = DrillDefinition(
+                        oval = False,
+                        diameter = fp.hole_diameter,
+                        width = 0,
+                        offset = KiPosition(0, 0)
                     )
-                )
+                    # Add SMD pad
+                    kifp.pads.append(
+                        KiPad(
+                            number = pin_number,
+                            type = 'thru_hole' if fp.is_through_hole() else 'smd',
+                            shape = 'oval' if fp.is_through_hole() else 'rect',
+                            position = pin_rect.get_center_kiposition_inv_y(),
+                            size = pin_rect.get_size_kiposition(),
+                            drill = drill,
+                            layers = pcb_thru_hole_layers if fp.is_through_hole() else  pcb_smd_pad_layers,
+                            pinFunction = pin['name']
+                        )
+                    )
     
         # Internal Pins
         if 'internal_pins' in cell:

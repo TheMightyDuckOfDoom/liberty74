@@ -74,9 +74,11 @@ class Footprint:
         if 'through_hole' in footprint_json:
             self.through_hole = footprint_json['through_hole']
             self.hole_diameter = footprint_json['hole_diameter']
+            self.num_layers = technology_json['metal_layers']
         else:
             self.through_hole = False
             self.hole_diameter = 0
+            self.num_layers = 1
         if 'single_row' in footprint_json:
             self.single_row = footprint_json['single_row']
         else:
@@ -153,19 +155,32 @@ class Footprint:
     # Create Pin lef
     def __gen_pin_lefs(self):
         for i in range(0, int(self.num_pins)):
-            print(i)
+            #print(i)
             lef = ''
-            lef += f'      LAYER Metal1 ;\n'
-            lef += f'        ' + self.pins[i].to_lef()
+            for j in range(0, self.num_layers):
+                if j > 0:
+                    lef += f'\n'
+                lef += f'      LAYER Metal{j + 1} ;\n'
+                lef += f'        ' + self.pins[i].to_lef()
             self.pins_lef.append(lef)
 
         for i in range(0, int(self.num_pins)):
-            print(i)
-            lef = ''
-            lef += f'      LAYER Metal1 ;\n'
-            lef += f'        ' + self.pins[i].to_lef()
-            self.power_pins_lef.append(lef + f'\n        ' + self.power_pins[i * 2    ].to_lef())
-            self.power_pins_lef.append(lef + f'\n        ' + self.power_pins[i * 2 + 1].to_lef())
+            #print(i)
+            lef_1 = ''
+            lef_2 = ''
+            for j in range(0, self.num_layers):
+                if j > 0:
+                    lef_1 += f'\n'
+                    lef_2 += f'\n'
+                lef_1 += f'      LAYER Metal{j + 1} ;\n'
+                lef_1 += f'        ' + self.pins[i].to_lef()
+                lef_2 += f'      LAYER Metal{j + 1} ;\n'
+                lef_2 += f'        ' + self.pins[i].to_lef()
+                if j == 0:
+                    lef_1 += f'\n        ' + self.power_pins[i * 2    ].to_lef()
+                    lef_2 += f'\n        ' + self.power_pins[i * 2 + 1].to_lef()
+            self.power_pins_lef.append(lef_1)
+            self.power_pins_lef.append(lef_2)
 
     def get_pin_lef(self, pin_num):
         return self.pins_lef[pin_num - 1]

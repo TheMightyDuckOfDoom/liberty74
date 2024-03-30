@@ -1,0 +1,382 @@
+{
+    "LICENSE": [
+        "Copyright 2024 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
+    "library_name": "relay",
+    "corners": [
+        {
+            "name": "typ_12p00V_25C",
+            "process_name": "Typical",
+            "corner_group": "RELAY_12V",
+            "voltage": 12.0,
+            "temperature": 25.0,
+            "default_max_cap": 0.0,
+            "default_input_cap": 0.0,
+            "default_output_cap": 0.0
+        },
+        {
+            "name": "fast_12p00V_25C",
+            "process_name": "Fast",
+            "corner_group": "RELAY_12V",
+            "voltage": 12.0,
+            "temperature": 25.0,
+            "default_max_cap": 0.0,
+            "default_input_cap": 0.0,
+            "default_output_cap": 0.0
+        }
+    ],
+    "cells": [
+        {
+            "name": "TIE_HI",
+            "desc": "Tie High Cell",
+            "footprint": "tie_cell_footprint",
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 2,
+                    "function": "1",
+                    "use_power_pin_template": true
+                }
+            ]
+        },
+        {
+            "name": "TIE_LO",
+            "desc": "Tie Low Cell",
+            "footprint": "tie_cell_footprint",
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 1,
+                    "function": "0",
+                    "use_power_pin_template": true
+                }
+            ]
+        },
+        {
+            "name": "BUF_JY4100F_S_C",
+            "desc": "Single Buffer",
+            "footprint": "DIP10_RELAY_15_5x10_5mm",
+            "power": [
+                {
+                    "name": "TIE_HI",
+                    "connect_to_net": "VDD",
+                    "pin_number": 6,
+                    "function": "power"
+                },
+                {
+                    "name": "TIE_LO",
+                    "connect_to_net": "GND",
+                    "pin_number": 7,
+                    "function": "ground"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 5,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 8
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_numbers": [1, 12],
+                    "function": "A",
+                    "timing": [
+                        {
+                            "related_pin": "A",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  20,
+                                "fast_12p00V_25C": 12
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ZBUF_EN_JY4100F_S_C",
+            "desc": "Single Tristate Buffer with positive enable",
+            "footprint": "DIP10_RELAY_15_5x10_5mm",
+            "not_connected" : [
+                {
+                    "name": "NC",
+                    "pin_number": 7
+                }
+            ],
+            "power": [
+                {
+                    "name": "GND",
+                    "pin_number": 5,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "EN",
+                    "pin_number": 8
+                },
+                {
+                    "name": "A",
+                    "pin_number": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_numbers": [1, 12],
+                    "verilog_function": "EN ? A : 1'bZ",
+                    "function": "A",
+                    "three_state": "!EN",
+                    "timing": [
+                        {
+                            "related_pin": "EN",
+                            "timing_type": "three_state_enable",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  20,
+                                "fast_12p00V_25C": 12
+                            }
+                        },
+                        {
+                            "related_pin": "A",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  1,
+                                "fast_12p00V_25C": 1
+                            }
+                        }
+                    ]
+                }
+            ]
+        },{
+            "name": "ZBUF_JY4100F_S_C",
+            "desc": "Single Tristate Buffer",
+            "footprint": "DIP10_RELAY_15_5x10_5mm",
+            "not_connected" : [
+                {
+                    "name": "NC",
+                    "pin_number": 6
+                }
+            ],
+            "power": [
+                {
+                    "name": "GND",
+                    "pin_number": 5,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "EN_N",
+                    "pin_number": 8
+                },
+                {
+                    "name": "A",
+                    "pin_number": 7
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_numbers": [1, 12],
+                    "verilog_function": "!EN_N ? A : 1'bZ",
+                    "function": "A",
+                    "three_state": "EN_N",
+                    "timing": [
+                        {
+                            "related_pin": "EN_N",
+                            "timing_type": "three_state_enable",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  20,
+                                "fast_12p00V_25C": 12
+                            }
+                        },
+                        {
+                            "related_pin": "A",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  1,
+                                "fast_12p00V_25C": 1
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "INV_JY4100F_S_C",
+            "desc": "Single Inverter",
+            "footprint": "DIP10_RELAY_15_5x10_5mm",
+            "power": [
+                {
+                    "name": "TIE_HI",
+                    "connect_to_net": "VDD",
+                    "pin_number": 7,
+                    "function": "power"
+                },
+                {
+                    "name": "TIE_LO",
+                    "connect_to_net": "GND",
+                    "pin_number": 6,
+                    "function": "ground"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 5,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 8
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_numbers": [1, 12],
+                    "function": "!A",
+                    "timing": [
+                        {
+                            "related_pin": "A",
+                            "timing_sense": "negative_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  20,
+                                "fast_12p00V_25C": 12
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "AND2_JY4100F_S_C",
+            "desc": "2 Input AND",
+            "footprint": "DIP10_RELAY_15_5x10_5mm",
+            "power": [
+                {
+                    "name": "TIE_LO",
+                    "connect_to_net": "GND",
+                    "pin_number": 7,
+                    "function": "ground"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 5,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "A",
+                    "pin_number": 8
+                },
+                {
+                    "name": "B",
+                    "pin_number": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_numbers": [1, 12],
+                    "function": "A & B",
+                    "timing": [
+                        {
+                            "related_pin": "A",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  20,
+                                "fast_12p00V_25C": 12
+                            }
+                        },
+                        {
+                            "related_pin": "B",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  1,
+                                "fast_12p00V_25C": 1
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "MUX2_JY4100F_S_C",
+            "desc": "2 Input MUX",
+            "footprint": "DIP10_RELAY_15_5x10_5mm",
+            "power": [
+                {
+                    "name": "GND",
+                    "pin_number": 5,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "S",
+                    "pin_number": 8
+                },
+                {
+                    "name": "I0",
+                    "pin_number": 7
+                },
+                {
+                    "name": "I1",
+                    "pin_number": 6
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_numbers": [1, 12],
+                    "function": "(!S & I0) | (S & I1)",
+                    "timing": [
+                        {
+                            "related_pin": "S",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  20,
+                                "fast_12p00V_25C": 12
+                            }
+                        },
+                        {
+                            "related_pin": "I0",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  1,
+                                "fast_12p00V_25C": 1
+                            }
+                        },
+                        {
+                            "related_pin": "I1",
+                            "timing_sense": "positive_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "typ_12p00V_25C":  1,
+                                "fast_12p00V_25C": 1
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

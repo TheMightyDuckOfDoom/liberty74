@@ -6,13 +6,19 @@
 #SRC    		  	:= examples/${PROJECT}.v
 #PCB_WIDTH       := 100
 #PCB_HEIGHT      := 100
-PROJECT 		:= servisia
-SRC    		  	:= ../servisia/out/servisia.v
-PCB_WIDTH		:= 300
-PCB_HEIGHT		:= 200
-CONFIG 			:= config/cmos_config
-CORNER_GROUP  	:= CMOS_5V
+#CONFIG 			:= config/relay_config
+#CORNER_GROUP  	:= RELAY_12V
+#SYNTH_PROCESS 	:= Typical
+
+PROJECT 				:= servisia
+SRC    		  		:= ../servisia/out/servisia.v
+PCB_WIDTH				:= 300
+PCB_HEIGHT			:= 200
+CONFIG 					:= config/relay_config
+CORNER_GROUP  	:= RELAY_12V
 SYNTH_PROCESS 	:= Typical
+SYNTH_MAIN_LIB  := relay_typ_12p00V_25C
+SYNTH_LED       := 0
 
 all: gen_pdk
 
@@ -43,11 +49,11 @@ gen_pdk: pdk/.pdk openroad/out
 synth: gen_pdk
 	mkdir -p out
 	mkdir -p yosys/reports
-	echo "set TOP "${PROJECT}"\nset SRC "${SRC}"\nset CONFIG "${CONFIG}"\nset CORNER_GROUP "${CORNER_GROUP}"\nset PROCESS "${SYNTH_PROCESS}"\nsource yosys/synth.tcl" | yosys -C
-	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource post_synth.tcl" | openroad)
-	rm -rf slpp_all
-	rm -rf out/temp.v
-	cat yosys/reports/merge_area.rpt
+	echo "set TOP "${PROJECT}"\nset SRC "${SRC}"\nset CONFIG "${CONFIG}"\nset CORNER_GROUP "${CORNER_GROUP}"\nset PROCESS "${SYNTH_PROCESS}"\nset MAIN_LIB "${SYNTH_MAIN_LIB}"\nset LED "${SYNTH_LED}"\nsource yosys/synth.tcl" | yosys -C
+#cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource post_synth.tcl" | openroad)
+#rm -rf slpp_all
+#rm -rf out/temp.v
+#cat yosys/reports/merge_area.rpt
 
 dft:
 	rm -rf out/dft
@@ -66,7 +72,7 @@ chip_gui: gen_pdk
 	cd openroad && openroad -threads max -gui -log openroad.log start.tcl
 
 pcb: gen_pdk
-	python3 utils/def2pcb.py openroad/out/${PROJECT}.final.def openroad/out/merge_cell_*.def
+	python3 utils/def2pcb.py ${CONFIG} openroad/out/${PROJECT}.final.def openroad/out/merge_cell_*.def
 
 open_pcb:
 	pcbnew out/${PROJECT}.final.kicad_pcb

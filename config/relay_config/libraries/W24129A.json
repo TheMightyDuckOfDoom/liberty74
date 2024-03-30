@@ -1,0 +1,133 @@
+{
+    "LICENSE": [
+        "Copyright 2023 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
+    "library_name": "W24129A",
+    "corners": [
+        {
+            "name": "typ_5p00V_25C",
+            "process_name": "Typical",
+            "corner_group": "RELAY_12V",
+            "voltage": 5.0,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
+        }
+    ],
+    "bus_types": [
+        {
+            "name": "A_13_0",
+            "from": 13,
+            "to": 0
+        },
+        {
+            "name": "IO_8_1",
+            "from": 8,
+            "to": 1
+        }
+    ],
+    "cells": [
+        {
+            "name": "W24129A_35",
+            "desc": "16k x 8bit 35ns SRAM",
+            "footprint": "SO-28",
+            "memory": {
+                "chip_select":   "!CS_N",
+                "write_enable":  "!WE_N",
+                "output_enable": "!OE_N",
+                "address":       "A",
+                "data":          "IO",
+                "address_width": 14,
+                "word_width":    8
+            },
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 28,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 14,
+                    "function": "ground"
+                },
+                {
+                    "name": "NC",
+                    "connect_to_net": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "CS_N",
+                    "pin_number": 20
+                },
+                {
+                    "name": "WE_N",
+                    "pin_number": 27,
+                    "desc": "Should not change while CS_N is low"
+                },
+                {
+                    "name": "OE_N",
+                    "pin_number": 22,
+                    "desc": "Should not change while writing"
+                },
+                {
+                    "bus_name": "A",
+                    "bus_type": "A_13_0",
+                    "bus_pins": [10, 9, 8, 7, 6, 5, 4, 3, 25, 24, 21, 23, 2, 26]
+                }
+            ],
+            "inouts": [
+                {
+                    "bus_name": "IO",
+                    "bus_type": "IO_8_1",
+                    "bus_pins": [11, 12, 13, 15, 16, 17, 18, 19],
+                    "three_state": "CS_N | OE_N | !WE_N",
+                    "desc": "Should not change while writing",
+                    "timing": [
+                        {
+                            "desc": "Three State enable",
+                            "related_pin": "CS_N OE_N WE_N",
+                            "timing_type": "three_state_enable",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 17,
+                                "typ_5p00V_25C":  17,
+                                "fast_5p25V_0C":  17
+                            }
+                        },
+                        {
+                            "desc": "Address controlled read cycle",
+                            "related_pin": "A",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "when": "!CS_N & WE_N & !OE_N",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 35,
+                                "typ_5p00V_25C":  35,
+                                "fast_5p25V_0C":  35
+                            }
+                        },
+                        {
+                            "desc": "Chip select controlled read cycle",
+                            "related_pin": "CS_N",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "when": "WE_N & !OE_N",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 35,
+                                "typ_5p00V_25C":  35,
+                                "fast_5p25V_0C":  35
+                            }
+                        }   
+                    ]
+                }
+                
+            ]
+        }
+    ]
+}

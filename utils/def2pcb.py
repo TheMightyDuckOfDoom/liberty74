@@ -37,6 +37,7 @@ parser = argparse.ArgumentParser(
   prog='def2pcb',
   description='Generates a .kicad_pcb file from .def'
 )
+parser.add_argument('config', type=str, help='config folder')
 parser.add_argument('def_files', type=str, help='.def files', nargs='+', default=[])
 args = parser.parse_args()
 
@@ -199,7 +200,7 @@ pcb.graphicItems.append(
 
 # Layers
 pcb.layers = []
-tech_json = json.load(open('./config/technology.json'))
+tech_json = json.load(open(args.config + '/technology.json'))
 technology = tech_json['technology']
 
 wire_width = technology['wire_width']

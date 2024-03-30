@@ -1,18 +1,18 @@
 {
     "LICENSE": [
-        "Copyright 2023 Tobias Senti",
+        "Copyright 2024 Tobias Senti",
         "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
         "SPDX-License-Identifier: SHL-0.51"
     ],
     "technology": {
         "row_height_multiplier": 18,
         "metal_layers": 2,
-        "y_wire_pitch": 0.26,
-        "x_wire_pitch": 0.325,
-        "wire_width": 0.13,
-        "wire_spacing": 0.13,
-        "via_diameter": 0.3,
-        "via_annular_ring": 0.13,
+        "y_wire_pitch": 0.635,
+        "x_wire_pitch": 0.635,
+        "wire_width": 0.2,
+        "wire_spacing": 0.2,
+        "via_diameter": 0.5,
+        "via_annular_ring": 0.2,
         "via_hole_to_hole_spacing": 0.5
     },
     "pcb_stackup": {

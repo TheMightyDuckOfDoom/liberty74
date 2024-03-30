@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: SHL-0.51
 
 # Design Setup
-set routing_channels 1
+set routing_channels 0
 set drt_end_iter 60
 set open_results 1
 
-set endcap 1
+set endcap 0
+set multi_pcb 0
 
 set PCB_EDGE_MARGIN 5
 set PCB_TILE_SIZE             100
@@ -89,14 +90,14 @@ add_pdn_ring -grid {grid}     \
     -widths {1.00 1.00}     \
     -spacings {0.50 0.50}     \
     -pad_offsets {1.0 1.0 1.0 1.0}
-add_pdn_strip -grid grid -layer Metal1 -width 0.5 -followpins -extend_to_core_ring
-if { $NUM_X_PCB_TILES > 1} {
+add_pdn_strip -grid grid -layer Metal1 -width 1.0 -followpins -extend_to_core_ring
+if { $multi_pcb } {
   add_pdn_strip -grid grid -layer Metal2 -width 1.0 -pitch 100  -extend_to_core_ring -offset [expr $PCB_TILE_SIZE - $PCB_EDGE_MARGIN - ($PCB_TILE_ROUTING_MARGIN / 2)] -spacing [expr ($PCB_TILE_ROUTING_MARGIN / 2)]
 }
 #add_pdn_strip -grid grid -layer Metal2 -width 1.0 -pitch 200  -extend_to_core_ring -offset [expr -0.25 * $PCB_TILE_PLACEMENT_MARGIN - 1.0] -starts_with GROUND
 add_pdn_connect -layers {Metal1 Metal2} -fixed_vias {Via1_Power} -max_rows 1 -max_columns 1
 
-pdngen
+pdngen -skip_trim
 
 if { $routing_channels } {
   set rows [odb::dbBlock_getRows [ord::get_db_block]]
@@ -118,74 +119,77 @@ set cap_distance [expr $die_width / 3]
 if { $endcap } {
   tapcell -endcap_master PWR_CAP
 }
-set pwr_cap_master [odb::dbDatabase_findMaster [ord::get_db] "PWR_CAP"]
-odb::dbMaster_setType $pwr_cap_master "BLOCK"
-#cut_rows -halo_width_x 0 -halo_width_y 0
-#odb::dbMaster_setType $master "CORE"
 
-#gui::show
+if { $multi_pcb } {
+  set pwr_cap_master [odb::dbDatabase_findMaster [ord::get_db] "PWR_CAP"]
+  odb::dbMaster_setType $pwr_cap_master "BLOCK"
+  #cut_rows -halo_width_x 0 -halo_width_y 0
+  #odb::dbMaster_setType $master "CORE"
 
-set tech [ord::get_db_tech]
-set layer1 [odb::dbTech_findLayer $tech Metal1]
-set via1   [odb::dbTech_findLayer $tech Via1]
-set layer2 [odb::dbTech_findLayer $tech Metal2]
+  #gui::show
 
-set master [odb::dbDatabase_findMaster [ord::get_db] "TIE_HI"]
-set master_width  [odb::dbMaster_getWidth $master]
-set master_height [odb::dbMaster_getHeight $master]
-odb::dbMaster_setType $master "BLOCK"
+  set tech [ord::get_db_tech]
+  set layer1 [odb::dbTech_findLayer $tech Metal1]
+  set via1   [odb::dbTech_findLayer $tech Via1]
+  set layer2 [odb::dbTech_findLayer $tech Metal2]
 
-set inst [odb::dbInst_create [ord::get_db_block] $master "PCB_TILE"]
-odb::dbInst_setPlacementStatus $inst "PLACED"
+  set master [odb::dbDatabase_findMaster [ord::get_db] "TIE_HI"]
+  set master_width  [odb::dbMaster_getWidth $master]
+  set master_height [odb::dbMaster_getHeight $master]
+  odb::dbMaster_setType $master "BLOCK"
 
-odb::dbMaster_setHeight $master [ord::microns_to_dbu $PCB_HEIGHT]
-odb::dbMaster_setWidth  $master [ord::microns_to_dbu $PCB_TILE_PLACEMENT_MARGIN]
+  set inst [odb::dbInst_create [ord::get_db_block] $master "PCB_TILE"]
+  odb::dbInst_setPlacementStatus $inst "PLACED"
 
-for {set x 1} {$x < $NUM_X_PCB_TILES} {incr x} {
-  # Create Vertical Placement Blockages
-  set x0 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE + -$PCB_TILE_PLACEMENT_MARGIN / 2.0]]
+  odb::dbMaster_setHeight $master [ord::microns_to_dbu $PCB_HEIGHT]
+  odb::dbMaster_setWidth  $master [ord::microns_to_dbu $PCB_TILE_PLACEMENT_MARGIN]
 
-  odb::dbInst_setLocation $inst $x0 0
-  cut_rows -halo_width_x 0 -halo_width_y 0
+  for {set x 1} {$x < $NUM_X_PCB_TILES} {incr x} {
+    # Create Vertical Placement Blockages
+    set x0 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE + -$PCB_TILE_PLACEMENT_MARGIN / 2.0]]
 
-  # Create Vertical Routing Obstructions
-  set x0 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
-  set x1 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
-  set y0 [ord::microns_to_dbu 0]
-  set y1 [ord::microns_to_dbu $PCB_HEIGHT]
+    odb::dbInst_setLocation $inst $x0 0
+    cut_rows -halo_width_x 0 -halo_width_y 0
 
-  set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer2 $x0 $y0 $x1 $y1]
-  set obstruction [odb::dbObstruction_create [ord::get_db_block] $via1   $x0 $y0 $x1 $y1]
-  set bbox [list $x0 $y0 $x1 $y1]
-  puts "Vertical Obstruction: $x0 $y0 $x1 $y1"
+    # Create Vertical Routing Obstructions
+    set x0 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
+    set x1 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
+    set y0 [ord::microns_to_dbu 0]
+    set y1 [ord::microns_to_dbu $PCB_HEIGHT]
+
+    set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer2 $x0 $y0 $x1 $y1]
+    set obstruction [odb::dbObstruction_create [ord::get_db_block] $via1   $x0 $y0 $x1 $y1]
+    set bbox [list $x0 $y0 $x1 $y1]
+    puts "Vertical Obstruction: $x0 $y0 $x1 $y1"
+  }
+
+  odb::dbMaster_setHeight $master [ord::microns_to_dbu $PCB_TILE_PLACEMENT_MARGIN]
+  odb::dbMaster_setWidth  $master [ord::microns_to_dbu $PCB_WIDTH]
+
+  for {set y 1} {$y < $NUM_Y_PCB_TILES} {incr y} {
+    # Create Horizontal Placement Blockages
+    set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_PLACEMENT_MARGIN / 2.0]]
+
+    odb::dbInst_setLocation $inst 0 $y0
+    cut_rows -halo_width_x 0 -halo_width_y 0
+
+    # Create Horizontal Routing Obstructions
+    set x0 [ord::microns_to_dbu 0]
+    set x1 [ord::microns_to_dbu $PCB_WIDTH]
+    set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
+    set y1 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
+
+    set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer1 $x0 $y0 $x1 $y1]
+    set obstruction [odb::dbObstruction_create [ord::get_db_block] $via1   $x0 $y0 $x1 $y1]
+    puts "Horizontal Obstruction: $x0 $y0 $x1 $y1"
+  }
+
+  odb::dbMaster_setHeight $master $master_height
+  odb::dbMaster_setWidth  $master $master_width
+  odb::dbMaster_setType   $master "CORE"
+
+  odb::dbInst_destroy $inst
 }
-
-odb::dbMaster_setHeight $master [ord::microns_to_dbu $PCB_TILE_PLACEMENT_MARGIN]
-odb::dbMaster_setWidth  $master [ord::microns_to_dbu $PCB_WIDTH]
-
-for {set y 1} {$y < $NUM_Y_PCB_TILES} {incr y} {
-  # Create Horizontal Placement Blockages
-  set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_PLACEMENT_MARGIN / 2.0]]
-
-  odb::dbInst_setLocation $inst 0 $y0
-  cut_rows -halo_width_x 0 -halo_width_y 0
-
-  # Create Horizontal Routing Obstructions
-  set x0 [ord::microns_to_dbu 0]
-  set x1 [ord::microns_to_dbu $PCB_WIDTH]
-  set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
-  set y1 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
-
-  set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer1 $x0 $y0 $x1 $y1]
-  set obstruction [odb::dbObstruction_create [ord::get_db_block] $via1   $x0 $y0 $x1 $y1]
-  puts "Horizontal Obstruction: $x0 $y0 $x1 $y1"
-}
-
-odb::dbMaster_setHeight $master $master_height
-odb::dbMaster_setWidth  $master $master_width
-odb::dbMaster_setType   $master "CORE"
-
-odb::dbInst_destroy $inst
 
 #gui::show
 
@@ -224,9 +228,9 @@ gui::pause
 
 repair_clock_inverters
 placeDetail
-set ctsBuf [ list BUF_74LVC1G125 ]
-clock_tree_synthesis -root_buf $ctsBuf -buf_list $ctsBuf \
-                     -balance_levels -clk_nets clk_i
+set ctsBuf [ list BUF_JY4100F_S_C ]
+#clock_tree_synthesis -root_buf $ctsBuf -buf_list $ctsBuf \
+#                     -balance_levels -clk_nets clk_i
 
 set_propagated_clock [all_clocks]
 repair_clock_nets
@@ -250,29 +254,31 @@ check_placement -verbose
 
 global_route -verbose -allow_congestion
 
-set track_reduction 3
-for {set i 0} {$i < $track_reduction} {incr i} {
-  for {set x 1} {$x < $NUM_X_PCB_TILES} {incr x} {
-    # Create Horizontal Routing Obstructions
-    for {set y [expr $i * 0.26]} {$y < $PCB_HEIGHT} {set y [expr $y + ($track_reduction + 1) * 0.26]} {
-      set x0 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
-      set x1 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
-      set y0 [ord::microns_to_dbu [expr $y - 0.13 / 2]]
-      set y1 [ord::microns_to_dbu [expr $y + 0.13 / 2]]
+if { $multi_pcb } {
+  set track_reduction 3
+  for {set i 0} {$i < $track_reduction} {incr i} {
+    for {set x 1} {$x < $NUM_X_PCB_TILES} {incr x} {
+      # Create Horizontal Routing Obstructions
+      for {set y [expr $i * 0.26]} {$y < $PCB_HEIGHT} {set y [expr $y + ($track_reduction + 1) * 0.26]} {
+        set x0 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
+        set x1 [ord::microns_to_dbu [expr $x * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
+        set y0 [ord::microns_to_dbu [expr $y - 0.13 / 2]]
+        set y1 [ord::microns_to_dbu [expr $y + 0.13 / 2]]
 
-      set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer1 $x0 $y0 $x1 $y1]
+        set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer1 $x0 $y0 $x1 $y1]
+      }
     }
-  }
 
-  for {set y 1} {$y < $NUM_Y_PCB_TILES} {incr y} {
-    # Create Vertical Routing Obstructions
-    for {set x [expr $i * 0.325]} {$x < $PCB_WIDTH} {set x [expr $x + ($track_reduction + 1) * 0.325]} {
-      set x0 [ord::microns_to_dbu [expr $x - 0.13 / 2]]
-      set x1 [ord::microns_to_dbu [expr $x + 0.13 / 2]]
-      set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
-      set y1 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
+    for {set y 1} {$y < $NUM_Y_PCB_TILES} {incr y} {
+      # Create Vertical Routing Obstructions
+      for {set x [expr $i * 0.325]} {$x < $PCB_WIDTH} {set x [expr $x + ($track_reduction + 1) * 0.325]} {
+        set x0 [ord::microns_to_dbu [expr $x - 0.13 / 2]]
+        set x1 [ord::microns_to_dbu [expr $x + 0.13 / 2]]
+        set y0 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE + -$PCB_TILE_ROUTING_MARGIN / 2.0]]
+        set y1 [ord::microns_to_dbu [expr $y * $PCB_TILE_SIZE +  $PCB_TILE_ROUTING_MARGIN / 2.0]]
 
-      set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer2 $x0 $y0 $x1 $y1]
+        set obstruction [odb::dbObstruction_create [ord::get_db_block] $layer2 $x0 $y0 $x1 $y1]
+      }
     }
   }
 }
