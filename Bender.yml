@@ -10,9 +10,12 @@ package:
 sources:
   # Merge Cells
   - config/merge_cells/a22o.v
-  - config/merge_cells/dis_ff_led.v
-  - config/merge_cells/en_ff_led.v
-  - config/merge_cells/ff_led.v
+  - config/merge_cells/dis_dff_led.v
+  - config/merge_cells/dis_dffr_led.v
+  - config/merge_cells/en_dff_led.v
+  - config/merge_cells/en_dffr_led.v
+  - config/merge_cells/dff_led.v
+  - config/merge_cells/dffr_led.v
   - config/merge_cells/mux2_and.v
   - config/merge_cells/mux2_ands.v
   - config/merge_cells/mux3.v
@@ -33,9 +36,11 @@ sources:
       - pdk/verilog/74lvc1g.v
       - pdk/verilog/74vhc.v
       - pdk/verilog/AM29.v
+      - pdk/verilog/AS6C.v
       - pdk/verilog/DS9808.v
       - pdk/verilog/LCD.v
       - pdk/verilog/Led.v
+      - pdk/verilog/SST39SF.v
       - pdk/verilog/W24129A.v
 
   - target: any(SIM, SIM_SYNTH)
@@ -43,7 +48,9 @@ sources:
       - pdk/verilog/74lvc1g.v
       - pdk/verilog/74vhc.v
       - pdk/verilog/AM29.v
+      - pdk/verilog/AS6C.v
       - pdk/verilog/DS9808.v
       - pdk/verilog/LCD.v
       - pdk/verilog/Led.v
+      - pdk/verilog/SST39SF.v
       - pdk/verilog/W24129A.v

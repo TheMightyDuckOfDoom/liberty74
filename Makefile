@@ -2,16 +2,16 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-#PROJECT 		:= test
-#SRC    		  	:= examples/${PROJECT}.v
-#PCB_WIDTH       := 100
-#PCB_HEIGHT      := 100
-PROJECT 		:= servisia
+#PROJECT 				:= slice
+#SRC    		  		:= examples/${PROJECT}.v
+#PCB_WIDTH       := 200
+#PCB_HEIGHT      := 200
+PROJECT 			:= servisia
 SRC    		  	:= ../servisia/out/servisia.v
-PCB_WIDTH		:= 300
-PCB_HEIGHT		:= 200
-CORNER_GROUP  	:= CMOS_5V
-SYNTH_PROCESS 	:= Typical
+PCB_WIDTH			:= 300
+PCB_HEIGHT		:= 300
+CORNER_GROUP 	:= CMOS_5V
+SYNTH_PROCESS	:= Typical
 
 all: gen_pdk
 

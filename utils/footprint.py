@@ -146,8 +146,14 @@ class Footprint:
             x -= self.x_center_spacing
             for i in range(0, int(self.num_pins / 2)):
                 self.pins.append(Rect(x, y_offset + self.y_center_spacing, self.pad_width, self.pad_height))
-                self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset + self.y_center_spacing + self.pad_height, x + self.pad_width * 0.75, self.cell_height - technology_json['row_height']))
-                self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset + self.y_center_spacing, x + self.pad_width * 0.75, self.cell_height))
+                if (self.cell_height_in_rows % 2 == 1):
+                    # Odd number of rows
+                    self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset + self.y_center_spacing + self.pad_height, x + self.pad_width * 0.75, self.cell_height - technology_json['row_height']))
+                    self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset + self.y_center_spacing, x + self.pad_width * 0.75, self.cell_height))
+                else:
+                    # Even number of rows -> Flip power pins
+                    self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset + self.y_center_spacing, x + self.pad_width * 0.75, self.cell_height))
+                    self.power_pins.append(Rect.from_x1y1_x2y2(x + self.pad_width * 0.25, y_offset + self.y_center_spacing + self.pad_height, x + self.pad_width * 0.75, self.cell_height - technology_json['row_height']))
                 x -= self.x_center_spacing
 
     # Create Pin lef

@@ -1,0 +1,147 @@
+{
+    "LICENSE": [
+        "Copyright 2024 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
+    "library_name": "SST39SF",
+    "corners": [
+        {
+            "name": "typ_5p00V_25C",
+            "process_name": "Typical",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
+        },
+        {
+            "name": "slow_4p75V_70C",
+            "process_name": "Slow",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 70.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
+        },
+        {
+            "name": "fast_5p25V_0C",
+            "process_name": "Fast",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 0.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 8.0,
+            "default_inout_cap": 10.0
+        }
+    ],
+    "bus_types": [
+        {
+            "name": "A_18_0",
+            "from": 18,
+            "to": 0
+        },
+        {
+            "name": "DQ_7_0",
+            "from": 7,
+            "to": 0
+        }
+    ],
+    "cells": [
+        {
+            "name": "SST39SF040_70_DIP",
+            "desc": "4MBit 8bit flash 70ns FLASH",
+            "footprint": "DIP-32",
+            "memory": {
+                "chip_select":   "!CE_N",
+                "write_enable":  "1'b0",
+                "output_enable": "!OE_N",
+                "address":       "A",
+                "data":          "DQ",
+                "address_width": 19,
+                "word_width":    8
+            },
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 32,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 16,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "name": "CE_N",
+                    "pin_number": 22
+                },
+                {
+                    "name": "WE_N",
+                    "pin_number": 31,
+                    "desc": "Should not change while CE_N is low"
+                },
+                {
+                    "name": "OE_N",
+                    "pin_number": 24,
+                    "desc": "Should not change while writing"
+                },
+                {
+                    "bus_name": "A",
+                    "bus_type": "A_18_0",
+                    "bus_pins": [12, 11, 10, 9, 8, 7, 6, 5, 27, 26, 23, 25, 4, 28, 29, 3, 2, 30, 1]
+                }
+            ],
+            "inouts": [
+                {
+                    "bus_name": "DQ",
+                    "bus_type": "DQ_7_0",
+                    "bus_pins": [13, 14, 15, 17, 18, 19, 20, 21],
+                    "three_state": "CE_N | OE_N | !WE_N",
+                    "desc": "Should not change while writing",
+                    "timing": [
+                        {
+                            "desc": "Three State enable",
+                            "related_pin": "CE_N OE_N WE_N",
+                            "timing_type": "three_state_enable",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 25,
+                                "typ_5p00V_25C":  25,
+                                "fast_5p25V_0C":  25
+                            }
+                        },
+                        {
+                            "desc": "Address controlled read cycle",
+                            "related_pin": "A",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "when": "!CE_N & WE_N & !OE_N",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 70,
+                                "typ_5p00V_25C":  70,
+                                "fast_5p25V_0C":  70
+                            }
+                        },
+                        {
+                            "desc": "Chip enable controlled read cycle",
+                            "related_pin": "CE_N",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "when": "WE_N & !OE_N",
+                            "delays_rise_fall": {
+                                "slow_4p75V_70C": 70,
+                                "typ_5p00V_25C":  70,
+                                "fast_5p25V_0C":  70
+                            }
+                        }   
+                    ]
+                }
+            ],
+            "outputs": []
+        }
+    ]
+}

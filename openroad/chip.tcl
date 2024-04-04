@@ -18,7 +18,7 @@ set NUM_Y_PCB_TILES [expr floor(double($PCB_HEIGHT) / double($PCB_TILE_SIZE))]
 
 if { $routing_channels } {
   if { $endcap } {
-    set density 0.79
+    set density 0.70
   } else {
     set density 0.78
   }
@@ -45,7 +45,7 @@ foreach pin [delete_from_list [get_pins i_servisia_mem__i_sram/*] [get_pins i_se
   set_data_check -hold  0 -rise_from [get_pins i_servisia_mem__i_sram/CS_N] -to $pin
 }
 
-set_false_path -through [get_pins i_servisia_mem__i_flash/A*] -to [get_pins i_servisia_mem__i_sram/IO*]
+set_false_path -through [get_pins i_servisia_mem__i_flash/A*] -to [get_pins i_servisia_mem__i_sram/DQ*]
 
 report_checks -corner Fast    -path_delay min
 report_checks -corner Typical -path_delay max

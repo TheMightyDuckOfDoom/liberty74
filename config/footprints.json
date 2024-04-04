@@ -113,6 +113,16 @@
             "pad_width": 1.7,
             "x_center_spacing": 2.54,
             "y_center_spacing": 0
+        },
+        {
+            "names": ["DIP-32"],
+            "num_pins": 32,
+            "through_hole": true,
+            "hole_diameter": 1.0,
+            "pad_height": 1.7,
+            "pad_width": 1.7,
+            "x_center_spacing": 2.54,
+            "y_center_spacing": 15.24
         }
     ]
 }
