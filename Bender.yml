@@ -21,6 +21,7 @@ sources:
   - config/merge_cells/mux3.v
   - config/merge_cells/mux3s.v
   - config/merge_cells/mux4.v
+  - config/merge_cells/reset_gen.v
   - config/merge_cells/sdff_dis_led.v
   - config/merge_cells/sdff_en_led.v
   - config/merge_cells/sdff_led.v
