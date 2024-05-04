@@ -22,6 +22,96 @@ proc load_merge_cells {} {
   }
 }
 
+proc connect_scan_chain {} {
+  # Get scan flip-flops
+  set insts [odb::dbBlock_getInsts [ord::get_db_block]]
+  
+  set scan_ffs [list]
+  foreach inst $insts {
+    set name [odb::dbInst_getName $inst]
+    if {[string match "scan_chain_*" $name]} {
+      lappend scan_ffs $inst
+    }
+  }
+  puts "Found [llength $scan_ffs] scan flip-flops"
+
+  # Get x and y positions
+  set x_pos [list]
+  set y_pos [list]
+  foreach inst $scan_ffs {
+    set location [odb::dbInst_getLocation $inst]
+    lappend x_pos [lindex $location 0]
+    lappend y_pos [lindex $location 1]
+  }
+
+  # Get Scan Chain data pins
+  set d_i_bterm [odb::dbBlock_findBTerm [ord::get_db_block] "scan_d_i"]
+  set d_o_bterm [odb::dbBlock_findBTerm [ord::get_db_block] "scan_d_o"]
+
+  set d_i_net [odb::dbBTerm_getNet $d_i_bterm]
+
+  set d_i_pin [lindex [odb::dbBTerm_getBPins $d_i_bterm] 0]
+  set d_i_rect [odb::dbBPin_getBBox $d_i_pin]
+
+  set d_i_x_pos [odb::Rect_xCenter $d_i_rect]
+  set d_i_y_pos [odb::Rect_yCenter $d_i_rect]
+
+  puts "Scan Chain d_i at ($d_i_x_pos $d_i_y_pos)"
+
+  # Nearest Neighbor
+  set scan_chain [list]
+  set last_x $d_i_x_pos
+  set last_y $d_i_y_pos
+  set num_ffs [llength $scan_ffs]
+  for {set k 0} {$k < $num_ffs} {incr k} {
+    puts "Iteration $k [llength $scan_ffs]"
+
+    # Find closest scan flip-flop
+    set min_dist 0
+    set closest_i -1
+    for {set i 0} {$i < [llength $scan_ffs]} {incr i} {
+      set x [lindex $x_pos $i]
+      set y [lindex $y_pos $i]
+      set dist [expr ($x - $last_x)*($x - $last_x) + ($y - $last_y)*($y - $last_y)]
+      if {$dist < $min_dist || $min_dist == 0} {
+        set min_dist $dist
+        set closest_i $i
+      }
+    }
+
+    puts "Closest scan flip-flop $closest_i at ([lindex $x_pos $closest_i] [lindex $y_pos $closest_i])"
+
+    # Add to scan chain
+    lappend scan_chain [lindex $scan_ffs $closest_i]
+
+    # Update last position
+    set last_x [lindex $x_pos $closest_i]
+    set last_y [lindex $y_pos $closest_i]
+
+    # Remove from list
+    set x_pos    [lreplace $x_pos    $closest_i $closest_i]
+    set y_pos    [lreplace $y_pos    $closest_i $closest_i]
+    set scan_ffs [lreplace $scan_ffs $closest_i $closest_i]
+  }
+
+  # Print scan chain
+  puts "Scan Chain:"
+  foreach inst $scan_chain {
+    puts [odb::dbInst_getName $inst]
+  }
+
+  # Connect scan chain input
+  odb::dbITerm_connect [odb::dbInst_findITerm [lindex $scan_chain 0  ] "scan_d_i"] $d_i_net
+
+  # Connect scan chain output
+  odb::dbBTerm_connect $d_o_bterm [odb::dbITerm_getNet [odb::dbInst_findITerm [lindex $scan_chain end] "q_o"]]
+
+  # Connect scan chain FFs
+  for {set i 0} {$i < [llength $scan_chain]-1} {incr i} {
+    odb::dbITerm_connect [odb::dbInst_findITerm [lindex $scan_chain $i] "scan_d_i"] [odb::dbITerm_getNet [odb::dbInst_findITerm [lindex $scan_chain [expr $i+1]] "q_o"]]
+  }
+}
+
 proc placeDetail {} {
   detailed_placement
   set block [ord::get_db_block]

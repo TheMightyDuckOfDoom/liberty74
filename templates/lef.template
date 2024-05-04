@@ -152,6 +152,11 @@ ${footprints[cell["footprint"]]["power_pin_lef_template"][pin["pin_number"] * 2]
   END ${pin["name"]}
     % endfor
   % endif
+  % if footprints[cell["footprint"]]["obstructions"] != "":
+  OBS
+${footprints[cell["footprint"]]["obstructions"]}
+  END
+  % endif
 END ${cell["name"]}
 
 % endfor

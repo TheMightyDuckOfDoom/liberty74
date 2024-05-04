@@ -87,6 +87,7 @@ for fp in footprints:
     footprints[fp]['cell_height'] = new_fps[fp].get_cell_height()
     footprints[fp]['cell_width'] = new_fps[fp].get_cell_width()
     footprints[fp]['single_row'] = new_fps[fp].is_single_row()
+    footprints[fp]['obstructions'] = new_fps[fp].get_obstruction_lef()
 
     # Loop over pins
     for i in range(1, footprints[fp]['num_pins'] + 1):
@@ -403,7 +404,7 @@ for config_name in library_json:
                     KiPad(
                         number = pin_number,
                         type = 'thru_hole' if fp.is_through_hole() else 'smd',
-                        shape = 'oval' if fp.is_through_hole() else 'rect',
+                        shape = 'rect',
                         position = pin_rect.get_center_kiposition_inv_y(),
                         size = pin_rect.get_size_kiposition(),
                         drill = drill,
@@ -452,7 +453,7 @@ for config_name in library_json:
                         KiPad(
                             number = pin_number,
                             type = 'thru_hole' if fp.is_through_hole() else 'smd',
-                            shape = 'oval' if fp.is_through_hole() else 'rect',
+                            shape = 'rect',
                             position = pin_rect.get_center_kiposition_inv_y(),
                             size = pin_rect.get_size_kiposition(),
                             drill = drill,
@@ -475,7 +476,7 @@ for config_name in library_json:
                     KiPad(
                         number = pin_number,
                         type = 'thru_hole' if fp.is_through_hole() else 'smd',
-                        shape = 'oval' if fp.is_through_hole() else 'rect',
+                        shape = 'rect',
                         position = pin_rect.get_center_kiposition_inv_y(),
                         size = pin_rect.get_size_kiposition(),
                         drill = drill,
@@ -499,7 +500,7 @@ for config_name in library_json:
                 kifp.pads.append(
                     KiPad(
                         type = 'thru_hole' if fp.is_through_hole() else 'smd',
-                        shape = 'oval' if fp.is_through_hole() else 'rect',
+                        shape = 'rect',
                         position = pin_rect.get_center_kiposition_inv_y(),
                         size = pin_rect.get_size_kiposition(),
                         drill = drill,
@@ -535,7 +536,7 @@ for config_name in library_json:
                 kifp.pads.append(
                     KiPad(
                         type = 'thru_hole' if fp.is_through_hole() else 'smd',
-                        shape = 'oval' if fp.is_through_hole() else 'rect',
+                        shape = 'rect',
                         position = center,
                         size = pin_rect.get_size_kiposition(),
                         drill = drill,

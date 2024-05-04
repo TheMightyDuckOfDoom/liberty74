@@ -83,26 +83,38 @@
         {
             "name": "TIE_HI",
             "desc": "Tie High Cell",
-            "footprint": "tie_cell_footprint",
+            "footprint": "R0603",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 2,
+                    "function": "power"
+                }
+            ],
             "outputs": [
                 {
                     "name": "Y",
-                    "pin_number": 2,
-                    "function": "1",
-                    "use_power_pin_template": true
+                    "pin_number": 1,
+                    "function": "1"
                 }
             ]
         },
         {
             "name": "TIE_LO",
             "desc": "Tie Low Cell",
-            "footprint": "tie_cell_footprint",
+            "footprint": "R0603",
+            "power": [
+                {
+                    "name": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                }
+            ],
             "outputs": [
                 {
                     "name": "Y",
-                    "pin_number": 1,
-                    "function": "0",
-                    "use_power_pin_template": true
+                    "pin_number": 2,
+                    "function": "0"
                 }
             ]
         },

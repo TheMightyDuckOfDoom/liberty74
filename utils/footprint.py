@@ -101,9 +101,11 @@ class Footprint:
         self.pins_lef = []
         self.power_pins = []
         self.power_pins_lef = []
+        self.obstruction_lef = ''
 
         self.__create_pins(technology_json)
-        self.__gen_pin_lefs()
+        self.__gen_pin_lefs(technology_json)
+        self.__gen_obstructions(technology_json)
 
     # Init Multiple Footprints
     def from_json(footprint_json, technology_json):
@@ -157,21 +159,57 @@ class Footprint:
                 x -= self.x_center_spacing
 
     # Create Pin lef
-    def __gen_pin_lefs(self):
+    def __gen_pin_lefs(self, technology_json):
         for i in range(0, int(self.num_pins)):
-            print(i)
-            lef = ''
-            lef += f'      LAYER Metal1 ;\n'
-            lef += f'        ' + self.pins[i].to_lef()
-            self.pins_lef.append(lef)
+            if self.through_hole:
+                print(i)
+                lef = ''
+                for layer in range(1, technology_json['metal_layers'] + 1):
+                    if(layer > 1):
+                        lef += '\n'
+                    lef += f'      LAYER Metal{layer} ;\n'
+                    lef += f'        ' + self.pins[i].to_lef()
+                print(lef)
+                self.pins_lef.append(lef)
+            else:
+                lef = ''
+                lef += f'      LAYER Metal1 ;\n'
+                lef += f'        ' + self.pins[i].to_lef()
+                self.pins_lef.append(lef)
 
         for i in range(0, int(self.num_pins)):
-            print(i)
-            lef = ''
-            lef += f'      LAYER Metal1 ;\n'
-            lef += f'        ' + self.pins[i].to_lef()
-            self.power_pins_lef.append(lef + f'\n        ' + self.power_pins[i * 2    ].to_lef())
-            self.power_pins_lef.append(lef + f'\n        ' + self.power_pins[i * 2 + 1].to_lef())
+            for k in range(0, 2):
+                if self.through_hole:
+                    print(i)
+                    lef = ''
+                    for layer in range(1, technology_json['metal_layers'] + 1):
+                        if(layer > 1):
+                            lef += '\n'
+                        lef += f'      LAYER Metal{layer} ;\n'
+                        lef += f'        ' + self.pins[i].to_lef()
+                        if layer == 1:
+                            lef += f'\n        ' + self.power_pins[i * 2 + k].to_lef()
+                    print(lef)
+                    self.power_pins_lef.append(lef)
+                else:
+                    lef = ''
+                    lef += f'      LAYER Metal1 ;\n'
+                    lef += f'        ' + self.pins[i].to_lef()
+                    lef += f'\n        ' + self.power_pins[i * 2 + k].to_lef()
+                    self.power_pins_lef.append(lef)
+
+    # Generate Obstructions
+    def __gen_obstructions(self, technology_json):
+        if self.through_hole:
+            for via_layer in range(1, int(technology_json['metal_layers'] / 2) + 1):
+                if via_layer > 1:
+                    self.obstruction_lef += '\n'
+                self.obstruction_lef += f'    LAYER Via{via_layer} ;'
+                for i in range(0, int(self.num_pins)):
+                    self.obstruction_lef += f'\n      ' + self.pins[i].to_lef()
+
+    def get_obstruction_lef(self):
+        return self.obstruction_lef
 
     def get_pin_lef(self, pin_num):
         return self.pins_lef[pin_num - 1]

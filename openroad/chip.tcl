@@ -30,7 +30,7 @@ if { $routing_channels } {
     }
   } else {
     if { $endcap } {
-      set density 0.70
+      set density 0.52
     } else {
       set density 0.78
     }
@@ -231,6 +231,11 @@ global_placement -density $density
 repair_design
 improve_placement
 placeDetail
+
+# Scan Chain
+if { $SCAN_CHAIN } {
+  connect_scan_chain
+}
 
 write_def out/$design_name.placed.def
 #gui::show

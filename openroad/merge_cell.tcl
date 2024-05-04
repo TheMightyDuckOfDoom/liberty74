@@ -16,6 +16,7 @@ set insts [odb::dbBlock_getInsts $block]
 # Determine die size -> Put all instances next to each other
 set width 0
 set height 0
+set inst_names [list]
 foreach inst $insts {
     set master [odb::dbInst_getMaster $inst]
     set inst_height [odb::dbMaster_getHeight $master]
@@ -25,15 +26,22 @@ foreach inst $insts {
 
     set inst_width [odb::dbMaster_getWidth $master]
     set width [expr {$width + $inst_width / 1000.0}]
+
+    lappend inst_names [odb::dbInst_getName $inst]
 }
 
 # Initialize floorplan and make tracks
 initialize_floorplan -site $site -die_area "0 0 $width $height" -core_area "0 0 $width $height"
 source ../pdk/openroad/make_tracks.tcl
 
+# Sort instance names
+set inst_names [lsort $inst_names]
+
 # Place instances
 set x 0.0
-foreach inst $insts {
+foreach inst_name $inst_names {
+    set inst [odb::dbBlock_findInst $block $inst_name]
+
     set master [odb::dbInst_getMaster $inst]
     set inst_width [odb::dbMaster_getWidth $master]
     

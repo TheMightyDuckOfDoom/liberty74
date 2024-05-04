@@ -111,6 +111,9 @@ hilomap -singleton -hicell TIE_HI Y -locell TIE_LO Y
 
 stat -width -liberty $MAIN_LIB
 
+# Extract Reset Generator -> Do not want to merge this cell(no leds, no scan chain)
+extract -map config/merge_cells/reset_gen.v
+
 # Add leds
 extract -map yosys/extract/dff_led_dummy.v
 extract -map yosys/extract/dffr_led_dummy.v
