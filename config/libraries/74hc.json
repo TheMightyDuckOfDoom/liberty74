@@ -1,0 +1,163 @@
+{
+    "LICENSE": [
+        "Copyright 2024 Tobias Senti",
+        "Solderpad Hardware License, Version 0.51, see LICENSE for details.",
+        "SPDX-License-Identifier: SHL-0.51"
+    ],
+    "library_name": "74hc",
+    "corners": [
+        {
+            "name": "typ_5p00V_25C",
+            "process_name": "Typical",
+            "corner_group": "CMOS_5V",
+            "voltage": 5.0,
+            "temperature": 25.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "slow_4p50V_85C",
+            "process_name": "Slow",
+            "corner_group": "CMOS_5V",
+            "voltage": 4.5,
+            "temperature": 85.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        },
+        {
+            "name": "fast_6p00V_m40C",
+            "process_name": "Fast",
+            "corner_group": "CMOS_5V",
+            "voltage": 6.0,
+            "temperature": -40.0,
+            "default_max_cap": 50.0,
+            "default_input_cap": 4.0,
+            "default_output_cap": 6.0
+        }
+    ],
+    "bus_types": [
+        {
+            "name": "I_7_0",
+            "from": 7,
+            "to": 0
+        },
+        {
+            "name": "S_2_0",
+            "from": 2,
+            "to": 0
+        }
+    ],
+    "cells": [
+        {
+            "name": "MUX8_74HC151",
+            "desc": "8 Input Multiplexer",
+            "footprint": "TSSOP-16",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 16,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 8,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "bus_name": "I",
+                    "bus_type": "I_7_0",
+                    "bus_pins": [4, 3, 2, 1, 15, 14, 13, 12]
+                },
+                {
+                    "bus_name": "S",
+                    "bus_type": "S_2_0",
+                    "bus_pins": [11, 10, 9]
+                },
+                {
+                    "name": "EN_N",
+                    "pin_number": 7
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 5,
+                    "function": "(I[0]&!S[0]&!S[1]&!S[2]&!EN_N) | (I[1]&S[0]&!S[1]&!S[2]&!EN_N) | (I[2]&!S[0]&S[1]&!S[2]&!EN_N) | (I[3]&S[0]&S[1]&!S[2]&!EN_N) | (I[4]&!S[0]&!S[1]&S[2]&!EN_N) | (I[5]&S[0]&!S[1]&S[2]&!EN_N) | (I[6]&!S[0]&S[1]&S[2]&!EN_N) | (I[7]&S[0]&S[1]&S[2]&!EN_N)",
+                    "timing": [
+                        {
+                            "related_pin": "I",
+                            "timing_sense": "no_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  43,
+                                "typ_5p00V_25C":   17,
+                                "fast_6p00V_m40C": 15
+                            }
+                        },
+                        {
+                            "related_pin": "S",
+                            "timing_sense": "no_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  46,
+                                "typ_5p00V_25C":   19,
+                                "fast_6p00V_m40C": 18
+                            }
+                        },
+                        {
+                            "related_pin": "EN_N",
+                            "timing_sense": "no_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  31,
+                                "typ_5p00V_25C":   12,
+                                "fast_6p00V_m40C": 12
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Y_N",
+                    "pin_number": 6,
+                    "function": "!((I[0]&!S[0]&!S[1]&!S[2]&!EN_N) | (I[1]&S[0]&!S[1]&!S[2]&!EN_N) | (I[2]&!S[0]&S[1]&!S[2]&!EN_N) | (I[3]&S[0]&S[1]&!S[2]&!EN_N) | (I[4]&!S[0]&!S[1]&S[2]&!EN_N) | (I[5]&S[0]&!S[1]&S[2]&!EN_N) | (I[6]&!S[0]&S[1]&S[2]&!EN_N) | (I[7]&S[0]&S[1]&S[2]&!EN_N))",
+                    "timing": [
+                        {
+                            "related_pin": "I",
+                            "timing_sense": "no_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  46,
+                                "typ_5p00V_25C":   17,
+                                "fast_6p00V_m40C": 17
+                            }
+                        },
+                        {
+                            "related_pin": "S",
+                            "timing_sense": "no_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  51,
+                                "typ_5p00V_25C":   19,
+                                "fast_6p00V_m40C": 18
+                            }
+                        },
+                        {
+                            "related_pin": "EN_N",
+                            "timing_sense": "no_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  36,
+                                "typ_5p00V_25C":   14,
+                                "fast_6p00V_m40C": 14
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

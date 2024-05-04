@@ -72,9 +72,152 @@
             "name": "BUS_7_0",
             "from": 7,
             "to": 0
+        },
+        {
+            "name": "BUS_3_0",
+            "from": 3,
+            "to": 0
+        },
+        {
+            "name": "BUS_1_0",
+            "from": 1,
+            "to": 0
         }
     ],
     "cells": [
+        {
+            "name": "MUX4x2_74VHC153",
+            "desc": "Dual 4 input with single select input multiplexer",
+            "footprint": "TSSOP-16",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 16,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 8,
+                    "function": "ground"
+                }
+            ],
+            "inputs": [
+                {
+                    "bus_name": "S",
+                    "bus_type": "BUS_1_0",
+                    "bus_pins": [14, 2]
+                },
+                {
+                    "bus_name": "EN_N",
+                    "bus_type": "BUS_1_0",
+                    "bus_pins": [1, 15]
+                },
+                {
+                    "bus_name": "I1",
+                    "bus_type": "BUS_3_0",
+                    "bus_pins": [6, 5, 4, 3]
+                },
+                {
+                    "bus_name": "I2",
+                    "bus_type": "BUS_3_0",
+                    "bus_pins": [10, 11, 12, 13]
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y1",
+                    "pin_number": 7,
+                    "function": "(I1[0]&!S[0]&!S[1]&!EN_N[0]) | (I1[1]&S[0]&!S[1]&!EN_N[0]) | (I1[2]&!S[0]&S[1]&!EN_N[0]) | (I1[3]&S[0]&S[1]&!EN_N[0])",
+                    "timing": [
+                        {
+                            "related_pin": "S",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  11.5,
+                                "typ_5p00V_25C":   6.8,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  19.5,
+                                "typ_3p30V_25C":   10.8,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        },
+                        {
+                            "related_pin": "I1",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  9.0,
+                                "typ_5p00V_25C":   5.0,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  14.0,
+                                "typ_3p30V_25C":   7.7,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        },
+                        {
+                            "related_pin": "EN_N",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  7.5,
+                                "typ_5p00V_25C":   4.4,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  12.0,
+                                "typ_3p30V_25C":   6.3,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Y2",
+                    "pin_number": 7,
+                    "function": "(I2[0]&!S[0]&!S[1]&!EN_N[1]) | (I2[1]&S[0]&!S[1]&!EN_N[1]) | (I2[2]&!S[0]&S[1]&!EN_N[1]) | (I2[3]&S[0]&S[1]&!EN_N[1])",
+                    "timing": [
+                        {
+                            "related_pin": "S",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  11.5,
+                                "typ_5p00V_25C":   6.8,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  19.5,
+                                "typ_3p30V_25C":   10.8,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        },
+                        {
+                            "related_pin": "I2",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  9.0,
+                                "typ_5p00V_25C":   5.0,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  14.0,
+                                "typ_3p30V_25C":   7.7,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        },
+                        {
+                            "related_pin": "EN_N",
+                            "timing_sense": "non_unate",
+                            "timing_type": "combinational",
+                            "delays_rise_fall" : {
+                                "slow_4p50V_85C":  7.5,
+                                "typ_5p00V_25C":   4.4,
+                                "fast_5p50V_m40C": 1.0,
+                                "slow_3p00V_85C":  12.0,
+                                "typ_3p30V_25C":   6.3,
+                                "fast_3p60V_m40C": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
         {
             "name": "DFFZ8_74VHC574",
             "desc": "Octal positive D-type FF with tristate outputs",

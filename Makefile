@@ -2,8 +2,8 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-#PROJECT 				:= slice
-#SRC    		  		:= examples/${PROJECT}.v
+#PROJECT 				:= clb
+#SRC    		  		:= ../pcbfpga/out/${PROJECT}.v
 #PCB_WIDTH       := 200
 #PCB_HEIGHT      := 200
 PROJECT 			:= servisia
