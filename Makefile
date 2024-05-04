@@ -6,12 +6,13 @@
 #SRC    		  		:= ../pcbfpga/out/${PROJECT}.v
 #PCB_WIDTH       := 200
 #PCB_HEIGHT      := 200
-PROJECT 			:= servisia
-SRC    		  	:= ../servisia/out/servisia.v
-PCB_WIDTH			:= 300
-PCB_HEIGHT		:= 300
-CORNER_GROUP 	:= CMOS_5V
-SYNTH_PROCESS	:= Typical
+PROJECT 			?= servisia
+SRC						?= ../servisia/out/servisia.v
+PCB_WIDTH			?= 300
+PCB_HEIGHT		?= 300
+CORNER_GROUP 	?= CMOS_5V
+SYNTH_PROCESS	?= Typical
+SCAN_CHAIN   	?= 1
 
 all: gen_pdk
 
@@ -43,10 +44,9 @@ synth: gen_pdk
 	mkdir -p out
 	mkdir -p yosys/reports
 	echo "set TOP "${PROJECT}"\nset SRC "${SRC}"\nset CORNER_GROUP "${CORNER_GROUP}"\nset PROCESS "${SYNTH_PROCESS}"\nsource yosys/synth.tcl" | yosys -C
-	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nsource post_synth.tcl" | openroad)
+	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nset SCAN_CHAIN ${SCAN_CHAIN}\nsource post_synth.tcl" | openroad)
 	rm -rf slpp_all
-	rm -rf out/temp.v
-	cat yosys/reports/merge_area.rpt
+#rm -rf out/temp.v
 
 dft:
 	rm -rf out/dft
@@ -58,10 +58,10 @@ dft:
 	cd out/dft && fault -c cells.sv -v 1 -r 1 -m 95 --ceiling 1 --clock clk_i ${PROJECT}.cut.v
 
 chip: gen_pdk
-	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nset PCB_WIDTH "${PCB_WIDTH}"\nset PCB_HEIGHT "${PCB_HEIGHT}"\nsource chip.tcl" | openroad -threads max -log openroad.log)
+	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nset PCB_WIDTH "${PCB_WIDTH}"\nset PCB_HEIGHT "${PCB_HEIGHT}"\nset SCAN_CHAIN "${SCAN_CHAIN}"\nsource chip.tcl" | openroad -threads max -log openroad.log)
 
 chip_gui: gen_pdk
-	echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nset PCB_WIDTH "${PCB_WIDTH}"\nset PCB_HEIGHT "${PCB_HEIGHT}"\nsource chip.tcl" > openroad/start.tcl
+	echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nset PCB_WIDTH "${PCB_WIDTH}"\nset PCB_HEIGHT "${PCB_HEIGHT}"\nset SCAN_CHAIN "${SCAN_CHAIN}"\nsource chip.tcl" > openroad/start.tcl
 	cd openroad && openroad -threads max -gui -log openroad.log start.tcl
 
 pcb: gen_pdk

@@ -1,9 +1,10 @@
-# Copyright 2023 Tobias Senti
+# Copyright 2024 Tobias Senti
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
 # Parameters
 set ADD_LEDS 0
+set SCAN_CHAIN 1
 
 # Load Tech
 source ../pdk/openroad/init_tech.tcl
@@ -53,6 +54,64 @@ if { $ADD_LEDS } {
                             odb::dbITerm_connect $led_input $inst_net
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+if { $SCAN_CHAIN } {
+    # Find scan chain enable net
+    set scan_enable_name "scan_en_i"
+    set scan_chain_enable_net [odb::dbBlock_findNet $block $scan_enable_name]
+
+    if { $scan_chain_enable_net == "NULL" } {
+        puts "No '${scan_enable_name}' found"
+        exit
+    }
+
+    # Add scan chain to flip flops
+    foreach inst [odb::dbBlock_getInsts $block] {
+        set master [odb::dbInst_getMaster $inst]
+        set master_name [odb::dbMaster_getName $master]
+        if {[string match *dff* $master_name]} {
+            set inst_name [odb::dbInst_getName $inst]
+            #puts "Adding scan chain to $inst_name"
+
+            # Create scan chain instance
+            set scan_chain_master [odb::dbDatabase_findMaster [ord::get_db] "s${master_name}"]
+            set scan_chain_inst_name "scan_chain_${inst_name}"
+            set scan_chain_inst [odb::dbInst_create $block $scan_chain_master $scan_chain_inst_name]
+
+            # Connect scan chain instance
+            foreach pin [odb::dbInst_getITerms $inst] {
+                set iterm_name [odb::dbITerm_getName $pin]
+                #puts "Connecting $iterm_name" 
+                set net [odb::dbITerm_getNet $pin]
+                set net_name [odb::dbNet_getName $net]
+                #puts "Net: $net_name"
+
+                set scan_iterm_name "scan_chain_${iterm_name}"
+
+                foreach scan_pin [odb::dbInst_getITerms $scan_chain_inst] {
+                    set scan_pin_name [odb::dbITerm_getName $scan_pin]
+                    if {[string match *$iterm_name* $scan_pin_name]} {
+                        odb::dbITerm_connect $scan_pin $net
+                        break
+                    }
+                }
+            }
+
+            # Delete original flip flop
+            odb::dbInst_destroy $inst
+
+            # Connect scan chain enable
+            foreach pin [odb::dbInst_getITerms $scan_chain_inst] {
+                set iterm_name [odb::dbITerm_getName $pin]
+                if {[string match *scan_en_i $iterm_name]} {
+                    set net [odb::dbITerm_getNet $pin]
+                    odb::dbITerm_connect $pin $scan_chain_enable_net
+                    break
                 }
             }
         }

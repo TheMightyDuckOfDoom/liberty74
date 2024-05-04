@@ -1,4 +1,4 @@
-# Copyright 2023 Tobias Senti
+# Copyright 2024 Tobias Senti
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
@@ -7,7 +7,7 @@ proc load_merge_cells {} {
   set lib [odb::dbDatabase_findLib $db "liberty74_site"]
   set site [odb::dbLib_findSite $lib "CoreSite"]
 
-  set merge_cell_files [glob ../config/merge_cells/*]
+  set merge_cell_files [glob ../config/merge_cells/*.v]
   foreach cell_file_name $merge_cell_files {
     set cell [file rootname [file tail $cell_file_name]]
     puts "Reading Merge Cell $cell"

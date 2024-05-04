@@ -10,17 +10,23 @@ package:
 sources:
   # Merge Cells
   - config/merge_cells/a22o.v
-  - config/merge_cells/dis_dff_led.v
-  - config/merge_cells/dis_dffr_led.v
-  - config/merge_cells/en_dff_led.v
-  - config/merge_cells/en_dffr_led.v
+  - config/merge_cells/dff_dis_led.v
+  - config/merge_cells/dff_en_led.v
   - config/merge_cells/dff_led.v
+  - config/merge_cells/dffr_dis_led.v
+  - config/merge_cells/dffr_en_led.v
   - config/merge_cells/dffr_led.v
   - config/merge_cells/mux2_and.v
   - config/merge_cells/mux2_ands.v
   - config/merge_cells/mux3.v
   - config/merge_cells/mux3s.v
   - config/merge_cells/mux4.v
+  - config/merge_cells/sdff_dis_led.v
+  - config/merge_cells/sdff_en_led.v
+  - config/merge_cells/sdff_led.v
+  - config/merge_cells/sdffr_dis_led.v
+  - config/merge_cells/sdffr_en_led.v
+  - config/merge_cells/sdffr_led.v
 
   # Simulation Models
   - target: not(SYNTH)

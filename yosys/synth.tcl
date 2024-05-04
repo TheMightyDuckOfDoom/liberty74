@@ -99,8 +99,8 @@ close $constr
 #} else {
 #}
 set period_ps [expr (10 * 1000)]
-#set abc_comb_script yosys/abc-comb-iggy16.script
-set abc_comb_script yosys/abc.comb
+set abc_comb_script yosys/abc-comb-iggy16.script
+#set abc_comb_script yosys/abc.comb
 set constr out/abc.constr
 abc -liberty $MAIN_LIB -D $period_ps -script $abc_comb_script -constr $constr -showtmp -exe "yosys/abc.sh"
 
@@ -112,8 +112,9 @@ hilomap -singleton -hicell TIE_HI Y -locell TIE_LO Y
 stat -width -liberty $MAIN_LIB
 
 # Add leds
-extract -map yosys/dff_led_dummy.v
-extract -map yosys/dffr_led_dummy.v
+extract -map yosys/extract/dff_led_dummy.v
+extract -map yosys/extract/dffr_led_dummy.v
+
 techmap -map config/merge_cells/dff_led.v
 techmap -map config/merge_cells/dffr_led.v
 
@@ -122,7 +123,7 @@ report_all "synth"
 write_verilog -noattr -noexpr -nohex -nodec $OUT_NO_MERGE
 
 # Add merge cells
-set merge_cells [lsort [glob config/merge_cells/*.v]]
+source config/merge_cells/synth_extract_order.tcl
 puts $merge_cells
 foreach cell $merge_cells {
   extract -map $cell

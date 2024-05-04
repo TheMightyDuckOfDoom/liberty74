@@ -6,22 +6,36 @@
 set routing_channels 1
 set drt_end_iter 60
 set open_results 1
-
+set PCB_TILES 0
 set endcap 1
 
 set PCB_EDGE_MARGIN 5
 set PCB_TILE_SIZE             100
 set PCB_TILE_PLACEMENT_MARGIN 7.5
 set PCB_TILE_ROUTING_MARGIN   5
-set NUM_X_PCB_TILES [expr floor(double($PCB_WIDTH)  / double($PCB_TILE_SIZE))]
-set NUM_Y_PCB_TILES [expr floor(double($PCB_HEIGHT) / double($PCB_TILE_SIZE))]
+if { $PCB_TILES } {
+  set NUM_X_PCB_TILES [expr floor(double($PCB_WIDTH)  / double($PCB_TILE_SIZE))]
+  set NUM_Y_PCB_TILES [expr floor(double($PCB_HEIGHT) / double($PCB_TILE_SIZE))]
+} else {
+  set NUM_X_PCB_TILES 0
+  set NUM_Y_PCB_TILES 0
+}
 
 if { $routing_channels } {
-  if { $endcap } {
-    set density 0.70
+  if { $PCB_TILES } {
+    if { $endcap } {
+      set density 0.70
+    } else {
+      set density 0.78
+    }
   } else {
-    set density 0.78
+    if { $endcap } {
+      set density 0.70
+    } else {
+      set density 0.78
+    }
   }
+
   set padding 0
 } else {
   set density 0.56

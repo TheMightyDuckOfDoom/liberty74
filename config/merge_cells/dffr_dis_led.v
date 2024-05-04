@@ -2,8 +2,8 @@
 // Solderpad Hardware License, Version 0.51, see LICENSE for details.
 // SPDX-License-Identifier: SHL-0.51
 
-module en_dffr_led (
-  input  en_i,
+module dffr_dis_led (
+  input  dis_i,
   input  clk_i,
   input  rst_ni,
   input  d_i,
@@ -12,9 +12,9 @@ module en_dffr_led (
   wire d_selected;
 
   MUX2_74LVC1G157 mux (
-    .I0 ( q_o        ),
-    .I1 ( d_i        ),
-    .S  ( en_i       ),
+    .I0 ( d_i        ),
+    .I1 ( q_o        ),
+    .S  ( dis_i      ),
     .Y  ( d_selected )
   );
 
