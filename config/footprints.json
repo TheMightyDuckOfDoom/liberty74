@@ -31,14 +31,6 @@
             "y_center_spacing": 2
         },
         {
-            "names" : ["tie_cell_footprint"],
-            "num_pins": 2,
-            "pad_height": 0.75,
-            "pad_width": 0.4,
-            "x_center_spacing": 0,
-            "y_center_spacing": 2.1
-        },
-        {
             "names" : ["C0603", "R0603"],
             "models": {
                 "C0603": "Capacitor_SMD.3dshapes/C_0603_1608Metric",
@@ -122,6 +114,16 @@
             "pad_width": 1.7,
             "x_center_spacing": 2.54,
             "y_center_spacing": 0
+        },
+        {
+            "names": ["DIP-16"],
+            "num_pins": 16,
+            "through_hole": true,
+            "hole_diameter": 1.0,
+            "pad_height": 1.7,
+            "pad_width": 1.7,
+            "x_center_spacing": 2.54,
+            "y_center_spacing": 7.62
         },
         {
             "names": ["DIP-32"],

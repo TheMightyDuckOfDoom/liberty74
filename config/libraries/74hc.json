@@ -90,7 +90,7 @@
                     "timing": [
                         {
                             "related_pin": "I",
-                            "timing_sense": "no_unate",
+                            "timing_sense": "non_unate",
                             "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  43,
@@ -100,7 +100,7 @@
                         },
                         {
                             "related_pin": "S",
-                            "timing_sense": "no_unate",
+                            "timing_sense": "non_unate",
                             "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  46,
@@ -110,7 +110,7 @@
                         },
                         {
                             "related_pin": "EN_N",
-                            "timing_sense": "no_unate",
+                            "timing_sense": "non_unate",
                             "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  31,
@@ -127,7 +127,7 @@
                     "timing": [
                         {
                             "related_pin": "I",
-                            "timing_sense": "no_unate",
+                            "timing_sense": "non_unate",
                             "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  46,
@@ -137,7 +137,7 @@
                         },
                         {
                             "related_pin": "S",
-                            "timing_sense": "no_unate",
+                            "timing_sense": "non_unate",
                             "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  51,
@@ -147,7 +147,7 @@
                         },
                         {
                             "related_pin": "EN_N",
-                            "timing_sense": "no_unate",
+                            "timing_sense": "non_unate",
                             "timing_type": "combinational",
                             "delays_rise_fall" : {
                                 "slow_4p50V_85C":  36,

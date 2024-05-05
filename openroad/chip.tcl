@@ -30,7 +30,7 @@ if { $routing_channels } {
     }
   } else {
     if { $endcap } {
-      set density 0.52
+      set density 0.55
     } else {
       set density 0.78
     }
@@ -214,7 +214,7 @@ repair_design
 set_placement_padding -global -right $padding -left $padding
 
 # Initial placement to see where cells cluster together
-global_placement -density $density
+global_placement -density $density -max_phi_coef 1
 
 # Place Multirow macros
 #place_macro_approx "i_wffz" 200 145 R0

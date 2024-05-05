@@ -1,4 +1,4 @@
-// Copyright 2023 Tobias Senti
+// Copyright 2024 Tobias Senti
 // Solderpad Hardware License, Version 0.51, see LICENSE for details.
 // SPDX-License-Identifier: SHL-0.51
 
@@ -12,7 +12,7 @@
 // ${cell['desc']}
 module ${cell['name']} (
   % if 'power' in cell:
-    `ifdef PWR_PINS
+    `ifdef TARGET_SIM_LAYOUT
     % for idx, power_pin in enumerate(cell['unique_power']):
     input  logic ${power_pin['name']}\
       % if idx < len(cell['power']) - 1 or 'inputs' in cell or 'inouts' in cell or 'outputs' in cell:
@@ -148,12 +148,19 @@ posedge\
  <= ${ff_bank['next_state']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}];
       % endif
     end
-    % elif 'verilog_function' in output:
-    assign ${output['name']} = ${output['verilog_function']};
+    % elif 'bus_name' in output:
+      % if 'verilog_function' in output:
+    assign ${output['bus_name']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}] = ${output['verilog_function']};
+      % else:
+    assign ${output['bus_name']}[${bus_types[output['bus_type']]['from']}:${bus_types[output['bus_type']]['to']}] = ${output['function']};
+      % endif
     % else:
+      % if 'verilog_function' in output:
+    assign ${output['name']} = ${output['verilog_function']};
+      % else:
     assign ${output['name']} = ${output['function']};
+      % endif
     % endif
-
   % endfor
 % endif
 endmodule

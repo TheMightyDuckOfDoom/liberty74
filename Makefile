@@ -2,10 +2,6 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-#PROJECT 				:= clb
-#SRC    		  		:= ../pcbfpga/out/${PROJECT}.v
-#PCB_WIDTH       := 200
-#PCB_HEIGHT      := 200
 PROJECT 			?= servisia
 SRC						?= ../servisia/out/servisia.v
 PCB_WIDTH			?= 300
@@ -15,6 +11,15 @@ SYNTH_PROCESS	?= Typical
 SCAN_CHAIN   	?= 1
 
 all: gen_pdk
+
+out/*.v: examples/*.v
+	cp $^ $@
+
+testboard: PROJECT := testboard
+testboard: SRC := out/testboard.v
+testboard: PCB_WIDTH := 100
+testboard: PCB_HEIGHT := 100
+testboard: out/testboard.v chip pcb
 
 .python_setup:
 	pip install -r requirements.txt --break-system-packages
@@ -80,3 +85,4 @@ clean:
 	rm -rf openroad/*.rpt && true
 	rm -rf openroad/start.tcl && true
 	rm -rf utils/lef_def_parser/__pycache__ && true
+	rm -rf yosys/reports && true

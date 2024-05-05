@@ -35,6 +35,10 @@ proc connect_scan_chain {} {
   }
   puts "Found [llength $scan_ffs] scan flip-flops"
 
+  if {[llength $scan_ffs] == 0} {
+    return
+  }
+
   # Get x and y positions
   set x_pos [list]
   set y_pos [list]
