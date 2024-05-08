@@ -75,6 +75,12 @@ pcb: gen_pdk
 open_pcb:
 	pcbnew out/${PROJECT}.final.kicad_pcb
 
+pylint: utils/*.py
+	pylint utils/*.py
+
+tclint: */*.tcl
+	tclint */*.tcl
+
 clean:
 	rm -rf .python_setup
 	rm -rf out      && true

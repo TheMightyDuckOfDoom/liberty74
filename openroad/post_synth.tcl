@@ -34,7 +34,7 @@ foreach net [odb::dbBlock_getNets $block] {
 }
 puts "Renamed nets"
 
-if { $ADD_LEDS } {
+if {$ADD_LEDS} {
     # Add leds to flip flops
     set led_master [odb::dbDatabase_findMaster [ord::get_db] "Led_Res_0603"]
     foreach inst $insts {
@@ -43,7 +43,8 @@ if { $ADD_LEDS } {
         if {[string match *FF* $name]} {
             set pins [odb::dbInst_getITerms $inst]
             foreach pin $pins {
-                if {[odb::dbITerm_isOutputSignal $pin] && [odb::dbITerm_isConnected $pin]} {
+                if {[odb::dbITerm_isOutputSignal $pin] && \
+                        [odb::dbITerm_isConnected $pin]} {
                     set inst_name [odb::dbInst_getName $inst]
                     set inst_net [odb::dbITerm_getNet $pin]
                     set net_name [odb::dbNet_getName $inst_net]
@@ -60,12 +61,12 @@ if { $ADD_LEDS } {
     }
 }
 
-if { $SCAN_CHAIN } {
+if {$SCAN_CHAIN} {
     # Find scan chain enable net
     set scan_enable_name "scan_en_i"
     set scan_chain_enable_net [odb::dbBlock_findNet $block $scan_enable_name]
 
-    if { $scan_chain_enable_net == "NULL" } {
+    if {$scan_chain_enable_net == "NULL"} {
         puts "No '${scan_enable_name}' found"
         exit
     }
@@ -79,14 +80,16 @@ if { $SCAN_CHAIN } {
             #puts "Adding scan chain to $inst_name"
 
             # Create scan chain instance
-            set scan_chain_master [odb::dbDatabase_findMaster [ord::get_db] "s${master_name}"]
+            set scan_chain_master [odb::dbDatabase_findMaster [ord::get_db] \
+                "s${master_name}"]
             set scan_chain_inst_name "scan_chain_${inst_name}"
-            set scan_chain_inst [odb::dbInst_create $block $scan_chain_master $scan_chain_inst_name]
+            set scan_chain_inst [odb::dbInst_create $block $scan_chain_master \
+                $scan_chain_inst_name]
 
             # Connect scan chain instance
             foreach pin [odb::dbInst_getITerms $inst] {
                 set iterm_name [odb::dbITerm_getName $pin]
-                #puts "Connecting $iterm_name" 
+                #puts "Connecting $iterm_name"
                 set net [odb::dbITerm_getNet $pin]
                 set net_name [odb::dbNet_getName $net]
                 #puts "Net: $net_name"

@@ -56,9 +56,11 @@ foreach net $nets {
 
         set net_name [odb::dbNet_getName $net]
         puts "Candidate Net: $net_name"
-        puts "\tDriver: $driver_master_name/$driver_pin_name Sink: $sink_master_name/$sink_pin_name"
+        puts "\tDriver: $driver_master_name/$driver_pin_name Sink: \
+            $sink_master_name/$sink_pin_name"
 
-        lappend merge_candidates "$driver_master_name/$driver_pin_name $sink_master_name/$sink_pin_name"
+        lappend merge_candidates "$driver_master_name/$driver_pin_name \
+            $sink_master_name/$sink_pin_name"
     }
 }
 
@@ -74,7 +76,8 @@ foreach merge_candidate $unique_merge_candidates {
 }
 
 # Sort by number of occurances
-set sorted_merge_candidates [lsort -increasing -stride 2 -index 1 -integer $merge_candidates_dict]
+set sorted_merge_candidates [lsort -increasing -stride 2 -index 1 -integer \
+    $merge_candidates_dict]
 
 dict for {candidate num_occurances} $sorted_merge_candidates {
     set driver_sink [split $candidate " "]
@@ -86,7 +89,8 @@ dict for {candidate num_occurances} $sorted_merge_candidates {
 
     set sink_master [lindex [split $sink "/"] 0]
     set sink_pin [lindex [split $sink "/"] 1]
-    puts "Merge Pair, $num_occurances times: $driver_master/$driver_pin\t\t$sink_master/$sink_pin"
+    puts "Merge Pair, $num_occurances times: \
+        $driver_master/$driver_pin\t\t$sink_master/$sink_pin"
 }
 
 exit

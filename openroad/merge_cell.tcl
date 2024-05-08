@@ -31,7 +31,8 @@ foreach inst $insts {
 }
 
 # Initialize floorplan and make tracks
-initialize_floorplan -site $site -die_area "0 0 $width $height" -core_area "0 0 $width $height"
+initialize_floorplan -site $site -die_area "0 0 $width $height" \
+    -core_area "0 0 $width $height"
 source ../pdk/openroad/make_tracks.tcl
 
 # Sort instance names
@@ -44,8 +45,8 @@ foreach inst_name $inst_names {
 
     set master [odb::dbInst_getMaster $inst]
     set inst_width [odb::dbMaster_getWidth $master]
-    
-    odb::dbInst_setLocation $inst [expr int($x)] [expr int(0)]
+
+    odb::dbInst_setLocation $inst [expr {int($x)}] [expr {int(0)}]
     odb::dbInst_setPlacementStatus $inst PLACED
     set x [expr {$x + $inst_width}]
 }
@@ -54,7 +55,7 @@ foreach inst_name $inst_names {
 foreach bterm [odb::dbBlock_getBTerms $block] {
     set name [odb::dbBTerm_getName $bterm]
     puts [odb::dbBTerm_getName $bterm]
-    
+
     set net [odb::dbBlock_findNet $block $name]
     puts [odb::dbNet_getName $net]
 
@@ -70,27 +71,29 @@ foreach bterm [odb::dbBlock_getBTerms $block] {
     set y [lindex $xy 2]
 
     set rect [odb::dbMTerm_getBBox $mterm]
-    set width  [odb::Rect_dx $rect]
+    set width [odb::Rect_dx $rect]
     set height [odb::Rect_dy $rect]
 
     set tech [ord::get_db_tech]
     set layer [odb::dbTech_findLayer $tech Metal1]
-    
+
     puts "Pin: $name $x $y $width $height"
 
-    #place_pin -pin_name $name -layer Metal1 -location {$x $y} -pin_size {$width $height}
+    #place_pin -pin_name $name -layer Metal1 -location {$x $y} \
+        -pin_size {$width $height}
     ppl::place_pin $bterm $layer $x $y $width $height 0
 }
 
 # Constraints -> only if clock exists
 if {[get_ports clk_i] != ""} {
     create_clock -name clk -period 10 {clk_i}
-    set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
+    set_input_delay -clock clk 0 [delete_from_list [all_inputs] \
+        [get_ports clk_i]]
     set_output_delay -clock clk 0 [all_outputs]
 }
 
-report_checks -corner Fast    -path_delay min
-report_checks -corner Typical -path_delay max
+report_checks -path_delay min -corner Fast
+report_checks -path_delay max -corner Typical
 
 # Global route
 set_routing_layers -signal Metal1-Metal2 -clock Metal1-Metal2
@@ -102,9 +105,12 @@ detailed_route -output_drc merge_macros_route_drc.rpt
 # Write def, lef and libs
 write_def out/merge_cell_$design_name.def
 write_abstract_lef -bloat_factor 0 out/merge_cell_$design_name.lef
-write_timing_model -corner Typical out/merge_cell_typ_$design_name.lib  -library_name merge_cell_typ_$design_name
-write_timing_model -corner Fast    out/merge_cell_fast_$design_name.lib -library_name merge_cell_fast_$design_name
-write_timing_model -corner Slow    out/merge_cell_slow_$design_name.lib -library_name merge_cell_slow_$design_name
+write_timing_model -corner Typical out/merge_cell_typ_$design_name.lib \
+    -library_name merge_cell_typ_$design_name
+write_timing_model -corner Fast out/merge_cell_fast_$design_name.lib \
+    -library_name merge_cell_fast_$design_name
+write_timing_model -corner Slow out/merge_cell_slow_$design_name.lib \
+    -library_name merge_cell_slow_$design_name
 
 # Open Results
 if {$open_results} {
