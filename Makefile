@@ -93,7 +93,7 @@ lint: yamllint tclint jsonlint pylint
 
 yamllint: $(YAML_FILE_NAME)
 tclint: $(TCL_FILE_NAME)
-pylint: $(PY_FILES)
+pylint: $(PY_FILE_NAME)
 jsonlint: $(JSON_FILE_NAME)
 
 $(YAML_FILE_NAME): $(YAML_FILES)
