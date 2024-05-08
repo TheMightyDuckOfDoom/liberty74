@@ -2,3 +2,4 @@ mako
 kiutils
 tclint
 pylint
+yamllint

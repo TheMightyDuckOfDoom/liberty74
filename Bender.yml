@@ -2,9 +2,9 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
-package: 
+package:
   name: liberty74
-  authors: 
+  authors:
     - "Tobias Senti"
 
 sources:

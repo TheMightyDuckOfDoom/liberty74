@@ -10,6 +10,20 @@ CORNER_GROUP 	?= CMOS_5V
 SYNTH_PROCESS	?= Typical
 SCAN_CHAIN   	?= 1
 
+# Find Source Files
+TCL_FILES := $(shell find ./ -name '*.tcl')
+PY_FILES := $(shell find ./ -name '*.py')
+YAML_FILES := $(shell find ./ -name '*.yml')
+JSON_FILES := $(shell find ./ -name '*.json')
+
+# Get File Names
+TCL_FILE_NAME := $(basename $(TCL_FILES))
+PY_FILE_NAME := $(basename $(PY_FILES))
+YAML_FILE_NAME := $(basename $(YAML_FILES))
+JSON_FILE_NAME := $(basename $(JSON_FILES))
+
+.PHONY: all clean lint yamllint tclint pylint jsonlint
+
 all: gen_pdk
 
 out/*.v: examples/*.v
@@ -75,20 +89,33 @@ pcb: gen_pdk
 open_pcb:
 	pcbnew out/${PROJECT}.final.kicad_pcb
 
-pylint: utils/*.py
-	pylint utils/*.py
+lint: yamllint tclint jsonlint pylint
 
-tclint: */*.tcl
-	tclint */*.tcl
+yamllint: $(YAML_FILE_NAME)
+tclint: $(TCL_FILE_NAME)
+pylint: $(PY_FILES)
+jsonlint: $(JSON_FILE_NAME)
+
+$(YAML_FILE_NAME): $(YAML_FILES)
+	yamllint --no-warnings $@.yml
+
+$(TCL_FILE_NAME): $(TCL_FILES)
+	tclint $@.tcl
+
+$(PY_FILE_NAME): $(PY_FILES)
+	pylint $@.py
+
+$(JSON_FILE_NAME): $(JSON_FILES)
+	jsonlint -q $@.json
 
 clean:
 	rm -rf .python_setup
-	rm -rf out      && true
-	rm -rf slpp_all && true
-	rm -rf pdk      && true
-	rm -rf openroad/out && true
-	rm -rf openroad/*.log && true
-	rm -rf openroad/*.rpt && true
-	rm -rf openroad/start.tcl && true
-	rm -rf utils/lef_def_parser/__pycache__ && true
-	rm -rf yosys/reports && true
+	rm -rf out
+	rm -rf slpp_all
+	rm -rf pdk
+	rm -rf openroad/out
+	rm -rf openroad/*.log
+	rm -rf openroad/*.rpt
+	rm -rf openroad/start.tcl
+	rm -rf utils/lef_def_parser/__pycache__
+	rm -rf yosys/reports
