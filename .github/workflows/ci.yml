@@ -50,6 +50,13 @@ jobs:
       - name: Run veriloglint
         run: make veriloglint
 
+  markdownlint:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run markdownlint
+        run: make markdownlint
+
   basic_tests:
     runs-on: self-hosted
     needs: setup

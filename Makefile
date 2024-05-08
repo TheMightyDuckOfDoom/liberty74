@@ -20,6 +20,7 @@ YAML_FILES := $(shell find ./ -name '*.yml')
 JSON_FILES := $(shell find ./ -name '*.json')
 VERILOG_FILES := $(shell find ./ -name '*.v')
 SVERILOG_FILES := $(shell find ./ -name '*.sv')
+MARKDOWN_FILES := $(shell find ./ -name '*.md')
 
 # Get File Names
 TCL_FILE_NAME := $(basename $(TCL_FILES))
@@ -28,8 +29,9 @@ YAML_FILE_NAME := $(basename $(YAML_FILES))
 JSON_FILE_NAME := $(basename $(JSON_FILES))
 VERILOG_FILE_NAME := $(basename $(VERILOG_FILES))
 SVERILOG_FILE_NAME := $(basename $(SVERILOG_FILES))
+MARKDOWN_FILE_NAME := $(basename $(MARKDOWN_FILES))
 
-.PHONY: all clean lint yamllint tclint pylint jsonlint veriloglint
+.PHONY: all clean lint yamllint tclint pylint jsonlint veriloglint markdownlint
 
 all: gen_pdk
 
@@ -96,13 +98,14 @@ pcb: gen_pdk
 open_pcb:
 	pcbnew out/${PROJECT}.final.kicad_pcb
 
-lint: yamllint tclint jsonlint veriloglint pylint
+lint: yamllint tclint jsonlint veriloglint pylint markdownlint
 
 yamllint: $(YAML_FILE_NAME)
 tclint: $(TCL_FILE_NAME)
 pylint: $(PY_FILE_NAME)
 jsonlint: $(JSON_FILE_NAME)
 veriloglint: $(VERILOG_FILE_NAME) $(SVERILOG_FILE_NAME)
+markdownlint: $(MARKDOWN_FILE_NAME)
 
 $(YAML_FILE_NAME): $(YAML_FILES)
 	yamllint --no-warnings $@.yml
@@ -121,6 +124,9 @@ $(VERILOG_FILE_NAME): $(VERILOG_FILES)
 
 $(SVERILOG_FILE_NAME): $(SVERILOG_FILES)
 	verible-verilog-lint $(VERIBLE_FLAGS) $@.sv
+
+$(MARKDOWN_FILE_NAME): $(MARKDOWN_FILES)
+	mdl $@.md
 
 clean:
 	rm -rf .setup
