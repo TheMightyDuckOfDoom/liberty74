@@ -13,18 +13,18 @@ module reset_gen (
       .IN      ( rst_ni         ),
       .RESET_N ( internal_rst_n )
   );
-  
+
   TIE_HI a_one (
     .Y ( one )
   );
-  
+
   DFFR_74LVC1G175 dffr_0 (
     .CLK   ( clk_i          ),
     .RST_N ( internal_rst_n ),
     .D     ( one           ),
     .Q     ( rst_0          )
   );
-  
+
   DFFR_74LVC1G175 dffr_1 (
     .CLK   ( clk_i          ),
     .RST_N ( internal_rst_n ),

@@ -9,12 +9,12 @@
     % if idx > 0:
  else\
     % endif
-if { $CORNER_GROUP == "${group}" } {
-    define_corners \
+if {$CORNER_GROUP == "${group}"} {
+    define_corners\
     % for pn_idx, process_name in enumerate(corner_groups[group]):
-${process_name} \
+ ${process_name}\
         % if pn_idx == len(corner_groups[group]) - 1:
- \
+\
         % endif
     % endfor
 
@@ -41,7 +41,7 @@ read_lef ../pdk/lef/${lef_name}_site.lef
     % if idx > 0:
  else\
     % endif
-if { $CORNER_GROUP == "${group}" } {
+if {$CORNER_GROUP == "${group}"} {
     % for library in libraries:
         % for corner in libraries[library]['corners']:
             % if group == corner['corner_group']:

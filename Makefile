@@ -10,19 +10,26 @@ CORNER_GROUP 	?= CMOS_5V
 SYNTH_PROCESS	?= Typical
 SCAN_CHAIN   	?= 1
 
+# Verible Flags
+VERIBLE_FLAGS := --rules=-module-filename,-line-length
+
 # Find Source Files
 TCL_FILES := $(shell find ./ -name '*.tcl')
 PY_FILES := $(shell find ./ -name '*.py')
 YAML_FILES := $(shell find ./ -name '*.yml')
 JSON_FILES := $(shell find ./ -name '*.json')
+VERILOG_FILES := $(shell find ./ -name '*.v')
+SVERILOG_FILES := $(shell find ./ -name '*.sv')
 
 # Get File Names
 TCL_FILE_NAME := $(basename $(TCL_FILES))
 PY_FILE_NAME := $(basename $(PY_FILES))
 YAML_FILE_NAME := $(basename $(YAML_FILES))
 JSON_FILE_NAME := $(basename $(JSON_FILES))
+VERILOG_FILE_NAME := $(basename $(VERILOG_FILES))
+SVERILOG_FILE_NAME := $(basename $(SVERILOG_FILES))
 
-.PHONY: all clean lint yamllint tclint pylint jsonlint
+.PHONY: all clean lint yamllint tclint pylint jsonlint veriloglint
 
 all: gen_pdk
 
@@ -35,11 +42,11 @@ testboard: PCB_WIDTH := 100
 testboard: PCB_HEIGHT := 100
 testboard: out/testboard.v chip pcb
 
-.python_setup:
+.setup:
 	pip install -r requirements.txt --break-system-packages
-	touch .python_setup
+	touch .setup
 
-pdk/.pdk: .python_setup utils/*.py config/*.json config/libraries/*.json templates/*.template
+pdk/.pdk: .setup utils/*.py config/*.json config/libraries/*.json templates/*.template
 	mkdir -p pdk
 	mkdir -p pdk/kicad
 	mkdir -p pdk/kicad/footprints
@@ -89,12 +96,13 @@ pcb: gen_pdk
 open_pcb:
 	pcbnew out/${PROJECT}.final.kicad_pcb
 
-lint: yamllint tclint jsonlint pylint
+lint: yamllint tclint jsonlint veriloglint pylint
 
 yamllint: $(YAML_FILE_NAME)
 tclint: $(TCL_FILE_NAME)
 pylint: $(PY_FILE_NAME)
 jsonlint: $(JSON_FILE_NAME)
+veriloglint: $(VERILOG_FILE_NAME) $(SVERILOG_FILE_NAME)
 
 $(YAML_FILE_NAME): $(YAML_FILES)
 	yamllint --no-warnings $@.yml
@@ -108,8 +116,14 @@ $(PY_FILE_NAME): $(PY_FILES)
 $(JSON_FILE_NAME): $(JSON_FILES)
 	jsonlint -q $@.json
 
+$(VERILOG_FILE_NAME): $(VERILOG_FILES)
+	verible-verilog-lint $(VERIBLE_FLAGS) $@.v
+
+$(SVERILOG_FILE_NAME): $(SVERILOG_FILES)
+	verible-verilog-lint $(VERIBLE_FLAGS) $@.sv
+
 clean:
-	rm -rf .python_setup
+	rm -rf .setup
 	rm -rf out
 	rm -rf slpp_all
 	rm -rf pdk

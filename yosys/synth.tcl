@@ -119,8 +119,8 @@ stat -width -liberty $MAIN_LIB
 extract -map config/merge_cells/reset_gen.v
 
 # Add leds
-extract -map yosys/extract/dff_led_dummy.v
-extract -map yosys/extract/dffr_led_dummy.v
+extract -map yosys/extract/dff_led.dummy.v
+extract -map yosys/extract/dffr_led.dummy.v
 
 techmap -map config/merge_cells/dff_led.v
 techmap -map config/merge_cells/dffr_led.v

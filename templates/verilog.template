@@ -6,7 +6,7 @@
 
 % for cell in cells:
   % if 'custom_verilog_model' in cell and cell['custom_verilog_model']:
-    <% break %>
+<% break %>
   % endif
 
 // ${cell['desc']}

@@ -3,7 +3,7 @@ pdk/
 slpp_all
 *.rpt
 *.log
-.python_setup
+.setup
 openroad/out
 openroad/*.log
 openroad/start.tcl

@@ -8,19 +8,21 @@
     % if idx > 0:
  else\
     % endif
-if { $CORNER_GROUP == "${group}" } {
+if {$CORNER_GROUP == "${group}"} {
     % for p_idx, process_name in enumerate(corner_groups[group]):
     % if p_idx > 0:
  else\
     % else:
     \
     % endif
-if { $PROCESS == "${process_name}" } {
-        set LIBS [list\
+if {$PROCESS == "${process_name}"} {
+        set LIBS [list \\
         % for corner in corner_groups[group][process_name]:
- "pdk/lib/${corner}.lib"\
+
+                "pdk/lib/${corner}.lib" \\
         % endfor
- ]
+
+        ]
     }\
     % endfor
  else {

@@ -12,7 +12,7 @@ module single_port_async_sram #(
   input logic [ADDR_WIDTH-1:0] addr_i,
   inout logic [DATA_WIDTH-1:0] data_io
 );
-  logic [DATA_WIDTH-1:0] mem [0:2**ADDR_WIDTH-1] /* verilator public */;
+  logic [DATA_WIDTH-1:0] mem [2**ADDR_WIDTH-1] /* verilator public */;
 
   always @(cs_i or oe_i) begin
     // Delay by 35

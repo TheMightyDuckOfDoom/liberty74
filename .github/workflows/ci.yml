@@ -4,16 +4,16 @@
 
 on: [push, pull_request]
 jobs:
-  python_setup:
+  setup:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - name: Check python setup
-        run: make .python_setup
+      - name: Check setup
+        run: make .setup
 
   yamllint:
     runs-on: self-hosted
-    needs: python_setup
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Run yamllint
@@ -21,7 +21,7 @@ jobs:
 
   tclint:
     runs-on: self-hosted
-    needs: python_setup
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Run tclint
@@ -29,7 +29,7 @@ jobs:
 
   pylint:
     runs-on: self-hosted
-    needs: python_setup
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Run pylint
@@ -44,9 +44,25 @@ jobs:
 
   basic_tests:
     runs-on: self-hosted
-    needs: python_setup
+    needs: setup
     steps:
       - name: Generate pdk
         run: make pdk/.pdk
       - name: Create Merge Cells
         run: make gen_pdk
+
+  pdk_tcllint:
+    runs-on: self-hosted
+    needs: basic_tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tcllint after gen_pdk
+        run: make tcllint
+
+  pdk_veriloglint:
+    runs-on: self-hosted
+    needs: basic_tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run veriloglint after gen_pdk
+        run: make veriloglint
