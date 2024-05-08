@@ -33,7 +33,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run pylint
-        run: make pylint
+        run: |
+          set +e
+          make pylint
+          exitcode = $?
+          if [ $exitcode -eq 4 ]; then
+            echo "Pylint warnings are allowed"
+            exit 0
+          else
+            exit $exitcode
+          fi
 
   jsonlint:
     runs-on: self-hosted

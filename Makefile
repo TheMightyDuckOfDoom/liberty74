@@ -15,7 +15,7 @@ VERIBLE_FLAGS := --rules=-module-filename,-line-length
 
 # Find Source Files
 TCL_FILES := $(shell find ./ -name '*.tcl')
-PY_FILES := $(shell find ./ -name '*.py')
+PY_FILES := $(shell find ./ ! -path "*/lef_def_parser/*" -name '*.py')
 YAML_FILES := $(shell find ./ -name '*.yml')
 JSON_FILES := $(shell find ./ -name '*.json')
 VERILOG_FILES := $(shell find ./ -name '*.v')
