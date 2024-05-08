@@ -114,7 +114,7 @@ $(TCL_FILE_NAME): $(TCL_FILES)
 	tclint $@.tcl
 
 $(PY_FILE_NAME): $(PY_FILES)
-	pylint $@.py
+	./utils/pylint.sh $@.py
 
 $(JSON_FILE_NAME): $(JSON_FILES)
 	jsonlint -q $@.json
