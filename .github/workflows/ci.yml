@@ -41,6 +41,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run jsonlint
         run: make jsonlint
+  
+  veriloglint:
+    runs-on: self-hosted
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run veriloglint
+        run: make veriloglint
 
   basic_tests:
     runs-on: self-hosted
@@ -56,13 +64,17 @@ jobs:
     needs: basic_tests
     steps:
       - uses: actions/checkout@v4
-      - name: Run tcllint after gen_pdk
-        run: make tcllint
+      - name: Run gen_pdk
+        run: make gen_pdk
+      - name: Run tclint after gen_pdk
+        run: make tclint
 
   pdk_veriloglint:
     runs-on: self-hosted
     needs: basic_tests
     steps:
       - uses: actions/checkout@v4
+      - name: Run gen_pdk
+        run: make gen_pdk
       - name: Run veriloglint after gen_pdk
         run: make veriloglint
