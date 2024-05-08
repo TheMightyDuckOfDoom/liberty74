@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run jsonlint
         run: make jsonlint
-  
+
   veriloglint:
     runs-on: self-hosted
     needs: setup
