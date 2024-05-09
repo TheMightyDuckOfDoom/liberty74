@@ -2,19 +2,12 @@
 # Solderpad Hardware License, Version 0.51, see LICENSE for details.
 # SPDX-License-Identifier: SHL-0.51
 
+name: CI
+
 on: [push, pull_request]
 jobs:
-  setup:
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v4
-      - run: echo $SHELL
-      - name: Check setup
-        run: make .setup
-
   yamllint:
     runs-on: self-hosted
-    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Run yamllint
@@ -22,7 +15,6 @@ jobs:
 
   tclint:
     runs-on: self-hosted
-    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Run tclint
@@ -30,7 +22,6 @@ jobs:
 
   pylint:
     runs-on: self-hosted
-    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Run pylint
@@ -47,7 +38,6 @@ jobs:
 
   veriloglint:
     runs-on: self-hosted
-    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Run veriloglint
@@ -62,7 +52,6 @@ jobs:
 
   basic_tests:
     runs-on: self-hosted
-    needs: setup
     steps:
       - name: Generate pdk
         run: make pdk/.pdk
