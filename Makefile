@@ -1,6 +1,6 @@
 # Copyright 2024 Tobias Senti
-# Solderpad Hardware License, Version 0.51, see LICENSE for details.
-# SPDX-License-Identifier: SHL-0.51
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
 
 PROJECT 			?= servisia
 SRC						?= ../servisia/out/servisia.v
@@ -35,7 +35,7 @@ MARKDOWN_FILE_NAME := $(basename $(MARKDOWN_FILES))
 
 all: gen_pdk
 
-out/*.v: examples/*.v
+out/testboard.v: examples/testboard.v
 	cp $^ $@
 
 testboard: PROJECT := testboard

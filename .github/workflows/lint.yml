@@ -1,0 +1,128 @@
+# Copyright 2024 Tobias Senti
+# Solderpad Hardware License, Version 0.51, see LICENSE for details.
+# SPDX-License-Identifier: SHL-0.51
+
+name: Lint
+
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  lint-license:
+    runs-on: self-hosted
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Check License
+        uses: TheMightyDuckOfDoom/pulp-actions/lint-license@llpyu
+        with:
+          license: |
+            Copyright (\d{4}(-\d{4})?\s)?(Tobias Senti)
+            (Solderpad Hardware License, Version 0.51|Licensed under the \
+            Apache License, Version 2.0), see LICENSE for details.
+            SPDX-License-Identifier: (SHL-0.51|Apache-2.0)
+          exclude_paths: |
+            utils/lef_def_parser/*.py
+
+  lint-yaml:
+    runs-on: self-hosted
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Run yamllint
+        run: make yamllint
+
+  lint-tcl:
+    runs-on: self-hosted
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Run tclint
+        run: make tclint
+
+  lint-python:
+    runs-on: self-hosted
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Run pylint
+        run: |
+          set +e
+          make pylint
+
+  lint-json:
+    runs-on: self-hosted
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Run jsonlint
+        run: make jsonlint
+
+  lint-verilog:
+    runs-on: self-hosted
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Run veriloglint
+        run: make veriloglint
+
+  lint-markdown:
+    runs-on: self-hosted
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Run markdownlint
+        run: make markdownlint
+
+  pdk-gen:
+    runs-on: self-hosted
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Generate PDK
+        run: make pdk/.pdk
+      -
+        name: Create Merge Cells
+        run: make gen_pdk
+
+  pdk-lint-tcl:
+    runs-on: self-hosted
+    needs: pdk-gen
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Generate PDK
+        run: make gen_pdk
+      -
+        name: Run tclint
+        run: make tclint
+
+  pdk-lint-verilog:
+    runs-on: self-hosted
+    needs: pdk-gen
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Generate PDK
+        run: make gen_pdk
+      -
+        name: Run veriloglint
+        run: make veriloglint
