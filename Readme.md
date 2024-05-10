@@ -68,7 +68,7 @@ To layout your design use:
 make chip
 ```
 
-### Convert to PDK
+### Convert to PCB
 
 To convert your layout to a KiCad-PCB use:
 
