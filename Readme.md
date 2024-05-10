@@ -1,7 +1,8 @@
 # Liberty74: An Open-Source Verilog-to-PCB Flow
 
 [![Lint status](https://github.com/TheMightyDuckOfDoom/liberty74/actions/workflows/lint.yml/badge.svg)](https://github.com/TheMightyDuckOfDoom/liberty74/actions)
-[![SHL-0.51 License](https://img.shields.io/badge/license-SHL--0.51-green)](LICENSE)
+[![SHL-0.51 License](https://img.shields.io/badge/license-SHL--0.51-blue)](LICENSE)
+[![Apache-2.0 License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Liberty74 is a fully open-source Verilog-to-PCB Flow.
 
@@ -17,9 +18,9 @@ Liberty74 makes use of the following open-source projects:
 
 ### Synthesis and Layout
 
-- [Yosys - Synthesis](https://https://github.com/YosysHQ/yosys)
-- [OpenROAD - Layout](https://github.com/The-OpenROAD-Project/OpenROAD)
-- [KiCad - PCB](https://www.kicad.org/)
+- [Yosys - synthesis](https://https://github.com/YosysHQ/yosys)
+- [OpenROAD - layout](https://github.com/The-OpenROAD-Project/OpenROAD)
+- [KiCad - pcb](https://www.kicad.org/)
 - [Basilisk - synthesis strategy](https://github.com/pulp-platform/cheshire-ihp130-o/tree/basilisk-dev)
 
 ### PDK Generator and other utilities
@@ -34,9 +35,10 @@ Liberty74 makes use of the following open-source projects:
 - [tcllint - tcl lint tool](https://pypi.org/project/tclint/)
 - [pylint - python lint tool](https://pypi.org/project/pylint/)
 - [yamllint - yml lint tool](https://pypi.org/project/yamllint/)
-- [mdl - Markdown lint tool](https://github.com/markdownlint/markdownlint)
+- [mdl - markdown lint tool](https://github.com/markdownlint/markdownlint)
 - [Verible - verilog lint tool](https://github.com/chipsalliance/verible)
 - [JSON lint - json lint tool](https://github.com/zaach/jsonlint)
+- [pulp actions - ci license lint](https://github.com/pulp-platform/pulp-actions)
 
 ## Documentation
 
