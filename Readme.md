@@ -18,43 +18,105 @@ Liberty74 makes use of the following open-source projects:
 
 ### Synthesis and Layout
 
-- [Yosys - synthesis](https://https://github.com/YosysHQ/yosys)
-- [OpenROAD - layout](https://github.com/The-OpenROAD-Project/OpenROAD)
-- [KiCad - pcb](https://www.kicad.org/)
-- [Basilisk - synthesis strategy](https://github.com/pulp-platform/cheshire-ihp130-o/tree/basilisk-dev)
+- [Yosys](https://https://github.com/YosysHQ/yosys): Synthesis
+- [OpenROAD](https://github.com/The-OpenROAD-Project/OpenROAD): Layout
+- [KiCad](https://www.kicad.org/): PCB
+- [Basilisk](https://github.com/pulp-platform/cheshire-ihp130-o/tree/basilisk-dev):
+ Synthesis Strategy
 
 ### PDK Generator and other utilities
 
-- [lef def parser library - modified](https://github.com/trimcao/lef-parser)
-- [KiUtils - KiCad file parser library](https://pypi.org/project/kiutils/)
-- [Mako - template library](https://pypi.org/project/Mako/)
-- [Bender - hw dependency managment tool](https://github.com/pulp-platform/bender)
+- [lef def parser library](https://github.com/trimcao/lef-parser): modified,
+ see [`utils/lef_def_parser`](utils/lef_def_parser/)
+- [KiUtils](https://pypi.org/project/kiutils/): KiCad File Parser Library
+- [Mako](https://pypi.org/project/Mako/): Template Library
+- [Bender](https://github.com/pulp-platform/bender): HW Dependency Manager
 
 ### Linters
 
-- [tcllint - tcl lint tool](https://pypi.org/project/tclint/)
-- [pylint - python lint tool](https://pypi.org/project/pylint/)
-- [yamllint - yml lint tool](https://pypi.org/project/yamllint/)
-- [mdl - markdown lint tool](https://github.com/markdownlint/markdownlint)
-- [Verible - verilog lint tool](https://github.com/chipsalliance/verible)
-- [JSON lint - json lint tool](https://github.com/zaach/jsonlint)
-- [pulp actions - ci license lint](https://github.com/pulp-platform/pulp-actions)
+- [tcllint](https://pypi.org/project/tclint/): TCL Linter
+- [pylint](https://pypi.org/project/pylint/): Python Linter
+- [yamllint](https://pypi.org/project/yamllint/): YAML Linter
+- [mdl](https://github.com/markdownlint/markdownlint): Markdown Linter
+- [Verible](https://github.com/chipsalliance/verible): Verilog Linter
+- [JSON lint](https://github.com/zaach/jsonlint): JSON Linter
+- [pulp actions](https://github.com/pulp-platform/pulp-actions): CI License Linter
 
-## Documentation
+## Documentation - Basic Usage
 
-TODO
+### Generate PDK
+
+To generate the PDK files use:
+
+```bash
+make gen-pdk
+```
+
+### Synthesis
+
+To synthesize your RTL into a netlist use:
+
+```bash
+make synth
+```
+
+### Layout
+
+To layout your design use:
+
+```bash
+make chip
+```
+
+### Convert to PDK
+
+To convert your layout to a KiCad-PCB use:
+
+```bash
+make pcb
+```
+
+### Linting
+
+To lint all languages use:
+
+```bash
+make lint-all
+```
+
+You can also lint each language seperately:
+
+```bash
+make lint-yaml
+make lint-tcl
+make lint-python
+make lint-json
+make lint-verilog
+make lint-markdown
+```
+
+### Clean
+
+To clean use:
+
+```bash
+make clean
+```
 
 ## License
 
 Liberty74 is released under a permissive license.\
 All hardware sources and tool scripts are licensed under Solderpad v0.51 (SHL-0.51)
  see [`LICENSE`](LICENSE)\
-All software sources are licensed under Apache 2.0 (Apache-2.0) see [`Apache-2.0`](https://opensource.org/license/apache-2-0)\
-Exception: `utils/lef_def_parser` is licensed under MIT (MIT) see [`utils/lef_der_parser`]
-(utils/lef_def_parser/),\
- Original Author and Repo [&copy; Tri Minh Cao](https://github.com/trimcao/lef-parser)
+All software sources are licensed under Apache 2.0 (Apache-2.0) see [`Apache-2.0`](https://opensource.org/license/apache-2-0)
+
+Exceptions:
+
+- `utils/lef_def_parser` is licensed under MIT (MIT) see [`utils/lef_der_parser`](utils/lef_def_parser/)\
+  Original Author &copy;Tri Minh Cao, see [https://github.com/trimcao/lef-parser](https://github.com/trimcao/lef-parser)
 
 ## Contributing
 
-We are happy to accept pull requests and issues from any contributors. See [`CONTRIBUTING.md`](CONTRIBUTING.md)
+We are happy to accept pull requests and issues from any contributors.\
+See [`CONTRIBUTING.md`](CONTRIBUTING.md)
 for additional information.

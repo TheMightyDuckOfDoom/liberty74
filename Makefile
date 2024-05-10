@@ -31,9 +31,9 @@ VERILOG_FILE_NAME := $(basename $(VERILOG_FILES))
 SVERILOG_FILE_NAME := $(basename $(SVERILOG_FILES))
 MARKDOWN_FILE_NAME := $(basename $(MARKDOWN_FILES))
 
-.PHONY: all clean lint yamllint tclint pylint jsonlint veriloglint markdownlint
+.PHONY: all clean lint-all lint-yaml lint-tcl lint-python lint-json lint-verilog lint-markdown
 
-all: gen_pdk
+all: gen-pdk
 
 out/testboard.v: examples/testboard.v
 	cp $^ $@
@@ -66,9 +66,9 @@ openroad/out: config/merge_cells/*.v pdk/.pdk
 
 openroad-setup: openroad/out
 
-gen_pdk: pdk/.pdk openroad/out
+gen-pdk: pdk/.pdk openroad/out
 
-synth: gen_pdk
+synth: gen-pdk
 	mkdir -p out
 	mkdir -p yosys/reports
 	echo "set TOP "${PROJECT}"\nset SRC "${SRC}"\nset CORNER_GROUP "${CORNER_GROUP}"\nset PROCESS "${SYNTH_PROCESS}"\nsource yosys/synth.tcl" | yosys -C
@@ -85,27 +85,27 @@ dft:
 	cd out/dft && cat ../../verilog_models/DS9808.sv >> cells.sv
 	cd out/dft && fault -c cells.sv -v 1 -r 1 -m 95 --ceiling 1 --clock clk_i ${PROJECT}.cut.v
 
-chip: gen_pdk
+chip: gen-pdk
 	cd openroad && (echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nset PCB_WIDTH "${PCB_WIDTH}"\nset PCB_HEIGHT "${PCB_HEIGHT}"\nset SCAN_CHAIN "${SCAN_CHAIN}"\nsource chip.tcl" | openroad -threads max -log openroad.log)
 
-chip_gui: gen_pdk
+chip_gui: gen-pdk
 	echo "set design_name ${PROJECT}\nset CORNER_GROUP "${CORNER_GROUP}"\nset PCB_WIDTH "${PCB_WIDTH}"\nset PCB_HEIGHT "${PCB_HEIGHT}"\nset SCAN_CHAIN "${SCAN_CHAIN}"\nsource chip.tcl" > openroad/start.tcl
 	cd openroad && openroad -threads max -gui -log openroad.log start.tcl
 
-pcb: gen_pdk
+pcb: gen-pdk
 	python3 utils/def2pcb.py openroad/out/${PROJECT}.final.def openroad/out/merge_cell_*.def
 
 open_pcb:
 	pcbnew out/${PROJECT}.final.kicad_pcb
 
-lint: yamllint tclint jsonlint veriloglint pylint markdownlint
+lint-all: lint-yaml lint-tcl lint-python lint-json lint-verilog lint-markdown
 
-yamllint: $(YAML_FILE_NAME)
-tclint: $(TCL_FILE_NAME)
-pylint: $(PY_FILE_NAME)
-jsonlint: $(JSON_FILE_NAME)
-veriloglint: $(VERILOG_FILE_NAME) $(SVERILOG_FILE_NAME)
-markdownlint: $(MARKDOWN_FILE_NAME)
+lint-yaml: $(YAML_FILE_NAME)
+lint-tcl: $(TCL_FILE_NAME)
+lint-python: $(PY_FILE_NAME)
+lint-json: $(JSON_FILE_NAME)
+lint-verilog: $(VERILOG_FILE_NAME) $(SVERILOG_FILE_NAME)
+lint-markdown: $(MARKDOWN_FILE_NAME)
 
 $(YAML_FILE_NAME): $(YAML_FILES)
 	yamllint --no-warnings $@.yml
