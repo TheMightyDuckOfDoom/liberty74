@@ -83,8 +83,8 @@ jobs:
         name: Checkout
         uses: actions/checkout@v4
       -
-        name: Run markdownlint
-        run: make markdownlint
+        name: Lint Markdown files
+        run: make lint-markdown
 
   pdk-gen:
     runs-on: self-hosted
