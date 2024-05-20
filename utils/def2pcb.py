@@ -455,8 +455,13 @@ for idx, net in enumerate(merged_nets):
 print('Adding components...')
 FOOTPRINTS_DIR = './pdk/kicad/footprints/'
 footprint_dict = {}
+cell_usage = {}
 if def_parser.components is not None:
     for comp in def_parser.components:
+        if comp.macro not in cell_usage:
+            cell_usage[comp.macro] = 0
+        cell_usage[comp.macro] += 1
+
         orient = comp.orient
         origin_top_right = orient in ['N_TR', 'S_TR']
         if origin_top_right:
@@ -700,6 +705,14 @@ for net in merged_nets:
             )
             pcb.traceItems.append(via)
 
+# Print cell usage
+print('Cell usage:')
+NUM_CELLS = 0
+for cell in sorted(cell_usage, key=cell_usage.get, reverse=True):
+    usage = cell_usage[cell]
+    print(f"{usage:4d} : {cell}")
+    NUM_CELLS += usage
+print('Total cells: ', NUM_CELLS)
 
 # Write generated PCB to file
 pcb.to_file(pcb_file_path)
