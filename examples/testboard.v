@@ -16,6 +16,10 @@ module testboard (
         .Y ( switch[7:0] )
     );
 
+    VDIV_TRIMMER_POT i_pot (
+        .Y ()
+    );
+
     // Switch Pulldowns
     PULLDOWN_R0603 i_switch_pulldown_0 (
         .Y ( switch[0] )
@@ -178,23 +182,10 @@ module testboard (
         .Y ( result[12] )
     );
 
-    OA21_74LVC1G3208 i_oa21 (
-        .A ( switch[0]  ),
-        .B ( switch[1]  ),
-        .C ( switch[2]  ),
-        .Y ( result[13] )
-    );
-
     XOR2_74LVC1G86 i_xor (
         .A ( switch[0]  ),
         .B ( switch[1]  ),
         .Y ( result[14] )
     );
 
-    XOR3_74LVC1G386 i_xor3 (
-        .A ( switch[0]  ),
-        .B ( switch[1]  ),
-        .C ( switch[2]  ),
-        .Y ( result[15] )
-    );
 endmodule

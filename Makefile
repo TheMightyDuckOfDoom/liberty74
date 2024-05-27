@@ -36,13 +36,14 @@ MARKDOWN_FILE_NAME := $(basename $(MARKDOWN_FILES))
 all: gen-pdk
 
 out/testboard.v: examples/testboard.v
+	mkdir -p out
 	cp $^ $@
 
 testboard: PROJECT := testboard
 testboard: SRC := out/testboard.v
 testboard: PCB_WIDTH := 100
 testboard: PCB_HEIGHT := 100
-testboard: out/testboard.v chip pcb
+testboard: out/testboard.v chip_gui
 
 .setup:
 	pip install -r requirements.txt --break-system-packages

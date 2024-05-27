@@ -112,6 +112,30 @@
             ]
         },
         {
+            "name": "VDIV_TRIMMER_POT",
+            "desc": "Voltage Divider Trimmer Potentiometer",
+            "footprint": "trimmer_3pin_2_54mm",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 1,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 3,
+                    "function": "ground"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 2,
+                    "function": "1"
+                }
+            ]
+        },
+        {
             "name": "Led_Res_0603",
             "desc": "0603 Led with 0603 Resistor",
             "footprint": "LED_RES_0603",
