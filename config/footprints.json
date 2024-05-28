@@ -108,7 +108,7 @@
             "names": ["trimmer_3pin_2_54mm"],
             "single_row": true,
             "through_hole": true,
-            "num_pins": 3,
+            "num_pins": 5,
             "hole_diameter": 1.0,
             "pad_height": 1.7,
             "pad_width": 1.7,

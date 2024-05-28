@@ -97,7 +97,7 @@ report_checks -path_delay max -corner Typical
 
 # Global route
 set_routing_layers -signal Metal1-Metal2 -clock Metal1-Metal2
-global_route -verbose -allow_congestion
+global_route -verbose -allow_congestion -critical_nets_percentage 0
 
 # Detailed route
 detailed_route -output_drc merge_macros_route_drc.rpt

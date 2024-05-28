@@ -32,7 +32,7 @@ if {$routing_channels} {
         }
     } else {
         if {$endcap} {
-            set density 0.55
+            set density 0.57
         } else {
             set density 0.78
         }
@@ -106,7 +106,7 @@ add_global_connection -net GND -inst_pattern .* -pin_pattern NC
 global_connect
 
 set_voltage_domain -name CORE -power VDD -ground GND
-define_pdn_grid -name grid -voltage_domains CORE
+define_pdn_grid -name grid -voltage_domains CORE -obstructions {Metal1 Metal2}
 
 add_pdn_ring -grid {grid} \
     -layer {Metal1 Metal2} \
@@ -131,14 +131,7 @@ add_pdn_connect -layers {Metal1 Metal2} -fixed_vias {Via1_Power} -max_rows 1 \
 pdngen
 
 if {$routing_channels} {
-    set rows [odb::dbBlock_getRows [ord::get_db_block]]
-    set index 0
-    foreach row $rows {
-        if {$index} {
-            odb::dbRow_destroy $row
-        }
-        set index [expr {!$index}]
-    }
+    create_routing_channels
 }
 
 set die_area [ord::get_die_area]
@@ -289,7 +282,7 @@ placeDetail
 check_placement -verbose
 
 set_routing_layers -signal Metal1-Metal2 -clock Metal1-Metal2
-global_route -verbose -allow_congestion
+global_route -verbose -allow_congestion -critical_nets_percentage 0
 
 repair_design
 repair_timing
@@ -297,7 +290,7 @@ repair_timing
 placeDetail
 check_placement -verbose
 
-global_route -verbose -allow_congestion
+global_route -verbose -allow_congestion -critical_nets_percentage 0
 
 set track_reduction 3
 for {set i 0} {$i < $track_reduction} {incr i} {

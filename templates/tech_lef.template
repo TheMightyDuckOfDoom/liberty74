@@ -30,7 +30,10 @@ LAYER Metal${i}
   PITCH ${technology["x_wire_pitch"]} ;
   % endif
   WIDTH ${technology["wire_width"]} ;
+  # MINWIDTH ${technology["wire_width"]} ;
   SPACING ${technology["wire_spacing"]} ;
+  # THICKNESS ${technology["wire_thickness"]} ;
+  # RESISTANCE RPERSQ ${technology["sheet_resistance"]} ;
 end Metal${i}
 
   % if i < technology["metal_layers"]:

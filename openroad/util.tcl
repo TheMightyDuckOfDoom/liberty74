@@ -84,7 +84,8 @@ proc connect_scan_chain {} {
             }
         }
 
-        puts "Closest scan flip-flop $closest_i at ([lindex $x_pos $closest_i] \
+        puts "Closest scan flip-flop $closest_i: [odb::dbInst_getName \
+            [lindex $scan_ffs $closest_i]] at ([lindex $x_pos $closest_i] \
             [lindex $y_pos $closest_i])"
 
         # Add to scan chain
@@ -107,7 +108,7 @@ proc connect_scan_chain {} {
     }
 
     # Connect scan chain input
-    odb::dbITerm_connect [odb::dbInst_findITerm [lindex $scan_chain 0  ] \
+    odb::dbITerm_connect [odb::dbInst_findITerm [lindex $scan_chain 0] \
         "scan_d_i"] $d_i_net
 
     # Connect scan chain output
@@ -116,9 +117,25 @@ proc connect_scan_chain {} {
 
     # Connect scan chain FFs
     for {set i 0} {$i < [llength $scan_chain] - 1} {incr i} {
-        odb::dbITerm_connect [odb::dbInst_findITerm [lindex $scan_chain $i] \
-            "scan_d_i"] [odb::dbITerm_getNet [odb::dbInst_findITerm [lindex \
-            $scan_chain [expr {$i + 1}]] "q_o"]]
+        puts "Connecting [odb::dbInst_getName [lindex $scan_chain $i]] to \
+            [odb::dbInst_getName [lindex $scan_chain [expr {$i + 1}]]]"
+        set dst_iterm [odb::dbInst_findITerm [lindex $scan_chain \
+            [expr {$i + 1}]] "scan_d_i"]
+        set src_iterm [odb::dbInst_findITerm [lindex $scan_chain $i] "q_o"]
+        set src_net [odb::dbITerm_getNet $src_iterm]
+        odb::dbITerm_connect $dst_iterm $src_net
+    }
+}
+
+# Remove every second row to create routing channels
+proc create_routing_channels {} {
+    set rows [odb::dbBlock_getRows [ord::get_db_block]]
+    set index 0
+    foreach row $rows {
+        if {$index} {
+            odb::dbRow_destroy $row
+        }
+        set index [expr {!$index}]
     }
 }
 

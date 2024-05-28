@@ -118,19 +118,19 @@
             "power": [
                 {
                     "name": "VDD",
-                    "pin_number": 1,
+                    "pin_number": 2,
                     "function": "power"
                 },
                 {
                     "name": "GND",
-                    "pin_number": 3,
+                    "pin_number": 4,
                     "function": "ground"
                 }
             ],
             "outputs": [
                 {
                     "name": "Y",
-                    "pin_number": 2,
+                    "pin_number": 3,
                     "function": "1"
                 }
             ]
@@ -215,7 +215,7 @@
                     "bus_name": "Y",
                     "bus_type": "Y_7_0",
                     "bus_pins": [1, 2, 3, 4, 5, 6, 7, 8],
-                    "verilog_function": "8'Z",
+                    "verilog_function": "'Z",
                     "function": ""
                 }
             ]
