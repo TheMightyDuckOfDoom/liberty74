@@ -49,13 +49,22 @@ proc connect_scan_chain {} {
     }
 
     # Get Scan Chain data pins
-    set d_i_bterm [odb::dbBlock_findBTerm [ord::get_db_block] "scan_d_i"]
-    set d_o_bterm [odb::dbBlock_findBTerm [ord::get_db_block] "scan_d_o"]
+    set d_i_net [odb::dbBlock_findNet [ord::get_db_block] \
+        "scan_d_i"]
+    set d_o_net [odb::dbBlock_findNet [ord::get_db_block] \
+        "scan_d_o"]
 
-    set d_i_net [odb::dbBTerm_getNet $d_i_bterm]
+    if {[llength [odb::dbNet_getBTerms $d_i_net]] == 0} {
+        # Scan chain input is only a net
+        set d_i_iterm [odb::dbNet_get1stITerm $d_i_net]
+        set d_i_rect [odb::dbITerm_getBBox $d_i_iterm]
+    } else {
+        # Scan chain input is a pin
+        set d_i_bterm [odb::dbNet_get1stBTerm $d_i_net]
 
-    set d_i_pin [lindex [odb::dbBTerm_getBPins $d_i_bterm] 0]
-    set d_i_rect [odb::dbBPin_getBBox $d_i_pin]
+        set d_i_pin [lindex [odb::dbBTerm_getBPins $d_i_bterm] 0]
+        set d_i_rect [odb::dbBPin_getBBox $d_i_pin]
+    }
 
     set d_i_x_pos [odb::Rect_xCenter $d_i_rect]
     set d_i_y_pos [odb::Rect_yCenter $d_i_rect]
@@ -107,13 +116,19 @@ proc connect_scan_chain {} {
         puts [odb::dbInst_getName $inst]
     }
 
-    # Connect scan chain input
+    # Connect scan chain input to first flip-flop in chain
     odb::dbITerm_connect [odb::dbInst_findITerm [lindex $scan_chain 0] \
         "scan_d_i"] $d_i_net
 
-    # Connect scan chain output
-    odb::dbBTerm_connect $d_o_bterm [odb::dbITerm_getNet \
-        [odb::dbInst_findITerm [lindex $scan_chain end] "q_o"]]
+    # Connect scan chain output of last flip-flop in chain to scan chain output
+    if {[llength [odb::dbNet_getBTerms $d_o_net]] > 0} {
+        set d_o_bterm [odb::dbNet_get1stBTerm $d_o_net]
+        odb::dbBTerm_connect $d_o_bterm [odb::dbITerm_getNet \
+            [odb::dbInst_findITerm [lindex $scan_chain end] "q_o"]]
+    } else {
+        set q_o_iterm [odb::dbInst_findITerm [lindex $scan_chain end] "q_o"]
+        odb::dbITerm_connect $q_o_iterm $d_o_net
+    }
 
     # Connect scan chain FFs
     for {set i 0} {$i < [llength $scan_chain] - 1} {incr i} {

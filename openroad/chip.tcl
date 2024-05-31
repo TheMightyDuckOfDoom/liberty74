@@ -32,7 +32,7 @@ if {$routing_channels} {
         }
     } else {
         if {$endcap} {
-            set density 0.57
+            set density 0.59
         } else {
             set density 0.78
         }
@@ -52,9 +52,9 @@ load_merge_cells
 read_verilog ../out/${design_name}.v
 link_design $design_name
 
-create_clock -name clk -period 10 {clk_i}
-set_input_delay -clock clk 0 [delete_from_list [all_inputs] [get_ports clk_i]]
-set_output_delay -clock clk 0 [all_outputs]
+create_clock -name clk -period 10 {i_clk_mux/Y}
+set_input_delay -clock clk 0 {*/FROM_HEADER}
+set_output_delay -clock clk 0 {*/TO_HEADER}
 
 foreach pin [delete_from_list [get_pins i_servisia_mem__i_sram/*] [get_pins \
     i_servisia_mem__i_sram/CS_N]] {
@@ -67,10 +67,10 @@ foreach pin [delete_from_list [get_pins i_servisia_mem__i_sram/*] [get_pins \
 set_false_path -through [get_pins i_servisia_mem__i_flash/A*] -to [get_pins \
     i_servisia_mem__i_sram/DQ*]
 
+check_setup -verbose
+
 report_checks -path_delay min -corner Fast
 report_checks -path_delay max -corner Typical
-
-check_setup
 
 for {set y 1} {$y < $NUM_Y_PCB_TILES} {incr y} {
     # Create Horizontal Placement Blockages
@@ -93,8 +93,11 @@ initialize_floorplan \
 
 source ../pdk/openroad/make_tracks.tcl
 
-place_pins -hor_layers Metal1 -ver_layers Metal2 -min_distance_in_tracks \
-    -min_distance 8
+# Place Pins
+if {[llength [all_inputs]] > 0 || [llength [all_outputs]] > 0} {
+    place_io_pins -hor_layers Metal1 -ver_layers Metal2 \
+        -min_distance_in_tracks -min_distance 8
+}
 
 add_global_connection -net VDD -inst_pattern .* -pin_pattern VDD -power
 add_global_connection -net GND -inst_pattern .* -pin_pattern GND -ground
@@ -224,7 +227,7 @@ odb::dbInst_destroy $inst
 
 #gui::show
 
-remove_buffers
+#remove_buffers
 
 #buffer_ports
 repair_tie_fanout TIE_HI/Y

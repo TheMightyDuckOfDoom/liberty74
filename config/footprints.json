@@ -114,7 +114,41 @@
             "pad_width": 1.7,
             "x_center_spacing": 2.54,
             "y_center_spacing": 0
-        },{
+        },
+        {
+            "names": ["header_1pin_2_54mm"],
+            "single_row": true,
+            "through_hole": true,
+            "num_pins": 1,
+            "hole_diameter": 1.0,
+            "pad_height": 1.7,
+            "pad_width": 1.7,
+            "x_center_spacing": 2.54,
+            "y_center_spacing": 0
+        },
+        {
+            "names": ["header_5pin_2_54mm"],
+            "single_row": true,
+            "through_hole": true,
+            "num_pins": 5,
+            "hole_diameter": 1.0,
+            "pad_height": 1.7,
+            "pad_width": 1.7,
+            "x_center_spacing": 2.54,
+            "y_center_spacing": 0
+        },
+        {
+            "names": ["header_8pin_2_54mm"],
+            "single_row": true,
+            "through_hole": true,
+            "num_pins": 8,
+            "hole_diameter": 1.0,
+            "pad_height": 1.7,
+            "pad_width": 1.7,
+            "x_center_spacing": 2.54,
+            "y_center_spacing": 0
+        },
+        {
             "names": ["header_16pin_2_54mm"],
             "single_row": true,
             "through_hole": true,

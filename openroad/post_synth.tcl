@@ -68,53 +68,52 @@ if {$SCAN_CHAIN} {
 
     if {$scan_chain_enable_net == "NULL"} {
         puts "No '${scan_enable_name}' found"
-        exit
-    }
+    } else {
+        # Add scan chain to flip flops
+        foreach inst [odb::dbBlock_getInsts $block] {
+            set master [odb::dbInst_getMaster $inst]
+            set master_name [odb::dbMaster_getName $master]
+            if {[string match *dff* $master_name]} {
+                set inst_name [odb::dbInst_getName $inst]
+                #puts "Adding scan chain to $inst_name"
 
-    # Add scan chain to flip flops
-    foreach inst [odb::dbBlock_getInsts $block] {
-        set master [odb::dbInst_getMaster $inst]
-        set master_name [odb::dbMaster_getName $master]
-        if {[string match *dff* $master_name]} {
-            set inst_name [odb::dbInst_getName $inst]
-            #puts "Adding scan chain to $inst_name"
+                # Create scan chain instance
+                set scan_chain_master [odb::dbDatabase_findMaster \
+                    [ord::get_db] "s${master_name}"]
+                set scan_chain_inst_name "scan_chain_${inst_name}"
+                set scan_chain_inst [odb::dbInst_create $block \
+                    $scan_chain_master $scan_chain_inst_name]
 
-            # Create scan chain instance
-            set scan_chain_master [odb::dbDatabase_findMaster [ord::get_db] \
-                "s${master_name}"]
-            set scan_chain_inst_name "scan_chain_${inst_name}"
-            set scan_chain_inst [odb::dbInst_create $block $scan_chain_master \
-                $scan_chain_inst_name]
+                # Connect scan chain instance
+                foreach pin [odb::dbInst_getITerms $inst] {
+                    set iterm_name [odb::dbITerm_getName $pin]
+                    #puts "Connecting $iterm_name"
+                    set net [odb::dbITerm_getNet $pin]
+                    set net_name [odb::dbNet_getName $net]
+                    #puts "Net: $net_name"
 
-            # Connect scan chain instance
-            foreach pin [odb::dbInst_getITerms $inst] {
-                set iterm_name [odb::dbITerm_getName $pin]
-                #puts "Connecting $iterm_name"
-                set net [odb::dbITerm_getNet $pin]
-                set net_name [odb::dbNet_getName $net]
-                #puts "Net: $net_name"
+                    set scan_iterm_name "scan_chain_${iterm_name}"
 
-                set scan_iterm_name "scan_chain_${iterm_name}"
-
-                foreach scan_pin [odb::dbInst_getITerms $scan_chain_inst] {
-                    set scan_pin_name [odb::dbITerm_getName $scan_pin]
-                    if {[string match *$iterm_name* $scan_pin_name]} {
-                        odb::dbITerm_connect $scan_pin $net
-                        break
+                    foreach scan_pin [odb::dbInst_getITerms $scan_chain_inst] {
+                        set scan_pin_name [odb::dbITerm_getName $scan_pin]
+                        if {[string match *$iterm_name* $scan_pin_name]} {
+                            odb::dbITerm_connect $scan_pin $net
+                            break
+                        }
                     }
                 }
-            }
 
-            # Delete original flip flop
-            odb::dbInst_destroy $inst
+                # Delete original flip flop
+                odb::dbInst_destroy $inst
 
-            # Connect scan chain enable
-            foreach pin [odb::dbInst_getITerms $scan_chain_inst] {
-                set iterm_name [odb::dbITerm_getName $pin]
-                if {[string match *scan_en_i $iterm_name]} {
-                    set net [odb::dbITerm_getNet $pin]
-                    odb::dbITerm_connect $pin $scan_chain_enable_net
-                    break
+                # Connect scan chain enable
+                foreach pin [odb::dbInst_getITerms $scan_chain_inst] {
+                    set iterm_name [odb::dbITerm_getName $pin]
+                    if {[string match *scan_en_i $iterm_name]} {
+                        set net [odb::dbITerm_getNet $pin]
+                        odb::dbITerm_connect $pin $scan_chain_enable_net
+                        break
+                    }
                 }
             }
         }

@@ -72,6 +72,16 @@
             "name": "Y_7_0",
             "from": 7,
             "to": 0
+        },
+        {
+            "name": "IO_4_0",
+            "from": 4,
+            "to": 0
+        },
+        {
+            "name": "IO_7_0",
+            "from": 7,
+            "to": 0
         }
     ],
     "cells": [
@@ -108,6 +118,25 @@
                 {
                     "name": "Y",
                     "pin_number": 2
+                }
+            ]
+        },
+        {
+            "name": "PULLDOWN_OUT_R0603",
+            "desc": "Pulldown Resistor 0603",
+            "footprint": "R0603",
+            "power": [
+                {
+                    "name": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "Y",
+                    "pin_number": 2,
+                    "function": "0"
                 }
             ]
         },
@@ -216,6 +245,61 @@
                     "bus_type": "Y_7_0",
                     "bus_pins": [1, 2, 3, 4, 5, 6, 7, 8],
                     "verilog_function": "'Z",
+                    "function": ""
+                }
+            ]
+        },
+        {
+            "name": "PINOUT_1",
+            "desc": "1 pin 2.54mm header",
+            "footprint": "header_1pin_2_54mm",
+            "inline_verilog": "logic header_data;\n    assign header_data = TO_HEADER;",
+            "inputs": [
+                {
+                    "name": "TO_HEADER",
+                    "pin_number": 1
+                }
+            ]
+        },
+        {
+            "name": "PINOUT_8",
+            "desc": "8 pin 2.54mm header",
+            "footprint": "header_8pin_2_54mm",
+            "inline_verilog": "logic [7:0] header_data;\n    assign header_data = TO_HEADER;",
+            "inputs": [
+                {
+                    "bus_name": "TO_HEADER",
+                    "bus_type": "IO_7_0",
+                    "bus_pins": [1, 2, 3, 4, 5, 6, 7, 8]
+                }
+            ]
+        },
+        {
+            "name": "PININ_5",
+            "desc": "5 pin 2.54mm header",
+            "footprint": "header_5pin_2_54mm",
+            "inline_verilog": "logic [4:0] header_data;",
+            "outputs": [
+                {
+                    "bus_name": "FROM_HEADER",
+                    "bus_type": "IO_4_0",
+                    "bus_pins": [1, 2, 3, 4, 5],
+                    "verilog_function": "header_data[4:0]",
+                    "function": ""
+                }
+            ]
+        },
+        {
+            "name": "PININ_8",
+            "desc": "8 pin 2.54mm header",
+            "footprint": "header_8pin_2_54mm",
+            "inline_verilog": "logic [7:0] header_data;",
+            "outputs": [
+                {
+                    "bus_name": "FROM_HEADER",
+                    "bus_type": "IO_7_0",
+                    "bus_pins": [1, 2, 3, 4, 5, 6, 7, 8],
+                    "verilog_function": "header_data[7:0]",
                     "function": ""
                 }
             ]

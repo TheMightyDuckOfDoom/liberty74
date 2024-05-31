@@ -66,6 +66,10 @@ module ${cell['name']} (
     % endfor
   % endif
 );
+% if 'inline_verilog' in cell:
+    ${cell['inline_verilog']}
+
+% endif
 % if 'memory' in cell:
     single_port_async_sram #(
         .ADDR_WIDTH ( ${cell['memory']['address_width']} ),
