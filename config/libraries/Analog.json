@@ -186,6 +186,37 @@
             "outputs": []
         },
         {
+            "name": "SG615P_16MHZ32",
+            "desc": "16.32MHz Crystal Oscillator",
+            "footprint": "SG-615P",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 4,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
+                },
+                {
+                    "name": "TIE_LO",
+                    "connect_to_net": "GND",
+                    "pin_number": 1,
+                    "function": "ground"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "CLKOUT",
+                    "pin_number": 3,
+                    "verilog_function": "1",
+                    "function": ""
+                }
+            ]
+        },
+        {
             "name": "SWPUP_DIP16",
             "desc": "DIP16 Switch Pullup",
             "footprint": "DIP-16",
@@ -246,6 +277,23 @@
                     "bus_pins": [1, 2, 3, 4, 5, 6, 7, 8],
                     "verilog_function": "'Z",
                     "function": ""
+                }
+            ]
+        },
+        {
+            "name": "PWR_HEADER",
+            "desc": "2 pin 2.54mm power header",
+            "footprint": "header_2pin_2_54mm",
+            "power": [
+                {
+                    "name": "VDD",
+                    "pin_number": 1,
+                    "function": "power"
+                },
+                {
+                    "name": "GND",
+                    "pin_number": 2,
+                    "function": "ground"
                 }
             ]
         },

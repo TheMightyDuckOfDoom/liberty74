@@ -126,8 +126,15 @@ proc connect_scan_chain {} {
         odb::dbBTerm_connect $d_o_bterm [odb::dbITerm_getNet \
             [odb::dbInst_findITerm [lindex $scan_chain end] "q_o"]]
     } else {
+        # Replace connections to d_o_net with q_o_net
         set q_o_iterm [odb::dbInst_findITerm [lindex $scan_chain end] "q_o"]
-        odb::dbITerm_connect $q_o_iterm $d_o_net
+        set q_o_net [odb::dbITerm_getNet $q_o_iterm]
+        set d_o_connections [odb::dbNet_getITerms $d_o_net]
+
+        foreach d_o_iterm $d_o_connections {
+            odb::dbITerm_disconnect $d_o_iterm
+            odb::dbITerm_connect $d_o_iterm $q_o_net
+        }
     }
 
     # Connect scan chain FFs
@@ -168,7 +175,7 @@ proc placeDetail {} {
     }
 }
 
-proc place_macro_approx { name x y orient } {
+proc place_macro_approx { name x y } {
     set inst [odb::dbBlock_findInst [ord::get_db_block] $name]
     odb::dbInst_setLocation $inst [expr {int($x * 1000)}] \
         [expr {int($y * 1000)}]

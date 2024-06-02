@@ -95,7 +95,7 @@
                 {
                     "bus_name": "DB",
                     "bus_type": "DB_7_0",
-                    "bus_pins": [14, 13, 12, 11, 10, 9, 8, 7],
+                    "bus_pins": [7, 8, 9, 10, 11, 12, 13, 14],
                     "three_state": "RW"
                 }
             ]

@@ -105,6 +105,14 @@
             "y_center_spacing": 15.367
         },
         {
+            "names": ["SG-615P"],
+            "num_pins": 4,
+            "pad_height": 3,
+            "pad_width": 1.3,
+            "x_center_spacing": 5.08,
+            "y_center_spacing": 8.8
+        },
+        {
             "names": ["trimmer_3pin_2_54mm"],
             "single_row": true,
             "through_hole": true,
@@ -120,6 +128,17 @@
             "single_row": true,
             "through_hole": true,
             "num_pins": 1,
+            "hole_diameter": 1.0,
+            "pad_height": 1.7,
+            "pad_width": 1.7,
+            "x_center_spacing": 2.54,
+            "y_center_spacing": 0
+        },
+        {
+            "names": ["header_2pin_2_54mm"],
+            "single_row": true,
+            "through_hole": true,
+            "num_pins": 2,
             "hole_diameter": 1.0,
             "pad_height": 1.7,
             "pad_width": 1.7,

@@ -10,6 +10,7 @@ package:
 sources:
   # Merge Cells
   - config/merge_cells/a22o.v
+  - config/merge_cells/clkdiv.v
   - config/merge_cells/dff_dis_led.v
   - config/merge_cells/dff_en_led.v
   - config/merge_cells/dff_led.v

@@ -13,6 +13,18 @@ module DS9809PRSS3 #(
 );
 
     initial begin
+        $display("DS9809PRSS3: Initial Power-on reset triggered");
+        RESET_N = 1'b0;
+        /* verilator lint_off WAITCONST */
+        wait(IN);
+        /* verilator lint_on WAITCONST */
+        #DELAY
+        RESET_N = 1'b1;
+    end
+
+    always @(negedge IN) begin
+        $display("DS9809PRSS3: Power-on reset triggered");
+
         RESET_N = 1'b0;
         /* verilator lint_off WAITCONST */
         wait(IN);
