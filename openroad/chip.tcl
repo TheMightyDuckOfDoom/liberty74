@@ -306,7 +306,8 @@ write_def out/$design_name.placed.def
 ################################################################################
 
 if {$SCAN_CHAIN} {
-    set scanchain_default [odb::dbBlock_findInst [ord::get_db_block] "SCANCHAIN_OUT_DEFAULT"]
+    set scanchain_default [odb::dbBlock_findInst [ord::get_db_block] \
+        "SCANCHAIN_OUT_DEFAULT"]
     if {$scanchain_default != "NULL"} {
         odb::dbInst_destroy $scanchain_default
     }
