@@ -126,7 +126,7 @@ source ../pdk/openroad/make_tracks.tcl
 
 # Place Pins
 if {[llength [all_inputs]] > 0 || [llength [all_outputs]] > 0} {
-    place_io_pins -hor_layers Metal1 -ver_layers Metal2 \
+    place_pins -hor_layers Metal1 -ver_layers Metal2 \
         -min_distance_in_tracks -min_distance 8
 }
 
